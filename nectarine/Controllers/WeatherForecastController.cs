@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace nectarine.Controllers
@@ -17,10 +19,17 @@ namespace nectarine.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly DbContext context;
+        private readonly IMapper mapper;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(
+            ILogger<WeatherForecastController> logger,
+            DbContext context,
+            IMapper mapper)
         {
-            _logger = logger;
+            this._logger = logger;
+            this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet]
