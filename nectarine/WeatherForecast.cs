@@ -1,6 +1,6 @@
 using System;
 
-namespace nectarine
+namespace nectarineAPI
 {
     public class WeatherForecast
     {
