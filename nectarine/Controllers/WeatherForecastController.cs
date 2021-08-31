@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using nectarineData.DataAccess;
 
-namespace nectarine.Controllers
+namespace nectarineAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -19,12 +18,12 @@ namespace nectarine.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
-        private readonly DbContext context;
+        private readonly NectarineDbContext context;
         private readonly IMapper mapper;
 
         public WeatherForecastController(
             ILogger<WeatherForecastController> logger,
-            DbContext context,
+            NectarineDbContext context,
             IMapper mapper)
         {
             this._logger = logger;
