@@ -28,9 +28,6 @@
     <ProjectReference Include="..\nectarineData\nectarineData.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
-    <ProjectReference Include="..\nectarineTests\nectarineTests.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DTOs\" />

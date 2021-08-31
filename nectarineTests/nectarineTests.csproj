@@ -17,4 +17,8 @@
       <HintPath>..\..\..\..\..\..\..\..\usr\local\share\dotnet\shared\Microsoft.AspNetCore.App\5.0.5\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\nectarine\nectarineAPI.csproj" />
+  </ItemGroup>
 </Project>

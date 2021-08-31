@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using nectarineAPI.Services;
 using Stripe;
-using Stripe.BillingPortal;
 using Xunit;
 
 namespace nectarineTests.Services
@@ -10,6 +10,7 @@ namespace nectarineTests.Services
     public class StripeServiceTests
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new();
+        private readonly Mock<StripeService> _stripeService = new();
 
         public StripeServiceTests()
         {
@@ -52,6 +53,16 @@ namespace nectarineTests.Services
 
             // Assert
             Assert.NotNull(paymentIntent);
+        }
+
+        [Fact(DisplayName = "TestStripeMethod should return true")]
+        public void Test_TestStripeMethod()
+        {
+            // Act
+            var result = _stripeService.Object.TestStripeMethod();
+            
+            // Assert
+            Assert.True(result);
         }
     }
 }

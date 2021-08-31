@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using nectarineAPI.Services;
 using nectarineData.DataAccess;
 using Stripe;
 
@@ -46,6 +47,8 @@ namespace nectarineAPI
             });
             
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
+            
+            services.AddScoped<IStripeService, StripeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
