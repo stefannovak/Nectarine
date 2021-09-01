@@ -48,7 +48,7 @@ namespace nectarineAPI
             
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
             
-            services.AddScoped<IStripeService, StripeService>();
+            services.AddScoped<IPaymentService, PaymentService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
