@@ -2,7 +2,7 @@ using Stripe;
 
 namespace nectarineAPI.Services
 {
-    public class StripeService : IStripeService
+    public class PaymentService : IPaymentService
     {
         public bool TestStripeMethod()
         {

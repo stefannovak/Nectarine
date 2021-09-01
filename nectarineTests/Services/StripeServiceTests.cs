@@ -10,7 +10,7 @@ namespace nectarineTests.Services
     public class StripeServiceTests
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new();
-        private readonly Mock<StripeService> _stripeService = new();
+        private readonly Mock<PaymentService> _stripeService = new();
 
         public StripeServiceTests()
         {
@@ -63,6 +63,11 @@ namespace nectarineTests.Services
             
             // Assert
             Assert.True(result);
+        }
+
+        [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]
+        public void Test_AddCardToAccount()
+        {
         }
     }
 }

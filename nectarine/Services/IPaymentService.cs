@@ -1,6 +1,6 @@
 namespace nectarineAPI.Services
 {
-    public interface IStripeService
+    public interface IPaymentService
     {
         public bool TestStripeMethod();
     }
