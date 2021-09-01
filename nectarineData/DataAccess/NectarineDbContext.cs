@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using nectarineData.Models;
 
 namespace nectarineData.DataAccess
 {
@@ -8,5 +9,7 @@ namespace nectarineData.DataAccess
         public NectarineDbContext(DbContextOptions<NectarineDbContext> opt) : base(opt)
         {
         }
+        
+        public virtual DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
     }
 }

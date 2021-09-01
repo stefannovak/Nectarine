@@ -1,25 +1,54 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using nectarineData.DataAccess;
+using nectarineData.Models;
 using Stripe;
 
 namespace nectarineAPI.Services
 {
     public class PaymentService : IPaymentService
     {
-        public bool TestStripeMethod()
+        private readonly NectarineDbContext _context;
+
+        public PaymentService(NectarineDbContext context)
         {
-            var options = new PaymentMethodCreateOptions
+            _context = context;
+        }
+        
+        public async Task AddCardToAccountAsync(
+            ApplicationUser user,
+            string cardNumber,
+            int expiryMonth,
+            int expiryYear,
+            string cvc)
+        {
+            var options = new TokenCreateOptions
             {
-                Type = "card",
-                Card = new PaymentMethodCardOptions
+                Card = new TokenCardOptions
                 {
-                    Number = "4242424242424242",
-                    ExpMonth = 8,
-                    ExpYear = 2022,
-                    Cvc = "314",
-                },
+                    Number = cardNumber,
+                    ExpMonth = expiryMonth,
+                    ExpYear = expiryYear,
+                    Cvc = cvc,
+                }
             };
-            var service = new PaymentMethodService();
-            var paymentMethod = service.Create(options);
-            return paymentMethod != null;
+
+            var service = new TokenService();
+            try
+            {
+                var cardToken = service.Create(options);
+                user.PaymentMethodIds.Add(new PaymentMethodId
+                {
+                    TokenId = cardToken.Id
+                });
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

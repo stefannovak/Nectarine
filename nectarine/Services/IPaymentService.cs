@@ -1,7 +1,24 @@
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using nectarineData.Models;
+
 namespace nectarineAPI.Services
 {
     public interface IPaymentService
     {
-        public bool TestStripeMethod();
+        /// <summary>
+        /// Adds a payment card ID to the user's list of [PaymentMethodIds].
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cardNumber">The long card number</param>
+        /// <param name="expiryMonth">The expiry month as an integer</param>
+        /// <param name="expiryYear">The expiry year</param>
+        /// <param name="cvc"></param>
+        public Task AddCardToAccountAsync(
+            ApplicationUser user,
+            string cardNumber,
+            int expiryMonth,
+            int expiryYear,
+            string cvc);
     }
 }
