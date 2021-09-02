@@ -22,7 +22,7 @@ namespace nectarineTests.Services
             // Configuration setup
             _configurationSection.Setup(x => x.Path).Returns("Stripe");
             _configurationSection.Setup(x => x.Key).Returns("Secret");
-            _configurationSection.Setup(x => x.Value).Returns("");
+            _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
             
             // PaymentService setup
