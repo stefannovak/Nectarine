@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
@@ -16,6 +13,8 @@ namespace nectarineAPI.Services
         {
             _context = context;
         }
+
+        private PaymentMethodService PaymentMethodService { get; set; } = new ();
         
         public async Task<bool> AddStripeCustomerIdAsync(ApplicationUser user)
         {
@@ -36,48 +35,55 @@ namespace nectarineAPI.Services
             return true;
         }
         
-        public async Task AddCardToAccountAsync(
+        public bool AddCardPaymentMethod(
             ApplicationUser user,
             string cardNumber,
             int expiryMonth,
             int expiryYear,
             string cvc)
         {
-            var options = new TokenCreateOptions
+            var paymentMethodCreateOptions = new PaymentMethodCreateOptions
             {
-                Card = new TokenCardOptions
+                Type = "card",
+                Card = new PaymentMethodCardOptions
                 {
                     Number = cardNumber,
                     ExpMonth = expiryMonth,
                     ExpYear = expiryYear,
                     Cvc = cvc,
-                }
+                },
             };
-
-            var service = new TokenService();
-            try
+            
+            var paymentMethod = PaymentMethodService.Create(paymentMethodCreateOptions);
+            if (paymentMethod is null)
             {
-                var cardToken = service.Create(options);
-                user.PaymentMethodIds.Add(new PaymentMethodId
-                {
-                    TokenId = cardToken.Id
-                });
-                await _context.SaveChangesAsync();
+                return false;
             }
-            catch (Exception e)
+            
+            var paymentMethodAttachOptions = new PaymentMethodAttachOptions
             {
-                Console.WriteLine(e);
-                throw;
-            }
+                Customer = user.StripeCustomerId,
+            };
+            
+            PaymentMethodService.Attach(
+                paymentMethod.Id,
+                paymentMethodAttachOptions
+            );
+            
+            return true;
         }
 
-        public StripeList<Card> GetCardsForUser(ApplicationUser user)
+        public StripeList<PaymentMethod> GetCardsForUser(ApplicationUser user)
         {
-            var service = new CardService();
-            
-            var cards = service.List(user.StripeCustomerId);
+            var options = new PaymentMethodListOptions
+            {
+                Customer = user.StripeCustomerId,
+                Type = "card",
+            };
 
-            return cards;
+            return PaymentMethodService.List(
+                options
+            );
         }
     }
 }

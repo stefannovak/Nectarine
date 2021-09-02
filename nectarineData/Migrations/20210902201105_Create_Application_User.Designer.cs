@@ -10,8 +10,8 @@ using nectarineData.DataAccess;
 namespace nectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
-    [Migration("20210901205503_Created_Application_User")]
-    partial class Created_Application_User
+    [Migration("20210902201105_Create_Application_User")]
+    partial class Create_Application_User
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,39 +35,6 @@ namespace nectarineData.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ApplicationUsers");
-                });
-
-            modelBuilder.Entity("nectarineData.Models.PaymentMethodId", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TokenId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("PaymentMethodId");
-                });
-
-            modelBuilder.Entity("nectarineData.Models.PaymentMethodId", b =>
-                {
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
-                        .WithMany("PaymentMethodIds")
-                        .HasForeignKey("ApplicationUserId");
-                });
-
-            modelBuilder.Entity("nectarineData.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("PaymentMethodIds");
                 });
 #pragma warning restore 612, 618
         }

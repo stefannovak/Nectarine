@@ -16,7 +16,7 @@ namespace nectarineTests.Services
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new ();
         private readonly PaymentService paymentService;
-        private readonly ApplicationUser user = new ApplicationUser();
+        private readonly ApplicationUser user = new ();
 
         public PaymentServiceTests()
         {
@@ -39,11 +39,8 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "An API key should be correctly set up at 'Stripe:Secret' in IConfiguration")]
         public void Test_Configuration_ReturnsAnApiKey()
         {
-            // Act
-            var apiKey = StripeConfiguration.ApiKey;
-            
             // Assert
-            Assert.NotNull(apiKey);
+            Assert.NotNull(StripeConfiguration.ApiKey);
         }
         
         # region Customers
@@ -65,66 +62,34 @@ namespace nectarineTests.Services
         public async Task Test_AddCardToAccount()
         {
             // Arrange
-            var amountOfPaymentMethods = user.PaymentMethodIds.Count;
+            await paymentService.AddStripeCustomerIdAsync(user);
             
             // Act
-            await paymentService.AddCardToAccountAsync(
+            var result = paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
                 9, 
                 2025,
                 "552");
-            var result = user.PaymentMethodIds.Count;
 
             // Assert
-            Assert.True(result == amountOfPaymentMethods + 1);
-        }
-        
-        [Fact(DisplayName = "AddCardToAccount should fail if incorrect parameters are passed")]
-        public async Task Test_AddCardToAccount_ShouldThrowException()
-        {
-            // Assert
-            await Assert.ThrowsAsync<StripeException>(() => paymentService.AddCardToAccountAsync(
-                user, 
-                "42424242",
-                9, 
-                2025,
-                "552"));
-            
-            await Assert.ThrowsAsync<StripeException>(() => paymentService.AddCardToAccountAsync(
-                user, 
-                "4242424242424242",
-                123, 
-                2025,
-                "552"));
-            
-            await Assert.ThrowsAsync<StripeException>(() => paymentService.AddCardToAccountAsync(
-                user, 
-                "4242424242424242",
-                9, 
-                1,
-                "552"));
-            
-            await Assert.ThrowsAsync<StripeException>(() => paymentService.AddCardToAccountAsync(
-                user, 
-                "4242424242424242",
-                9, 
-                2025,
-                "5521231235"));
+            Assert.True(result);
         }
 
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
         public async Task Test_GetCardsForUser()
         {
             // Arrange
-            await paymentService.AddCardToAccountAsync(
+            await paymentService.AddStripeCustomerIdAsync(user);
+            
+            paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
                 9, 
                 2025,
                 "552");
             
-            await paymentService.AddCardToAccountAsync(
+            paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
                 3, 

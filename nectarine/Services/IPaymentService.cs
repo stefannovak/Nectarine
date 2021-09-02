@@ -18,13 +18,13 @@ namespace nectarineAPI.Services
         /// <param name="expiryMonth">The expiry month as an integer</param>
         /// <param name="expiryYear">The expiry year</param>
         /// <param name="cvc"></param>
-        public Task AddCardToAccountAsync(
+        public bool AddCardPaymentMethod(
             ApplicationUser user,
             string cardNumber,
             int expiryMonth,
             int expiryYear,
             string cvc);
 
-        public StripeList<Card> GetCardsForUser(ApplicationUser user);
+        public StripeList<PaymentMethod> GetCardsForUser(ApplicationUser user);
     }
 }
