@@ -34,39 +34,6 @@ namespace nectarineData.Migrations
 
                     b.ToTable("ApplicationUsers");
                 });
-
-            modelBuilder.Entity("nectarineData.Models.PaymentMethodId", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ApplicationUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TokenId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.ToTable("PaymentMethodId");
-                });
-
-            modelBuilder.Entity("nectarineData.Models.PaymentMethodId", b =>
-                {
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
-                        .WithMany("PaymentMethodIds")
-                        .HasForeignKey("ApplicationUserId");
-                });
-
-            modelBuilder.Entity("nectarineData.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("PaymentMethodIds");
-                });
 #pragma warning restore 612, 618
         }
     }
