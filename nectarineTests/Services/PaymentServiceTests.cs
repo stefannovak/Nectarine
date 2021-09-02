@@ -16,7 +16,7 @@ namespace nectarineTests.Services
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new ();
         private readonly PaymentService paymentService;
-        private readonly ApplicationUser user;
+        private readonly ApplicationUser user = new ApplicationUser();
 
         public PaymentServiceTests()
         {
@@ -33,12 +33,6 @@ namespace nectarineTests.Services
             
             NectarineDbContext mockContext = new (options);
             paymentService = new PaymentService(mockContext);
-            
-            // User setup
-            user = new ApplicationUser
-            {
-                StripeCustomerId = "cus_K9e3DfwxgkSfbu",
-            };
         }
         
         
@@ -53,9 +47,18 @@ namespace nectarineTests.Services
         }
         
         # region Customers
-        
-        
-        
+
+        [Fact(DisplayName = "AddStripeCustomerIdAsync should save a StripeId to the User")]
+        public async Task Test_AddStripeCustomerIdAsync()
+        {
+            // Act
+            var result = await paymentService.AddStripeCustomerIdAsync(user);
+            
+            // Assert
+            Assert.True(result);
+            Assert.NotNull(user.StripeCustomerId);
+        }
+
         # endregion
 
         [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]

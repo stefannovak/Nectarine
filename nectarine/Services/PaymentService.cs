@@ -17,6 +17,25 @@ namespace nectarineAPI.Services
             _context = context;
         }
         
+        public async Task<bool> AddStripeCustomerIdAsync(ApplicationUser user)
+        {
+            var options = new CustomerCreateOptions
+            {
+                Description = "",
+            };
+            var service = new CustomerService();
+            
+            var customer = service.Create(options);
+            if (customer is null)
+            {
+                return false;
+            }
+
+            user.StripeCustomerId = customer.Id;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        
         public async Task AddCardToAccountAsync(
             ApplicationUser user,
             string cardNumber,
