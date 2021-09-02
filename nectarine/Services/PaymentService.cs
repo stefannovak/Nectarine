@@ -14,7 +14,7 @@ namespace nectarineAPI.Services
             _context = context;
         }
 
-        private PaymentMethodService PaymentMethodService { get; set; } = new ();
+        private PaymentMethodService PaymentMethodService { get; } = new ();
         
         public async Task<bool> AddStripeCustomerIdAsync(ApplicationUser user)
         {
@@ -25,10 +25,6 @@ namespace nectarineAPI.Services
             var service = new CustomerService();
             
             var customer = service.Create(options);
-            if (customer is null)
-            {
-                return false;
-            }
 
             user.StripeCustomerId = customer.Id;
             await _context.SaveChangesAsync();
@@ -55,11 +51,6 @@ namespace nectarineAPI.Services
             };
             
             var paymentMethod = PaymentMethodService.Create(paymentMethodCreateOptions);
-            if (paymentMethod is null)
-            {
-                return false;
-            }
-            
             var paymentMethodAttachOptions = new PaymentMethodAttachOptions
             {
                 Customer = user.StripeCustomerId,
