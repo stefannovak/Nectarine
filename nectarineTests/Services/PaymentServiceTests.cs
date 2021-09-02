@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +16,7 @@ namespace nectarineTests.Services
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new ();
         private readonly PaymentService paymentService;
-        private readonly ApplicationUser user = new ();
+        private readonly ApplicationUser user;
 
         public PaymentServiceTests()
         {
@@ -32,6 +33,12 @@ namespace nectarineTests.Services
             
             NectarineDbContext mockContext = new (options);
             paymentService = new PaymentService(mockContext);
+            
+            // User setup
+            user = new ApplicationUser
+            {
+                StripeCustomerId = "cus_K9e3DfwxgkSfbu",
+            };
         }
         
         
@@ -44,6 +51,12 @@ namespace nectarineTests.Services
             // Assert
             Assert.NotNull(apiKey);
         }
+        
+        # region Customers
+        
+        
+        
+        # endregion
 
         [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]
         public async Task Test_AddCardToAccount()
@@ -95,6 +108,31 @@ namespace nectarineTests.Services
                 9, 
                 2025,
                 "5521231235"));
+        }
+
+        [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
+        public async Task Test_GetCardsForUser()
+        {
+            // Arrange
+            await paymentService.AddCardToAccountAsync(
+                user, 
+                "4242424242424242",
+                9, 
+                2025,
+                "552");
+            
+            await paymentService.AddCardToAccountAsync(
+                user, 
+                "4242424242424242",
+                3, 
+                2022,
+                "123");
+            
+            // Act
+            var cards = paymentService.GetCardsForUser(user);
+            
+            // Assert
+            Assert.True(cards.Any());
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using nectarineData.DataAccess;
@@ -49,6 +50,15 @@ namespace nectarineAPI.Services
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        public StripeList<Card> GetCardsForUser(ApplicationUser user)
+        {
+            var service = new CardService();
+            
+            var cards = service.List(user.StripeCustomerId);
+
+            return cards;
         }
     }
 }

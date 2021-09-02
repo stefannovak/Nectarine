@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using nectarineData.Models;
+using Stripe;
 
 namespace nectarineAPI.Services
 {
@@ -20,5 +22,7 @@ namespace nectarineAPI.Services
             int expiryMonth,
             int expiryYear,
             string cvc);
+
+        public StripeList<Card> GetCardsForUser(ApplicationUser user);
     }
 }
