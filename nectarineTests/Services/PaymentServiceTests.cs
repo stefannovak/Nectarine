@@ -68,6 +68,24 @@ namespace nectarineTests.Services
             Assert.NotNull(result);
         }
 
+        [Fact(DisplayName = "UpdateCustomer should update the user's Customer object.")]
+        public async Task Test_UpdateCustomer()
+        {
+            // Arrange
+            await paymentService.AddStripeCustomerIdAsync(user);
+            var customerBeforeUpdate = paymentService.GetCustomer(user);
+            var updateOptions = new CustomerUpdateOptions
+            {
+                Balance = 100
+            };
+            
+            // Act
+            var customerAfterUpdate = paymentService.UpdateCustomer(user, updateOptions);
+            
+            // Assert
+            Assert.True(customerBeforeUpdate.Balance != customerAfterUpdate.Balance);
+        }
+
         # endregion
 
         [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]

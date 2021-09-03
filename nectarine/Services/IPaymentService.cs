@@ -21,8 +21,14 @@ namespace nectarineAPI.Services
         /// <param name="user"></param>
         /// <returns></returns>
         public Customer GetCustomer(ApplicationUser user);
-        
-        
+
+        /// <summary>
+        /// Updates the users [Customer] object.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="updateOptions"></param>
+        /// <returns></returns>
+        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions);
         
         /// <summary>
         /// Adds a card Payment Method to the users Customer object.

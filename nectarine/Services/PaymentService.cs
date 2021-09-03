@@ -30,7 +30,9 @@ namespace nectarineAPI.Services
         }
 
         public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.StripeCustomerId);
-
+        
+        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
+            CustomerService.Update(user.StripeCustomerId, updateOptions);
 
         public bool AddCardPaymentMethod(
             ApplicationUser user,
