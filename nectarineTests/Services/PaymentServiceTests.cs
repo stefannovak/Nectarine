@@ -48,12 +48,48 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "AddStripeCustomerIdAsync should save a StripeId to the User")]
         public async Task Test_AddStripeCustomerIdAsync()
         {
+            // Arrange
+            var customerCreateOptions = new CustomerCreateOptions
+            {
+                Email = "test@test.com"
+            };
+            
             // Act
-            var result = await paymentService.AddStripeCustomerIdAsync(user);
+            await paymentService.AddStripeCustomerIdAsync(user, customerCreateOptions);
             
             // Assert
-            Assert.True(result);
             Assert.NotNull(user.StripeCustomerId);
+        }
+
+        [Fact(DisplayName = "GetCustomer should fetch a customer object, filled with customer information.")]
+        public async Task Test_GetCustomer()
+        {
+            // Arrange
+            await paymentService.AddStripeCustomerIdAsync(user);
+            
+            // Act
+            var result = paymentService.GetCustomer(user);
+            
+            // Arrange
+            Assert.NotNull(result);
+        }
+
+        [Fact(DisplayName = "UpdateCustomer should update the user's Customer object.")]
+        public async Task Test_UpdateCustomer()
+        {
+            // Arrange
+            await paymentService.AddStripeCustomerIdAsync(user);
+            var customerBeforeUpdate = paymentService.GetCustomer(user);
+            var updateOptions = new CustomerUpdateOptions
+            {
+                Balance = 100
+            };
+            
+            // Act
+            var customerAfterUpdate = paymentService.UpdateCustomer(user, updateOptions);
+            
+            // Assert
+            Assert.True(customerBeforeUpdate.Balance != customerAfterUpdate.Balance);
         }
 
         # endregion
