@@ -49,11 +49,23 @@ namespace nectarineTests.Services
         public async Task Test_AddStripeCustomerIdAsync()
         {
             // Act
-            var result = await paymentService.AddStripeCustomerIdAsync(user);
+            await paymentService.AddStripeCustomerIdAsync(user);
             
             // Assert
-            Assert.True(result);
             Assert.NotNull(user.StripeCustomerId);
+        }
+
+        [Fact(DisplayName = "GetCustomer should fetch a customer object, filled with customer information.")]
+        public async Task Test_GetCustomer()
+        {
+            // Arrange
+            await paymentService.AddStripeCustomerIdAsync(user);
+            
+            // Act
+            var result = paymentService.GetCustomer(user);
+            
+            // Arrange
+            Assert.NotNull(result);
         }
 
         # endregion

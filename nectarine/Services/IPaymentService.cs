@@ -8,10 +8,24 @@ namespace nectarineAPI.Services
 {
     public interface IPaymentService
     {
-        public Task<bool> AddStripeCustomerIdAsync(ApplicationUser user);
+        /// <summary>
+        /// Attaches a StripeCustomerId to the user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>Returns </returns>
+        public Task AddStripeCustomerIdAsync(ApplicationUser user);
+
+        /// <summary>
+        /// Gets the customers [Customer] object from their customer ID.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public Customer GetCustomer(ApplicationUser user);
+        
+        
         
         /// <summary>
-        /// Adds a payment card ID to the user's list of [PaymentMethodIds].
+        /// Adds a card Payment Method to the users Customer object.
         /// </summary>
         /// <param name="user"></param>
         /// <param name="cardNumber">The long card number</param>
@@ -25,6 +39,11 @@ namespace nectarineAPI.Services
             int expiryYear,
             string cvc);
 
+        /// <summary>
+        /// Gets the users Payment Methods of type Card
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public StripeList<PaymentMethod> GetCardsForUser(ApplicationUser user);
     }
 }
