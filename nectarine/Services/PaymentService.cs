@@ -6,28 +6,8 @@ using Stripe;
 namespace nectarineAPI.Services
 {
     public class PaymentService : IPaymentService
-    {
-        private readonly NectarineDbContext _context;
-
-        public PaymentService(NectarineDbContext context)
-        {
-            _context = context;
-        }
-
+    { 
         private PaymentMethodService PaymentMethodService { get; } = new ();
-        private CustomerService CustomerService { get; } = new ();
-        
-        public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)
-        {
-            var customer = CustomerService.Create(options ?? new CustomerCreateOptions());
-            user.StripeCustomerId = customer.Id;
-            await _context.SaveChangesAsync();
-        }
-
-        public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.StripeCustomerId);
-        
-        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
-            CustomerService.Update(user.StripeCustomerId, updateOptions);
 
         public bool AddCardPaymentMethod(
             ApplicationUser user,
