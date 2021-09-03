@@ -9,21 +9,23 @@ namespace nectarineAPI.Services
     public interface IPaymentService
     {
         /// <summary>
-        /// Attaches a StripeCustomerId to the user.
+        /// Attaches a StripeCustomerId to the user and creates a <see cref="Customer"/>
+        /// object with <see cref="CustomerCreateOptions"/>.
         /// </summary>
         /// <param name="user"></param>
+        /// <param name="options"></param>
         /// <returns>Returns </returns>
-        public Task AddStripeCustomerIdAsync(ApplicationUser user);
+        public Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null);
 
         /// <summary>
-        /// Gets the customers [Customer] object from their customer ID.
+        /// Gets the users <see cref="Customer"/> object from their Customer ID.
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
         public Customer GetCustomer(ApplicationUser user);
 
         /// <summary>
-        /// Updates the users [Customer] object.
+        /// Updates the users <see cref="Customer"/> object.
         /// </summary>
         /// <param name="user"></param>
         /// <param name="updateOptions"></param>
@@ -31,7 +33,7 @@ namespace nectarineAPI.Services
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions);
         
         /// <summary>
-        /// Adds a card Payment Method to the users Customer object.
+        /// Adds a card <see cref="PaymentMethod"/> to the users <see cref="Customer"/> object.
         /// </summary>
         /// <param name="user"></param>
         /// <param name="cardNumber">The long card number</param>
@@ -46,7 +48,7 @@ namespace nectarineAPI.Services
             string cvc);
 
         /// <summary>
-        /// Gets the users Payment Methods of type Card
+        /// Gets a list of <see cref="PaymentMethod"/>s from the users <see cref="Customer"/> object.
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
