@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace nectarineTests.Services
         }
 
         [Fact(DisplayName = "AddCardPaymentMethod should add a reference for a card to the user.")]
-        public async Task AddCardPaymentMethod()
+        public async Task Test_AddCardPaymentMethod()
         {
             // Assert
             await _userCustomerService.AddStripeCustomerIdAsync(user);
@@ -55,6 +56,27 @@ namespace nectarineTests.Services
 
             // Assert
             Assert.True(cards.Any());
+        }
+
+        [Theory]
+        [InlineData("4242", "9", "2025", "552")] // Invalid card number
+        [InlineData("4242424242424242", "99", "2025", "552")] // Invalid month
+        [InlineData("4242424242424242", "9", "9999", "552")] // Invalid year
+        [InlineData("4242424242424242", "9", "2025", "0")] // Invalid CSV
+        public async Task Test_AddCardPaymentMethod_ShouldFailWithInvalidCardDetails(params object[] cardData)
+        {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
+            // Act
+            var exception = paymentService.AddCardPaymentMethod(
+                user, 
+                cardData[0] as string ?? "",
+                int.Parse(cardData[1] as string ?? ""),
+                int.Parse(cardData[2] as string ?? ""),
+                cardData[3] as string ?? "");
+            
+            Assert.NotNull(exception);
         }
 
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]

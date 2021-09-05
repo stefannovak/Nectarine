@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using nectarineData.DataAccess;
@@ -11,7 +12,7 @@ namespace nectarineAPI.Services
         private PaymentMethodService PaymentMethodService { get; } = new ();
         private PaymentIntentService PaymentIntentService { get; } = new ();
 
-        public void AddCardPaymentMethod(
+        public StripeException? AddCardPaymentMethod(
             ApplicationUser user,
             string cardNumber,
             int expiryMonth,
@@ -29,8 +30,18 @@ namespace nectarineAPI.Services
                     Cvc = cvc,
                 },
             };
+
+            PaymentMethod? paymentMethod;
+            try
+            {
+                paymentMethod = PaymentMethodService.Create(paymentMethodCreateOptions);
+            }
+            catch (StripeException e)
+            {
+                Console.WriteLine(e);
+                return e;
+            }
             
-            var paymentMethod = PaymentMethodService.Create(paymentMethodCreateOptions);
             var paymentMethodAttachOptions = new PaymentMethodAttachOptions
             {
                 Customer = user.StripeCustomerId,
@@ -40,6 +51,8 @@ namespace nectarineAPI.Services
                 paymentMethod.Id,
                 paymentMethodAttachOptions
             );
+
+            return null;
         }
 
         public StripeList<PaymentMethod> GetCardsForUser(ApplicationUser user)
