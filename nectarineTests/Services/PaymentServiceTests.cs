@@ -37,8 +37,8 @@ namespace nectarineTests.Services
             _userCustomerService = new UserCustomerService(mockContext);
         }
 
-        [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]
-        public async Task Test_AddCardToAccount()
+        [Fact(DisplayName = "AddCardPaymentMethod should add a reference for a card to the user.")]
+        public async Task AddCardPaymentMethod()
         {
             // Assert
             await _userCustomerService.AddStripeCustomerIdAsync(user);
