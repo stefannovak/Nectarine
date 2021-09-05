@@ -16,8 +16,8 @@ namespace nectarineAPI.Services
         /// <param name="expiryMonth">The expiry month as an integer</param>
         /// <param name="expiryYear">The expiry year</param>
         /// <param name="cvc"></param>
-        public void AddCardPaymentMethod(
-            ApplicationUser user,
+        public StripeException? AddCardPaymentMethod(
+            ApplicationUser user,   
             string cardNumber,
             int expiryMonth,
             int expiryYear,
