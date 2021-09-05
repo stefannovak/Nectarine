@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -37,15 +38,17 @@ namespace nectarineTests.Services
         public async Task Test_AddCardToAccount()
         {
             // Act
-            var result = paymentService.AddCardPaymentMethod(
+            paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
                 9, 
                 2025,
                 "552");
 
+            var cards = paymentService.GetCardsForUser(user);
+
             // Assert
-            Assert.True(result);
+            Assert.True(cards.Any());
         }
 
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
@@ -70,6 +73,25 @@ namespace nectarineTests.Services
             
             // Assert
             Assert.True(cards.Any());
+        }
+        
+        [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
+        public void Test_CreatePaymentIntent() 
+        {
+            // Arrange
+            paymentService.AddCardPaymentMethod(
+                user, 
+                "4242424242424242",
+                9, 
+                2025,
+                "552");
+            var cards = paymentService.GetCardsForUser(user);
+            
+            // Act
+            var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
+            
+            // Assert
+            Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
         }
     }
 }
