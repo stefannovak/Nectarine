@@ -34,7 +34,7 @@ namespace nectarineAPI.Services
         /// Creates a <see cref="PaymentIntent"/> object which attaches the user to it. It should be used at the start
         /// of the checkout process, and updated throughout.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="user"></param
         /// <param name="amount">The amount to charge in the smallest currency unit. (100 = 100p in GBP)</param>
         /// <param name="paymentMethodId">The selected payment method from the user to charge</param>
         /// <returns><see cref="PaymentIntent"/>. The ClientSecret parameter should be passed back to the client</returns>

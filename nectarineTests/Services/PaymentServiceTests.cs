@@ -17,7 +17,8 @@ namespace nectarineTests.Services
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new ();
         private readonly PaymentService paymentService = new ();
-        private readonly ApplicationUser user;
+        private readonly IUserCustomerService _userCustomerService;
+        private readonly ApplicationUser user = new ();
 
         public PaymentServiceTests()
         {
@@ -27,16 +28,21 @@ namespace nectarineTests.Services
             _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
             
-            // User setup
-            user = new ApplicationUser
-            {
-                StripeCustomerId = "cus_KA40E33elPSaag"
-            };
+            // UserCustomerService setup
+            var options = new DbContextOptionsBuilder<NectarineDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
+
+            NectarineDbContext mockContext = new (options);
+            _userCustomerService = new UserCustomerService(mockContext);
         }
 
         [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]
         public async Task Test_AddCardToAccount()
         {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
             // Act
             paymentService.AddCardPaymentMethod(
                 user, 
@@ -54,6 +60,9 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
         public async Task Test_GetCardsForUser()
         {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
             paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
@@ -76,8 +85,11 @@ namespace nectarineTests.Services
         }
         
         [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
-        public void Test_CreatePaymentIntent() 
+        public async Task Test_CreatePaymentIntent() 
         {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
             // Arrange
             paymentService.AddCardPaymentMethod(
                 user, 
