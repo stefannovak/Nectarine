@@ -105,5 +105,28 @@ namespace nectarineTests.Services
             // Assert
             Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
         }
+
+        [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
+        public async Task Test_ConfirmPaymentIntent()
+        {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
+            paymentService.AddCardPaymentMethod(
+                user,
+                "4242424242424242",
+                9,
+                2025,
+                "552");
+            var cards = paymentService.GetCardsForUser(user);
+            var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
+
+            // Act
+            var newPaymentIntent = paymentService.ConfirmPaymentIntent(paymentIntent.Id);
+            
+            // Assert
+            Assert.True(newPaymentIntent.Status == "succeeded");
+        }
+
     }
 }

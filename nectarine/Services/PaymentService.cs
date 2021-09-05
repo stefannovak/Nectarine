@@ -9,6 +9,7 @@ namespace nectarineAPI.Services
     public class PaymentService : IPaymentService
     { 
         private PaymentMethodService PaymentMethodService { get; } = new ();
+        private PaymentIntentService PaymentIntentService { get; } = new ();
 
         public void AddCardPaymentMethod(
             ApplicationUser user,
@@ -65,8 +66,10 @@ namespace nectarineAPI.Services
                 SetupFutureUsage = "on_session"
             };
             
-            var service = new PaymentIntentService();
-            return service.Create(options);
+            return PaymentIntentService.Create(options);
         }
+
+        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret) => 
+            PaymentIntentService.Confirm(paymentIntentClientSecret);
     }
 }

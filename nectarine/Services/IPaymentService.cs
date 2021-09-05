@@ -39,5 +39,12 @@ namespace nectarineAPI.Services
         /// <param name="paymentMethodId">The selected payment method from the user to charge</param>
         /// <returns><see cref="PaymentIntent"/>. The ClientSecret parameter should be passed back to the client</returns>
         public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId);
+
+        /// <summary>
+        /// Confirms a <see cref="PaymentIntent"/>.
+        /// </summary>
+        /// <param name="paymentIntentClientSecret"></param>
+        /// <returns>Returns an updated <see cref="PaymentIntent"/></returns>
+        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret);
     }
 }
