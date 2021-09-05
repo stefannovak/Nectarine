@@ -56,7 +56,7 @@ namespace nectarineTests.Services
             await _userCustomerService.AddStripeCustomerIdAsync(user, customerCreateOptions);
             
             // Assert
-            Assert.NotNull(user.StripeCustomerId);
+            Assert.False(user.StripeCustomerId.IsNullOrEmpty());
         }
 
         [Fact(DisplayName = "GetCustomer should fetch a customer object, filled with customer information.")]
