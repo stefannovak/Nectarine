@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using nectarineData.DataAccess;
 using nectarineData.Models;
@@ -8,8 +9,9 @@ namespace nectarineAPI.Services
     public class PaymentService : IPaymentService
     { 
         private PaymentMethodService PaymentMethodService { get; } = new ();
+        private PaymentIntentService PaymentIntentService { get; } = new ();
 
-        public bool AddCardPaymentMethod(
+        public void AddCardPaymentMethod(
             ApplicationUser user,
             string cardNumber,
             int expiryMonth,
@@ -38,8 +40,6 @@ namespace nectarineAPI.Services
                 paymentMethod.Id,
                 paymentMethodAttachOptions
             );
-            
-            return true;
         }
 
         public StripeList<PaymentMethod> GetCardsForUser(ApplicationUser user)
@@ -54,5 +54,22 @@ namespace nectarineAPI.Services
                 options
             );
         }
+
+        public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId)
+        {
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = amount,
+                Currency = "gbp",
+                Customer = user.StripeCustomerId,
+                PaymentMethod = paymentMethodId,
+                SetupFutureUsage = "on_session"
+            };
+            
+            return PaymentIntentService.Create(options);
+        }
+
+        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret) => 
+            PaymentIntentService.Confirm(paymentIntentClientSecret);
     }
 }

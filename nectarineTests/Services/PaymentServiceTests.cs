@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -16,7 +17,8 @@ namespace nectarineTests.Services
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new ();
         private readonly PaymentService paymentService = new ();
-        private readonly ApplicationUser user;
+        private readonly IUserCustomerService _userCustomerService;
+        private readonly ApplicationUser user = new ();
 
         public PaymentServiceTests()
         {
@@ -26,31 +28,41 @@ namespace nectarineTests.Services
             _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
             
-            // User setup
-            user = new ApplicationUser
-            {
-                StripeCustomerId = "cus_KA40E33elPSaag"
-            };
+            // UserCustomerService setup
+            var options = new DbContextOptionsBuilder<NectarineDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
+
+            NectarineDbContext mockContext = new (options);
+            _userCustomerService = new UserCustomerService(mockContext);
         }
 
         [Fact(DisplayName = "AddCardToAccount should add a reference for a card to the user.")]
         public async Task Test_AddCardToAccount()
         {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
             // Act
-            var result = paymentService.AddCardPaymentMethod(
+            paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
                 9, 
                 2025,
                 "552");
 
+            var cards = paymentService.GetCardsForUser(user);
+
             // Assert
-            Assert.True(result);
+            Assert.True(cards.Any());
         }
 
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
         public async Task Test_GetCardsForUser()
         {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
             paymentService.AddCardPaymentMethod(
                 user, 
                 "4242424242424242",
@@ -71,5 +83,50 @@ namespace nectarineTests.Services
             // Assert
             Assert.True(cards.Any());
         }
+        
+        [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
+        public async Task Test_CreatePaymentIntent() 
+        {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
+            // Arrange
+            paymentService.AddCardPaymentMethod(
+                user, 
+                "4242424242424242",
+                9, 
+                2025,
+                "552");
+            var cards = paymentService.GetCardsForUser(user);
+            
+            // Act
+            var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
+            
+            // Assert
+            Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
+        }
+
+        [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
+        public async Task Test_ConfirmPaymentIntent()
+        {
+            // Assert
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
+            paymentService.AddCardPaymentMethod(
+                user,
+                "4242424242424242",
+                9,
+                2025,
+                "552");
+            var cards = paymentService.GetCardsForUser(user);
+            var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
+
+            // Act
+            var newPaymentIntent = paymentService.ConfirmPaymentIntent(paymentIntent.Id);
+            
+            // Assert
+            Assert.True(newPaymentIntent.Status == "succeeded");
+        }
+
     }
 }
