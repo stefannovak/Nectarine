@@ -10,6 +10,7 @@ namespace nectarineData.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
+        
         [Required] 
         [MaxLength(100)] 
         public string StripeCustomerId { get; set; } = null!;

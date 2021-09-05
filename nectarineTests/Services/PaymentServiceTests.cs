@@ -57,7 +57,6 @@ namespace nectarineTests.Services
             // Assert
             Assert.True(cards.Any());
         }
-
         [Theory]
         [InlineData("4242", "9", "2025", "552")] // Invalid card number
         [InlineData("4242424242424242", "99", "2025", "552")] // Invalid month

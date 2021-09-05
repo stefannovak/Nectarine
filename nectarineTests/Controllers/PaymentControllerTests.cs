@@ -69,8 +69,8 @@ namespace nectarineTests.Controllers
             Assert.True(cards.Any());
         }
 
-        [Fact(DisplayName = "AddPaymentMethod should add a payment method to the user")]
-        public async Task Test_AddPaymentMethod_FailsWhenInvalidUserId()
+        [Fact(DisplayName = "AddPaymentMethod should return a NotFound when given a userId that is not in the database")]
+        public async Task Test_AddPaymentMethod_ReturnsNotFoundWhenInvalidUserId()
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
@@ -88,6 +88,27 @@ namespace nectarineTests.Controllers
             
             // Assert
             Assert.True(result.GetType() == typeof(NotFoundObjectResult));
+        }
+        
+        [Fact(DisplayName = "AddPaymentMethod should return a BadRequest when passed invalid card details")]
+        public async Task Test_AddPaymentMethod_ReturnsBadRequestWhenInvalidCardDetails()
+        {
+            // Arrange
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            
+            var addPaymentMethodDto = new AddPaymentMethodDto
+            {
+                CardNumber = "4242424242424242",
+                ExpiryMonth = 9, 
+                ExpiryYear = 9999,
+                CVC = "552"
+            };
+            
+            // Act
+            var result = _controller.AddPaymentMethod(user.Id, addPaymentMethodDto);
+            
+            // Assert
+            Assert.True(result.GetType() == typeof(BadRequestObjectResult));
         }
     }
 }
