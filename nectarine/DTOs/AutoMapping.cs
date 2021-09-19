@@ -1,5 +1,7 @@
 ﻿using System;
 using AutoMapper;
+using nectarineAPI.DTOs.Generic;
+using nectarineData.Models;
 
 namespace nectarineAPI.DTOs
 {
@@ -7,6 +9,7 @@ namespace nectarineAPI.DTOs
     {
         public AutoMapping()
         {
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
         }
     }
 }
