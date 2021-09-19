@@ -21,10 +21,7 @@ namespace nectarineTests.Controllers
         private readonly PaymentController _controller;
         private readonly PaymentService _paymentService = new ();
         private readonly UserCustomerService _userCustomerService;
-        private readonly ApplicationUser user = new ()
-        {
-            Id = Guid.NewGuid()
-        };
+        private readonly ApplicationUser user = new();
 
         public PaymentControllerTests()
         {
@@ -41,7 +38,7 @@ namespace nectarineTests.Controllers
 
             NectarineDbContext mockContext = new (options);
             _userCustomerService = new UserCustomerService(mockContext);
-            mockContext.ApplicationUsers.Add(user);
+            mockContext.Users.Add(user);
             
             // PaymentController setup
             _controller = new PaymentController(mockContext, _paymentService, _userCustomerService);
@@ -84,7 +81,7 @@ namespace nectarineTests.Controllers
             };
             
             // Act
-            var result = _controller.AddPaymentMethod(Guid.NewGuid(), addPaymentMethodDto);
+            var result = _controller.AddPaymentMethod("", addPaymentMethodDto);
             
             // Assert
             Assert.True(result.GetType() == typeof(NotFoundObjectResult));
@@ -95,15 +92,15 @@ namespace nectarineTests.Controllers
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             var addPaymentMethodDto = new AddPaymentMethodDto
             {
                 CardNumber = "4242424242424242",
-                ExpiryMonth = 9, 
+                ExpiryMonth = 9,
                 ExpiryYear = 9999,
                 CVC = "552"
             };
-            
+
             // Act
             var result = _controller.AddPaymentMethod(user.Id, addPaymentMethodDto);
             

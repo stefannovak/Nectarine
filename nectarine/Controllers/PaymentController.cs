@@ -35,9 +35,9 @@ namespace nectarineAPI.Controllers
         /// <param name="addPaymentMethodDto">A customers card details.</param>
         /// <returns></returns>
         [HttpPost("AddPaymentMethod")]
-        public ActionResult AddPaymentMethod(Guid userId, AddPaymentMethodDto addPaymentMethodDto)
+        public ActionResult AddPaymentMethod(String userId, AddPaymentMethodDto addPaymentMethodDto)
         {
-            var user = _context.ApplicationUsers.FirstOrDefault(u => u.Id == userId);
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
             if (user is null)
             {
                 return NotFound(new ApiError { Message = "Could not find a user with the given ID." });

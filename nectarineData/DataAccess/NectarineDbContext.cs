@@ -1,15 +1,14 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using nectarineData.Models;
 
 namespace nectarineData.DataAccess
 {
-    public class NectarineDbContext : DbContext
+    public class NectarineDbContext : IdentityDbContext<ApplicationUser>
     {
         public NectarineDbContext(DbContextOptions<NectarineDbContext> opt) : base(opt)
         {
         }
-        
-        public virtual DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>();
     }
 }
