@@ -18,7 +18,7 @@ namespace nectarineAPI.Services
         
         public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)
         {
-            var customer = CustomerService.Create(options ?? new CustomerCreateOptions());
+            var customer = await CustomerService.CreateAsync(options ?? new CustomerCreateOptions());
             user.StripeCustomerId = customer.Id;
             await _context.SaveChangesAsync();
         }

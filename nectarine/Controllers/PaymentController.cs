@@ -16,16 +16,13 @@ namespace nectarineAPI.Controllers
     {
         private readonly NectarineDbContext _context;
         private readonly IPaymentService _paymentService;
-        private readonly IUserCustomerService _userCustomerService;
 
         public PaymentController(
             NectarineDbContext context,
-            IPaymentService paymentService,
-            IUserCustomerService userCustomerService)
+            IPaymentService paymentService)
         {
             _context = context;
             _paymentService = paymentService;
-            _userCustomerService = userCustomerService;
         }
         
         /// <summary>
