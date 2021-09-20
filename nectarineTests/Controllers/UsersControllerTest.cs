@@ -11,7 +11,9 @@ using Moq;
 using nectarineAPI.Controllers;
 using nectarineAPI.DTOs.Generic;
 using nectarineAPI.DTOs.Requests;
+using nectarineAPI.Services;
 using nectarineData.Models;
+using Stripe;
 using Xunit;
 
 namespace nectarineTests.Controllers
@@ -20,46 +22,25 @@ namespace nectarineTests.Controllers
     {
         private readonly UsersController _controller;
         private readonly Mock<IMapper> _mockMapper = new ();
+        private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
 
         public UsersControllerTest()
         {
             // UserManager setup
-            var store = new Mock<IUserPasswordStore<ApplicationUser>>();
-            store.Setup(store =>
-                    store.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(IdentityResult.Success));
-            
-            var options = new Mock<IOptions<IdentityOptions>>();
-            var idOptions = new IdentityOptions();
-            idOptions.User.RequireUniqueEmail = true;
-            options.Setup(options => options.Value).Returns(idOptions);
+            Mock<UserManager<ApplicationUser>> _userManager = MockHelpers.MockUserManager<ApplicationUser>();
 
-            var userValidators = new List<IUserValidator<ApplicationUser>>();
-            UserValidator<ApplicationUser> validator = new UserValidator<ApplicationUser>();
-            userValidators.Add(validator);
-
-            var passValidator = new PasswordValidator<ApplicationUser>();
-            var pwdValidators = new List<IPasswordValidator<ApplicationUser>>();
-            pwdValidators.Add(passValidator);
-            
-            // UserManager setup
-            Mock<UserManager<ApplicationUser>> _userManager = new (
-                store.Object,
-                options.Object,
-                new PasswordHasher<ApplicationUser>(),
-                userValidators,
-                pwdValidators,
-                new UpperInvariantLookupNormalizer(),
-                new IdentityErrorDescriber(), null,
-                new Mock<ILogger<UserManager<ApplicationUser>>>().Object);
-            
             _userManager.Setup(manager => manager
                     .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
                 .ReturnsAsync(new ApplicationUser());
 
-            _userManager.Setup(manager => manager
-                    .CreateAsync(It.IsAny<ApplicationUser>()))
-                .ReturnsAsync(IdentityResult.Success);
+            _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+                .Returns<string>((email) => Task.FromResult(new ApplicationUser {Email = email}));
+
+            // UserCustomerService setup
+            _userCustomerServiceMock = new Mock<IUserCustomerService>();
+            _userCustomerServiceMock
+                .Setup(x => x.AddStripeCustomerIdAsync(It.IsAny<ApplicationUser>(), new CustomerCreateOptions()))
+                .Returns(Task.CompletedTask);
             
             // AutoMapper setup
             _mockMapper.Setup(x => x.Map<UserDTO>(It.IsAny<ApplicationUser>()))
@@ -69,7 +50,7 @@ namespace nectarineTests.Controllers
                     Email = source.Email,
                 });
             
-            _controller = new UsersController(_userManager.Object, _mockMapper.Object);
+            _controller = new UsersController(_userManager.Object, _mockMapper.Object, _userCustomerServiceMock.Object);
         }
         
         [Fact(DisplayName = "GetCurrentAsync should get the current user and return an Ok")]

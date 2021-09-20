@@ -54,8 +54,7 @@ namespace nectarineAPI.Controllers
             await _userCustomerService.AddStripeCustomerIdAsync(identityUser);
 
 
-            var result = 
-                await _userManager.CreateAsync(identityUser, createUserDto.Password);
+            var result = await _userManager.CreateAsync(identityUser, createUserDto.Password);
 
             if (!result.Succeeded)
             {
