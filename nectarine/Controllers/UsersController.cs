@@ -112,6 +112,12 @@ namespace nectarineAPI.Controllers
                 return BadRequest(new ApiError { Message = "Could not get a user from the database" });
             }
 
+            var result = _userCustomerService.DeleteCustomer(applicationUser);
+            if (!result)
+            {
+                return BadRequest(new ApiError { Message = "This user does not have a Customer associate with it." });
+            }
+
             _context.Users.Remove(applicationUser);
             await _context.SaveChangesAsync();
 

@@ -23,6 +23,7 @@ namespace nectarineTests.Controllers
         private readonly Mock<IMapper> _mockMapper = new ();
         private readonly Mock<UserManager<ApplicationUser>> _userManager;
         private readonly NectarineDbContext _mockContext;
+        private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
 
         public UsersControllerTest()
         {
@@ -37,10 +38,15 @@ namespace nectarineTests.Controllers
                 .Returns<string>((email) => Task.FromResult(new ApplicationUser {Email = email}));
 
             // UserCustomerService setup
-            Mock<IUserCustomerService> _userCustomerServiceMock = new ();
+            _userCustomerServiceMock = new Mock<IUserCustomerService>();
+            
             _userCustomerServiceMock
                 .Setup(x => x.AddStripeCustomerIdAsync(It.IsAny<ApplicationUser>(), new CustomerCreateOptions()))
                 .Returns(Task.CompletedTask);
+            
+            _userCustomerServiceMock
+                .Setup(x => x.DeleteCustomer(It.IsAny<ApplicationUser>()))
+                .Returns(true);
             
             // AutoMapper setup
             _mockMapper.Setup(x => x.Map<UserDTO>(It.IsAny<ApplicationUser>()))
@@ -219,6 +225,37 @@ namespace nectarineTests.Controllers
         [Fact(DisplayName = "DeleteAsync should return a Bad Request when UserManager fails to get the user from the database")]
         public async Task Test_DeleteAsync_ReturnsBadRequestWhen_CantFetchAUserFromTheDatabase()
         {
+            // Act
+            var result = await _controller.DeleteAsync();
+            
+            // Arrange
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+        
+        [Fact(DisplayName = "DeleteAsync should return a Bad Request when Stripe is unable to delete a customer")]
+        public async Task Test_DeleteAsync_ReturnsBadRequestWhen_UserHasNoCustomerObject()
+        {
+            // Arrange
+            var appUser = new ApplicationUser
+            {
+                Email = "test@test.com"
+            };
+            
+            await _userManager.Object.CreateAsync(appUser);
+            
+            var user = await _userManager.Object.FindByEmailAsync(appUser.Email);
+
+            _mockContext.Users.Add(user);
+            await _mockContext.SaveChangesAsync();
+            
+            _userManager.Setup(manager => manager
+                    .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(user);
+            
+            _userCustomerServiceMock
+                .Setup(x => x.DeleteCustomer(It.IsAny<ApplicationUser>()))
+                .Returns(false);
+            
             // Act
             var result = await _controller.DeleteAsync();
             

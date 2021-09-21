@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using nectarineAPI.Models.Stripe;
 using nectarineData.Models;
 using Stripe;
 
