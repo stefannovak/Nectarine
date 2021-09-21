@@ -1,4 +1,7 @@
+using System;
+using System.Text.Json;
 using System.Threading.Tasks;
+using nectarineAPI.Models.Stripe;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
@@ -27,5 +30,19 @@ namespace nectarineAPI.Services
         
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
             CustomerService.Update(user.StripeCustomerId, updateOptions);
+
+        public bool DeleteCustomer(ApplicationUser user)
+        {
+            try
+            {
+                var customer = CustomerService.Delete(user.StripeCustomerId);
+                return customer?.Deleted is not null && customer.Deleted != false;
+            }
+            catch (StripeException e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
     }
 }
