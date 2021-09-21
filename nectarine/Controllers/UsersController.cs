@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Castle.Core.Internal;
@@ -9,6 +10,7 @@ using nectarineAPI.DTOs.Generic;
 using nectarineAPI.DTOs.Requests;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineData.DataAccess;
 using nectarineData.Models;
 
 namespace nectarineAPI.Controllers
@@ -20,12 +22,18 @@ namespace nectarineAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IUserCustomerService _userCustomerService;
+        private readonly NectarineDbContext _context;
 
-        public UsersController(UserManager<ApplicationUser> userManager, IMapper mapper, IUserCustomerService userCustomerService)
+        public UsersController(
+            UserManager<ApplicationUser> userManager,
+            IMapper mapper,
+            IUserCustomerService userCustomerService,
+            NectarineDbContext context)
         {
             _userManager = userManager;
             _mapper = mapper;
             _userCustomerService = userCustomerService;
+            _context = context;
         }
         
         /// <summary>
@@ -34,7 +42,16 @@ namespace nectarineAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetCurrent")]
-        public async Task<IActionResult> GetCurrentAsync() => Ok(_mapper.Map<UserDTO>(await _userManager.GetUserAsync(User)));
+        public async Task<IActionResult> GetCurrentAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return BadRequest(new ApiError { Message = "Could not get a user" });
+            }
+
+            return Ok(_mapper.Map<UserDTO>(user));
+        }
 
         [HttpPost]
         [Route("Create")]
@@ -77,6 +94,28 @@ namespace nectarineAPI.Controllers
             }
 
             return Created($"/Users/{user.Id}", _mapper.Map<UserDTO>(user));
+        }
+
+        [HttpDelete]
+        [Route("Delete")]
+        public async Task<IActionResult> DeleteAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return BadRequest(new ApiError { Message = "Could not get a user" });
+            }
+
+            var applicationUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
+            if (applicationUser is null)
+            {
+                return BadRequest(new ApiError { Message = "Could not get a user from the database" });
+            }
+
+            _context.Users.Remove(applicationUser);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
