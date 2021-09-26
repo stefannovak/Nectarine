@@ -49,7 +49,7 @@ namespace nectarineTests.Controllers
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
-            var addPaymentMethodDto = new AddPaymentMethodDto
+            var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
                 ExpiryMonth = 9, 
@@ -71,7 +71,7 @@ namespace nectarineTests.Controllers
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
-            var addPaymentMethodDto = new AddPaymentMethodDto
+            var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
                 ExpiryMonth = 9, 
@@ -92,7 +92,7 @@ namespace nectarineTests.Controllers
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
 
-            var addPaymentMethodDto = new AddPaymentMethodDto
+            var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
                 ExpiryMonth = 9,

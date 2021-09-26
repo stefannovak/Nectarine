@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -12,6 +13,7 @@ using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineData.DataAccess;
 using nectarineData.Models;
+using Stripe;
 
 namespace nectarineAPI.Controllers
 {
@@ -122,6 +124,34 @@ namespace nectarineAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpPut]
+        [Route("Update")]
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")] // They CAN be null.
+        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserDTO updateUserDto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return BadRequest(new ApiError { Message = "Could not get a user" });
+            }
+
+            var customer = _userCustomerService.GetCustomer(user);
+            if (customer is null)
+            {
+                return BadRequest(new ApiError { Message = "Could not get a customer from the user" });
+            }
+
+            _userCustomerService.UpdateCustomer(user, new CustomerUpdateOptions
+            {
+                Email = updateUserDto.Email,
+                Address = updateUserDto.Address,
+            });
+
+            await _context.SaveChangesAsync();
+
+            return Ok(_mapper.Map<UserDTO>(user));
         }
     }
 }
