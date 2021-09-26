@@ -90,6 +90,32 @@ namespace nectarineTests.Services
             // Assert
             Assert.True(customerBeforeUpdate.Balance != customerAfterUpdate.Balance);
         }
+        
+        [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
+        public async Task Test_DeleteCustomer()
+        {
+            // Arrange
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+
+            // Act
+            var result = _userCustomerService.DeleteCustomer(user);
+            
+            // Assert
+            Assert.True(result);
+        }
+        
+        [Fact(DisplayName = "DeleteCustomer should return false when unable to delete a customer.")]
+        public async Task Test_DeleteCustomer_FailsWhen_DeletingAUserWithoutACustomerObject()
+        {
+            // Arrange
+            user.StripeCustomerId = "test";
+            
+            // Act
+            var result = _userCustomerService.DeleteCustomer(user);
+            
+            // Assert
+            Assert.False(result);
+        }
 
         # endregion
     }

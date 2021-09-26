@@ -16,16 +16,13 @@ namespace nectarineAPI.Controllers
     {
         private readonly NectarineDbContext _context;
         private readonly IPaymentService _paymentService;
-        private readonly IUserCustomerService _userCustomerService;
 
         public PaymentController(
             NectarineDbContext context,
-            IPaymentService paymentService,
-            IUserCustomerService userCustomerService)
+            IPaymentService paymentService)
         {
             _context = context;
             _paymentService = paymentService;
-            _userCustomerService = userCustomerService;
         }
         
         /// <summary>
@@ -35,7 +32,7 @@ namespace nectarineAPI.Controllers
         /// <param name="addPaymentMethodDto">A customers card details.</param>
         /// <returns></returns>
         [HttpPost("AddPaymentMethod")]
-        public ActionResult AddPaymentMethod(String userId, AddPaymentMethodDto addPaymentMethodDto)
+        public ActionResult AddPaymentMethod(String userId, AddPaymentMethodDTO addPaymentMethodDto)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == userId);
             if (user is null)

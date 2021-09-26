@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +40,7 @@ namespace nectarineTests.Controllers
             mockContext.Users.Add(user);
             
             // PaymentController setup
-            _controller = new PaymentController(mockContext, _paymentService, _userCustomerService);
+            _controller = new PaymentController(mockContext, _paymentService);
         }
 
         [Fact(DisplayName = "AddPaymentMethod should add a payment method to the user")]
@@ -50,7 +49,7 @@ namespace nectarineTests.Controllers
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
-            var addPaymentMethodDto = new AddPaymentMethodDto
+            var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
                 ExpiryMonth = 9, 
@@ -72,7 +71,7 @@ namespace nectarineTests.Controllers
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
-            var addPaymentMethodDto = new AddPaymentMethodDto
+            var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
                 ExpiryMonth = 9, 
@@ -93,7 +92,7 @@ namespace nectarineTests.Controllers
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
 
-            var addPaymentMethodDto = new AddPaymentMethodDto
+            var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
                 ExpiryMonth = 9,

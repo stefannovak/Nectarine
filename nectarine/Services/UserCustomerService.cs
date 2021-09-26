@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using nectarineData.DataAccess;
 using nectarineData.Models;
@@ -18,7 +19,7 @@ namespace nectarineAPI.Services
         
         public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)
         {
-            var customer = CustomerService.Create(options ?? new CustomerCreateOptions());
+            var customer = await CustomerService.CreateAsync(options ?? new CustomerCreateOptions());
             user.StripeCustomerId = customer.Id;
             await _context.SaveChangesAsync();
         }
@@ -27,5 +28,19 @@ namespace nectarineAPI.Services
         
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
             CustomerService.Update(user.StripeCustomerId, updateOptions);
+
+        public bool DeleteCustomer(ApplicationUser user)
+        {
+            try
+            {
+                var customer = CustomerService.Delete(user.StripeCustomerId);
+                return customer?.Deleted is not null && customer.Deleted != false;
+            }
+            catch (StripeException e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
     }
 }

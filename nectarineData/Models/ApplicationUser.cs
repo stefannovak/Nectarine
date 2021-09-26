@@ -7,6 +7,6 @@ namespace nectarineData.Models
     {
         [Required] 
         [MaxLength(100)] 
-        public string StripeCustomerId { get; set; } = null!;
+        public string StripeCustomerId { get; set; } = string.Empty;
     }
 }

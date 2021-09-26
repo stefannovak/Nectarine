@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using nectarineData.DataAccess;
 
 namespace nectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
-    partial class NectarineDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210919222359_IdentityUsers")]
+    partial class IdentityUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -29,5 +29,12 @@ namespace nectarineAPI.Services
         /// <param name="updateOptions"></param>
         /// <returns></returns>
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions);
+
+        /// <summary>
+        /// Sets the users <see cref="Customer"/> Deleted property to true.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public bool DeleteCustomer(ApplicationUser user);
     }
 }

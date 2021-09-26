@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace nectarineAPI.DTOs.Requests
 {
-    public class AddPaymentMethodDto
+    public class AddPaymentMethodDTO
     {
         [StringLength(16, MinimumLength = 16)]
         public string CardNumber { get; set; } = string.Empty;
