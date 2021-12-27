@@ -11,12 +11,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using nectarineAPI.Services;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
+using TokenService = nectarineAPI.Services.TokenService;
 
 namespace nectarineAPI
 {
@@ -58,6 +58,7 @@ namespace nectarineAPI
             
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IUserCustomerService, UserCustomerService>();
+            services.AddScoped<ITokenService, TokenService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
