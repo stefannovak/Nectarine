@@ -15,7 +15,8 @@ namespace nectarineTests
         public static Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
         {
             var store = new Mock<IUserStore<TUser>>();
-            var mgr = new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
+            var passwordHashser = new Mock<IPasswordHasher<TUser>>();
+            var mgr = new Mock<UserManager<TUser>>(store.Object, null, passwordHashser.Object, null, null, null, null, null, null);
             mgr.Object.UserValidators.Add(new UserValidator<TUser>());
             mgr.Object.PasswordValidators.Add(new PasswordValidator<TUser>());
             
@@ -25,6 +26,11 @@ namespace nectarineTests
                 .ReturnsAsync(IdentityResult.Success);
             mgr.Setup(x => x.UpdateAsync(It.IsAny<TUser>()))
                 .ReturnsAsync(IdentityResult.Success);
+            passwordHashser.Setup(x => x.VerifyHashedPassword(
+                    It.IsAny<TUser>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .Returns(PasswordVerificationResult.Success);
 
             return mgr;
         }
