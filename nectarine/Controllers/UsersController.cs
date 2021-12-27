@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using nectarineAPI.DTOs.Generic;
 using nectarineAPI.DTOs.Requests;
+using nectarineAPI.DTOs.Responses;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineData.DataAccess;
@@ -25,17 +26,20 @@ namespace nectarineAPI.Controllers
         private readonly IMapper _mapper;
         private readonly IUserCustomerService _userCustomerService;
         private readonly NectarineDbContext _context;
+        private readonly ITokenService _tokenService;
 
         public UsersController(
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
             IUserCustomerService userCustomerService,
-            NectarineDbContext context)
+            NectarineDbContext context,
+            ITokenService tokenService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _userCustomerService = userCustomerService;
             _context = context;
+            _tokenService = tokenService;
         }
         
         /// <summary>
@@ -95,7 +99,7 @@ namespace nectarineAPI.Controllers
                     );
             }
 
-            return Created($"/Users/{user.Id}", _mapper.Map<UserDTO>(user));
+            return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
         [HttpDelete]

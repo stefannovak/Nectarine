@@ -24,6 +24,7 @@ namespace nectarineTests.Controllers
         private readonly Mock<UserManager<ApplicationUser>> _userManager;
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
+        private readonly Mock<ITokenService> _tokenService;
 
         public UsersControllerTest()
         {
@@ -60,6 +61,13 @@ namespace nectarineTests.Controllers
                 .Setup(x => x.GetCustomer(It.IsAny<ApplicationUser>()))
                 .Returns(It.IsAny<Customer>());
             
+            // ITokenService setup
+            _tokenService = new Mock<ITokenService>();
+            
+            _tokenService
+                .Setup(x => x.GenerateTokenAsync(It.IsAny<ApplicationUser>()))
+                .Returns("eySampleJWTString");
+            
             // AutoMapper setup
             _mockMapper.Setup(x => x.Map<UserDTO>(It.IsAny<ApplicationUser>()))
                 .Returns((ApplicationUser source) => new UserDTO
@@ -79,7 +87,8 @@ namespace nectarineTests.Controllers
                 _userManager.Object,
                 _mockMapper.Object,
                 _userCustomerServiceMock.Object,
-                _mockContext);
+                _mockContext,
+                _tokenService.Object);
         }
 
         #region GetCurrentAsync
@@ -126,7 +135,7 @@ namespace nectarineTests.Controllers
             var result = await _controller.CreateUserAsync(createUserDto);
             
             // Arrange
-            Assert.IsType<CreatedResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
         
         [Fact(DisplayName = "CreateUserAsync should return a BadRequest when given an empty email")]
