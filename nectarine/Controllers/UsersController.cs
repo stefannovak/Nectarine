@@ -18,7 +18,7 @@ using Stripe;
 
 namespace nectarineAPI.Controllers
 {
-    [Microsoft.AspNetCore.Components.Route("[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
