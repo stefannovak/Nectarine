@@ -3,21 +3,28 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using nectarineAPI.Configurations;
 using nectarineData.Models;
 
 namespace nectarineAPI.Services
 {
     public class TokenService : ITokenService
     {
+        private readonly IOptions<TokenOptions> _tokenOptions;
+
+        public TokenService(IOptions<TokenOptions> tokenOptions)
+        {
+            _tokenOptions = tokenOptions;
+        }
+        
         public string GenerateTokenAsync(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = "asdv234234^&%&^%&^hjsdfb2%%%";
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key));
-            var issuer = "https://nectarine.com";
-            var audience = "https://myaudience.com";
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Value.Secret));
+            var issuer = _tokenOptions.Value.Issuer;
+            var audience = _tokenOptions.Value.Audience;
             
             var claims = new List<Claim>
             {
