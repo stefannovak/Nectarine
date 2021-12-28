@@ -1,14 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +14,7 @@ using nectarineAPI.Services;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
+using TokenOptions = nectarineAPI.Configurations.TokenOptions;
 using TokenService = nectarineAPI.Services.TokenService;
 
 namespace nectarineAPI
@@ -121,6 +117,9 @@ namespace nectarineAPI
         
         private void ConfigureJWTAuthentication(IServiceCollection services)
         {
+            services.Configure<TokenOptions>(Configuration.GetSection("JWT"));
+            var tokenConfig = Configuration.GetSection("JWT").Get<TokenOptions>();
+            
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -133,10 +132,10 @@ namespace nectarineAPI
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = "https://nectarine.com",
+                        ValidIssuer = tokenConfig.Issuer,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("asdv234234^&%&^%&^hjsdfb2%%%")),
-                        ValidAudience = "https://myaudience.com",
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenConfig.Secret)),
+                        ValidAudience = tokenConfig.Audience,
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.FromMinutes(1),
