@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineData.DataAccess;
 using nectarineData.Models;
@@ -87,6 +88,8 @@ namespace nectarineAPI
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IUserCustomerService, UserCustomerService>();
             services.AddScoped<ITokenService, TokenService>();
+
+            services.AddTransient<ISocialService<GoogleUser>, GoogleService<GoogleUser>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
