@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using nectarineData.DataAccess;
 
 namespace nectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
-    partial class NectarineDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211229101050_Add_SocialLink_To_ApplicationUser")]
+    partial class Add_SocialLink_To_ApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
