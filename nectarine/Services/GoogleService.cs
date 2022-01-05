@@ -9,7 +9,7 @@ namespace nectarineAPI.Services
 {
     public class GoogleService<T> : ISocialService<GoogleUser> where T : GoogleUser, new ()
     {
-        public HttpClient Client { get; set; }
+        private HttpClient Client { get; set; }
         
         public GoogleService()
         {

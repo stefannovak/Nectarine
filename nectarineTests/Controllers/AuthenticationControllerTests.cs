@@ -1,10 +1,13 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using nectarineAPI.Controllers;
 using nectarineAPI.DTOs.Requests;
+using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineData.DataAccess;
 using nectarineData.Models;
 using Xunit;
 
@@ -15,6 +18,8 @@ namespace nectarineTests.Controllers
         private AuthenticationController _subject;
         private Mock<UserManager<ApplicationUser>> _userManager;
         private readonly Mock<ITokenService> _tokenService;
+        private readonly NectarineDbContext _mockContext;
+        private readonly Mock<ISocialService<GoogleUser>> _mockGoogleService;
 
         public AuthenticationControllerTests()
         {
@@ -23,19 +28,35 @@ namespace nectarineTests.Controllers
 
             _userManager
                 .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
-                .Returns<string>(email => Task.FromResult(new ApplicationUser {Email = email}));
+                .Returns<string>(email => Task.FromResult(new ApplicationUser { Email = email }));
 
-            
             // ITokenService setup
             _tokenService = new Mock<ITokenService>();
             
             _tokenService
                 .Setup(x => x.GenerateTokenAsync(It.IsAny<ApplicationUser>()))
                 .Returns("eySampleJWTString");
+            
+            // GoogleService setup
+            _mockGoogleService = new Mock<ISocialService<GoogleUser>>();
+            
+            _mockGoogleService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new GoogleUser());
                 
+            // Database setup
+            var options = new DbContextOptionsBuilder<NectarineDbContext>()
+                .UseInMemoryDatabase("TestDb")
+                .Options;
+
+            _mockContext = new NectarineDbContext(options);
             
             // AuthenticationController setup
-            _subject = new AuthenticationController(_userManager.Object, _tokenService.Object);
+            _subject = new AuthenticationController(
+                _userManager.Object,
+                _tokenService.Object,
+                _mockGoogleService.Object,
+                _mockContext);
         }
 
         #region AuthenticateUser
@@ -97,7 +118,11 @@ namespace nectarineTests.Controllers
                 .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                 .Returns<string>(email => Task.FromResult(new ApplicationUser {Email = email}));
             
-            _subject = new AuthenticationController(_userManager.Object, _tokenService.Object);
+            _subject = new AuthenticationController(
+                _userManager.Object,
+                _tokenService.Object,
+                _mockGoogleService.Object,
+                _mockContext);
             
             var createUserDto = new AuthenticateUserDTO
             {
@@ -110,6 +135,26 @@ namespace nectarineTests.Controllers
             
             // Arrange
             Assert.IsType<UnauthorizedObjectResult>(result);
+        }
+
+        #endregion
+
+        #region AuthenticateGoogleUser
+
+        [Fact(DisplayName = "AuthenticateGoogleUser should authenticate a Google user and return Ok")]
+        public async Task Test_AuthenticateGoogleUser_ReturnsOk()
+        {
+            // Assert
+            var authenticateSocialUserDto = new AuthenticateSocialUserDTO
+            {
+                Token = "googleToken",
+            };
+            
+            // Act
+            var result = await _subject.AuthenticateGoogleUser(authenticateSocialUserDto);
+            
+            // Arrange
+            Assert.IsType<OkObjectResult>(result);
         }
 
         #endregion
