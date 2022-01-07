@@ -39,7 +39,7 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "AddCardPaymentMethod should add a reference for a card to the user.")]
         public async Task Test_AddCardPaymentMethod()
         {
-            // Assert
+            // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
             // Act
@@ -55,6 +55,7 @@ namespace nectarineTests.Services
             // Assert
             Assert.True(cards.Any());
         }
+        
         [Theory]
         [InlineData("4242", "9", "2025", "552")] // Invalid card number
         [InlineData("4242424242424242", "99", "2025", "552")] // Invalid month
@@ -62,7 +63,7 @@ namespace nectarineTests.Services
         [InlineData("4242424242424242", "9", "2025", "0")] // Invalid CSV
         public async Task Test_AddCardPaymentMethod_ShouldFailWithInvalidCardDetails(params object[] cardData)
         {
-            // Assert
+            // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
             // Act
@@ -79,7 +80,7 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
         public async Task Test_GetCardsForUser()
         {
-            // Assert
+            // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
             paymentService.AddCardPaymentMethod(
@@ -106,7 +107,7 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
         public async Task Test_CreatePaymentIntent() 
         {
-            // Assert
+            // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
             // Arrange
@@ -128,7 +129,7 @@ namespace nectarineTests.Services
         [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
         public async Task Test_ConfirmPaymentIntent()
         {
-            // Assert
+            // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             
             paymentService.AddCardPaymentMethod(

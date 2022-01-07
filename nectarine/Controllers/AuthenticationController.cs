@@ -13,7 +13,6 @@ using nectarineData.Models.Enums;
 
 namespace nectarineAPI.Controllers
 {
-    // [Route("[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
@@ -109,7 +108,7 @@ namespace nectarineAPI.Controllers
             var result = await _userManager.CreateAsync(user);
             if (!result.Succeeded)
             {
-                return BadRequest(new ApiError { Message = "Google user creation failed" });
+                return Problem("Google user creation failed. Possible user email duplication.");
             }
 
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
