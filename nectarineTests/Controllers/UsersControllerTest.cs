@@ -78,7 +78,7 @@ namespace nectarineTests.Controllers
             
             // Database setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb")
+                .UseInMemoryDatabase("TestDb")
                 .Options;
 
             _mockContext = new NectarineDbContext(options);

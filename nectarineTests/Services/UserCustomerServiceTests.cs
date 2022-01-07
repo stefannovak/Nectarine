@@ -88,7 +88,7 @@ namespace nectarineTests.Services
             var customerAfterUpdate = _userCustomerService.UpdateCustomer(user, updateOptions);
             
             // Assert
-            Assert.True(customerBeforeUpdate.Balance != customerAfterUpdate.Balance);
+            Assert.NotEqual(customerBeforeUpdate.Balance, customerAfterUpdate.Balance);
         }
         
         [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
