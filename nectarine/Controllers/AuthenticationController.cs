@@ -21,17 +21,20 @@ namespace nectarineAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IExternalAuthService<GoogleUser> _googleService;
+        private readonly IExternalAuthService<MicrosoftUser> _microsoftService;
         private readonly NectarineDbContext _context;
 
         public AuthenticationController(
             UserManager<ApplicationUser> userManager,
             ITokenService tokenService,
             IExternalAuthService<GoogleUser> googleService,
+            IExternalAuthService<MicrosoftUser> microsoftService,
             NectarineDbContext context)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _googleService = googleService;
+            _microsoftService = microsoftService;
             _context = context;
         }
         
@@ -59,6 +62,34 @@ namespace nectarineAPI.Controllers
                 Token = _tokenService.GenerateTokenAsync(user),
             });
         }
+        
+        /// <summary>
+        /// Authenticate a user after they have signed in with Microsoft.
+        /// </summary>
+        /// <param name="authenticateSocialUserDto"></param>
+        /// <returns>The user access token.</returns>
+        [HttpPost]
+        [Route("Microsoft")]
+        public async Task<IActionResult> AuthenticateMicrosoftUser([FromBody] AuthenticateSocialUserDTO authenticateSocialUserDto)
+        {
+            var microsoftUser = await _microsoftService.GetUserFromTokenAsync(authenticateSocialUserDto.Token);
+            if (microsoftUser?.Id is null ||
+                microsoftUser.FirstName is null ||
+                microsoftUser.LastName is null)
+            {
+                return NotFound(new ApiError { Message = "Could not find a Microsoft user from the given token." +
+                                                         $" Token: {authenticateSocialUserDto.Token}"});
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == microsoftUser.Email &&
+                                                          u.SocialLinks
+                                                              .Any(x => x.PlatformId == microsoftUser.Id && 
+                                                                        x.Platform == ExternalAuthPlatform.Microsoft));
+
+            return user == null 
+                ? await CreateExternalAuthUser(microsoftUser, ExternalAuthPlatform.Microsoft)
+                : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
+        }
 
         /// <summary>
         /// Authenticate a user after they have signed in with Google.
@@ -82,14 +113,14 @@ namespace nectarineAPI.Controllers
             var user = _context.Users.FirstOrDefault(u => u.Email == googleUser.Email &&
                                                           u.SocialLinks
                                                               .Any(x => x.PlatformId == googleUser.Id && 
-                                                                        x.Platform == SocialPlatform.Google));
+                                                                        x.Platform == ExternalAuthPlatform.Google));
 
             return user == null 
-                ? await CreateGoogleUser(googleUser)
+                ? await CreateExternalAuthUser(googleUser, ExternalAuthPlatform.Google)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
-        private async Task<IActionResult> CreateGoogleUser(GoogleUser googleUser)
+        private async Task<IActionResult> CreateExternalAuthUser(IExternalAuthUser externalUser, ExternalAuthPlatform platform)
         {
             var user = new ApplicationUser
             {
@@ -97,20 +128,20 @@ namespace nectarineAPI.Controllers
                 {
                     new()
                     {
-                        PlatformId = googleUser.Id!,
-                        Platform = SocialPlatform.Google,
+                        PlatformId = externalUser.Id!,
+                        Platform = platform,
                     }
                 },
-                Email = googleUser.Email,
-                UserName = googleUser.Email,
-                FirstName = googleUser.FirstName!,
-                LastName = googleUser.LastName!,
+                Email = externalUser.Email,
+                UserName = externalUser.Email,
+                FirstName = externalUser.FirstName!,
+                LastName = externalUser.LastName!,
             };
 
             var result = await _userManager.CreateAsync(user);
             if (!result.Succeeded)
             {
-                return Problem("Google user creation failed. Possible user email duplication.");
+                return Problem($"{externalUser.Platform} user creation failed. Possible user email duplication.");
             }
 
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));

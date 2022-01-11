@@ -16,6 +16,6 @@ namespace nectarineData.Models
         public string PlatformId { get; set; } = string.Empty;
 
         [Required] 
-        public SocialPlatform Platform { get; set; }
+        public ExternalAuthPlatform Platform { get; set; }
     }
 }
