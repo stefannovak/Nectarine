@@ -7,6 +7,7 @@ using nectarineAPI.DTOs.Requests;
 using nectarineAPI.DTOs.Responses;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineAPI.Services.Auth;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using nectarineData.Models.Enums;
@@ -14,17 +15,18 @@ using nectarineData.Models.Enums;
 namespace nectarineAPI.Controllers
 {
     [ApiController]
+    [Route("[controller]")]
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
-        private readonly ISocialService<GoogleUser> _googleService;
+        private readonly IExternalAuthService<GoogleUser> _googleService;
         private readonly NectarineDbContext _context;
 
         public AuthenticationController(
             UserManager<ApplicationUser> userManager,
             ITokenService tokenService,
-            ISocialService<GoogleUser> googleService,
+            IExternalAuthService<GoogleUser> googleService,
             NectarineDbContext context)
         {
             _userManager = userManager;

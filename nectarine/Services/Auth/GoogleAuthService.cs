@@ -5,13 +5,13 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using nectarineAPI.Models;
 
-namespace nectarineAPI.Services
+namespace nectarineAPI.Services.Auth
 {
-    public class GoogleService<T> : ISocialService<GoogleUser> where T : GoogleUser, new ()
+    public class GoogleAuthService<T> : IExternalAuthService<GoogleUser> where T : GoogleUser, new ()
     {
         private HttpClient Client { get; set; }
         
-        public GoogleService()
+        public GoogleAuthService()
         {
             Client = new HttpClient
             {

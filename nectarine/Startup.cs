@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineAPI.Services.Auth;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
@@ -89,7 +90,8 @@ namespace nectarineAPI
             services.AddScoped<IUserCustomerService, UserCustomerService>();
             services.AddScoped<ITokenService, TokenService>();
 
-            services.AddTransient<ISocialService<GoogleUser>, GoogleService<GoogleUser>>();
+            services.AddTransient<IExternalAuthService<GoogleUser>, GoogleAuthService<GoogleUser>>();
+            services.AddTransient<IExternalAuthService<MicrosoftUser>, MicrosoftAuthService<MicrosoftUser>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
