@@ -22,6 +22,7 @@ namespace nectarineAPI.Controllers
         private readonly ITokenService _tokenService;
         private readonly IExternalAuthService<GoogleUser> _googleService;
         private readonly IExternalAuthService<MicrosoftUser> _microsoftService;
+        private readonly IUserCustomerService _userCustomerService;
         private readonly NectarineDbContext _context;
 
         public AuthenticationController(
@@ -29,12 +30,14 @@ namespace nectarineAPI.Controllers
             ITokenService tokenService,
             IExternalAuthService<GoogleUser> googleService,
             IExternalAuthService<MicrosoftUser> microsoftService,
+            IUserCustomerService userCustomerService,
             NectarineDbContext context)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _googleService = googleService;
             _microsoftService = microsoftService;
+            _userCustomerService = userCustomerService;
             _context = context;
         }
         
@@ -143,6 +146,9 @@ namespace nectarineAPI.Controllers
             {
                 return Problem($"{externalUser.Platform} user creation failed. Possible user email duplication.");
             }
+
+            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            await _context.SaveChangesAsync();
 
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }

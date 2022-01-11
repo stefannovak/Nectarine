@@ -13,6 +13,7 @@ using nectarineAPI.Services.Auth;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using nectarineData.Models.Enums;
+using Stripe;
 using Xunit;
 
 namespace nectarineTests.Controllers
@@ -25,6 +26,8 @@ namespace nectarineTests.Controllers
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IExternalAuthService<GoogleUser>> _mockGoogleService;
         private readonly Mock<IExternalAuthService<MicrosoftUser>> _mockMicrosoftService;
+        private readonly Mock<IUserCustomerService> _userCustomerService;
+        
         private readonly string googleUserId = Guid.NewGuid().ToString();
         private readonly string microsoftUserId = Guid.NewGuid().ToString();
         private readonly ApplicationUser _user;
@@ -49,7 +52,8 @@ namespace nectarineTests.Controllers
                         PlatformId = googleUserId,
                         Platform = ExternalAuthPlatform.Google,
                     },
-                }
+                },
+                StripeCustomerId = "StripeCustomerId",
             };
             
             // UserManager setup
@@ -95,7 +99,16 @@ namespace nectarineTests.Controllers
                     LastName = _user.LastName,
                     Email = _user.Email,
                 });
-
+            
+            // IUserCustomerService setup
+            _userCustomerService = new Mock<IUserCustomerService>();
+ 
+            _userCustomerService
+                .Setup(x => x.AddStripeCustomerIdAsync(
+                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<CustomerCreateOptions?>()))
+                .Returns(Task.CompletedTask);
+            
             // Database setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
                 .UseInMemoryDatabase("TestDb")
@@ -109,6 +122,7 @@ namespace nectarineTests.Controllers
                 _tokenService.Object,
                 _mockGoogleService.Object,
                 _mockMicrosoftService.Object,
+                _userCustomerService.Object,
                 _mockContext);
         }
 
@@ -176,6 +190,7 @@ namespace nectarineTests.Controllers
                 _tokenService.Object,
                 _mockGoogleService.Object,
                 _mockMicrosoftService.Object,
+                _userCustomerService.Object,
                 _mockContext);
             
             var createUserDto = new AuthenticateUserDTO
