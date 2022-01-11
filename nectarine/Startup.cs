@@ -89,7 +89,7 @@ namespace nectarineAPI
             services.AddScoped<IUserCustomerService, UserCustomerService>();
             services.AddScoped<ITokenService, TokenService>();
 
-            services.AddTransient<ISocialService<GoogleUser>, GoogleService<GoogleUser>>();
+            services.AddTransient<IExternalAuthService<GoogleUser>, GoogleService<GoogleUser>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

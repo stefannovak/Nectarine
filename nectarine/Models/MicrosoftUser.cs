@@ -1,20 +1,20 @@
 using System.Text.Json.Serialization;
-using nectarineData.Models.Enums;
 
 namespace nectarineAPI.Models
 {
-    public class GoogleUser : IExternalAuthUser
+    public class MicrosoftUser : IExternalAuthUser
     {
         public string? Id { get; set; }
 
         public string? Platform { get; set; }
 
-        [JsonPropertyName("given_name")]
+        [JsonPropertyName("givenName")]
         public string? FirstName { get; set; }
         
-        [JsonPropertyName("family_name")]
+        [JsonPropertyName("surname")]
         public string? LastName { get; set; }
 
+        [JsonPropertyName("userPrincipalName")]
         public string? Email { get; set; }
-    }
+    }   
 }

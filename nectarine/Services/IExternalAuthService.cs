@@ -3,10 +3,10 @@ using nectarineAPI.Models;
 
 namespace nectarineAPI.Services
 {
-    public interface ISocialService<T> where T : ISocialUser
+    public interface IExternalAuthService<T> where T : IExternalAuthUser
     {
         /// <summary>
-        /// Get a user profile for a social platform through a token.
+        /// Get a user profile for an external auth platform through a token.
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>

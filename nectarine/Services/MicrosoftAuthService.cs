@@ -7,22 +7,19 @@ using nectarineAPI.Models;
 
 namespace nectarineAPI.Services
 {
-    public class GoogleService<T> : IExternalAuthService<GoogleUser> where T : GoogleUser, new ()
+    public class MicrosoftAuthService<T> : IExternalAuthService<MicrosoftUser> where T : MicrosoftUser, new ()
     {
-        private HttpClient Client { get; set; }
-        
-        public GoogleService()
+        public async Task<MicrosoftUser?> GetUserFromTokenAsync(string token)
         {
-            Client = new HttpClient
+            var client = new HttpClient
             {
-                BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/"),
+                DefaultRequestHeaders =
+                {
+                    Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}")
+                }
             };
-            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        }
-        
-        public async Task<GoogleUser?> GetUserFromTokenAsync(string token)
-        {
-            var response = await Client.GetAsync(Uri.EscapeUriString($"userinfo?access_token={token}"));
+
+           var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -36,5 +33,5 @@ namespace nectarineAPI.Services
             });
             return user;
         }
-    }
+    }   
 }

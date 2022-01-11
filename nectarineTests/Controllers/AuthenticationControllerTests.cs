@@ -22,7 +22,7 @@ namespace nectarineTests.Controllers
         private Mock<UserManager<ApplicationUser>> _userManager;
         private readonly Mock<ITokenService> _tokenService;
         private readonly NectarineDbContext _mockContext;
-        private readonly Mock<ISocialService<GoogleUser>> _mockGoogleService;
+        private readonly Mock<IExternalAuthService<GoogleUser>> _mockGoogleService;
         private readonly string googleUserId = Guid.NewGuid().ToString();
         private readonly ApplicationUser _user;
         private readonly AuthenticateSocialUserDTO _authenticateSocialUserDto = new ()
@@ -68,7 +68,7 @@ namespace nectarineTests.Controllers
                 .Returns("eySampleJWTString");
             
             // GoogleService setup
-            _mockGoogleService = new Mock<ISocialService<GoogleUser>>();
+            _mockGoogleService = new Mock<IExternalAuthService<GoogleUser>>();
             
             _mockGoogleService
                 .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
