@@ -1,11 +1,10 @@
-using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
 using nectarineAPI.Models;
 
-namespace nectarineAPI.Services
+namespace nectarineAPI.Services.Auth
 {
     public class MicrosoftAuthService<T> : IExternalAuthService<MicrosoftUser> where T : MicrosoftUser, new ()
     {

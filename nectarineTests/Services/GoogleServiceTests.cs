@@ -2,13 +2,14 @@ using System.Threading.Tasks;
 using Moq;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineAPI.Services.Auth;
 using Xunit;
 
 namespace nectarineTests.Services
 {
     public class GoogleServiceTests
     {
-        private readonly GoogleService<GoogleUser> _subject = new();
+        private readonly GoogleAuthService<GoogleUser> _subject = new();
         private readonly Mock<IExternalAuthService<GoogleUser>> _mockSubject = new();
 
         // TODO: - Figure out this test

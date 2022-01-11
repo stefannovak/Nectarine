@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using nectarineAPI.Models;
 
-namespace nectarineAPI.Services
+namespace nectarineAPI.Services.Auth
 {
     public interface IExternalAuthService<T> where T : IExternalAuthUser
     {

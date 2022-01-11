@@ -7,6 +7,7 @@ using nectarineAPI.DTOs.Requests;
 using nectarineAPI.DTOs.Responses;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineAPI.Services.Auth;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using nectarineData.Models.Enums;
