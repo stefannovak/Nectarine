@@ -19,6 +19,6 @@ namespace nectarineData.Models
         public string LastName { get; set; } = string.Empty;
 
         [Required] 
-        public virtual IList<SocialLink> SocialLinks { get; set; } = new List<SocialLink>();
+        public virtual IList<ExternalAuthLink> SocialLinks { get; set; } = new List<ExternalAuthLink>();
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace nectarineData.Migrations
 {
-    public partial class Add_SocialLink_To_ApplicationUser : Migration
+    public partial class ExternalAuthLink_To_User : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -24,7 +24,7 @@ namespace nectarineData.Migrations
                 defaultValue: "");
 
             migrationBuilder.CreateTable(
-                name: "SocialLink",
+                name: "ExternalAuthLink",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -34,9 +34,9 @@ namespace nectarineData.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SocialLink", x => x.Id);
+                    table.PrimaryKey("PK_ExternalAuthLink", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SocialLink_AspNetUsers_ApplicationUserId",
+                        name: "FK_ExternalAuthLink_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -44,15 +44,15 @@ namespace nectarineData.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_SocialLink_ApplicationUserId",
-                table: "SocialLink",
+                name: "IX_ExternalAuthLink_ApplicationUserId",
+                table: "ExternalAuthLink",
                 column: "ApplicationUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "SocialLink");
+                name: "ExternalAuthLink");
 
             migrationBuilder.DropColumn(
                 name: "FirstName",

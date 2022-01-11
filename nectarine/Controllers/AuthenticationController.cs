@@ -127,7 +127,7 @@ namespace nectarineAPI.Controllers
         {
             var user = new ApplicationUser
             {
-                SocialLinks = new List<SocialLink>
+                SocialLinks = new List<ExternalAuthLink>
                 {
                     new()
                     {

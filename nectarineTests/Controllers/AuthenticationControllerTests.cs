@@ -45,7 +45,7 @@ namespace nectarineTests.Controllers
                 FirstName = "Nectarine",
                 LastName = "User",
                 Email = "googleUser@gmail.com",
-                SocialLinks = new Collection<SocialLink>
+                SocialLinks = new Collection<ExternalAuthLink>
                 {
                     new ()
                     {
