@@ -5,7 +5,7 @@ using nectarineData.Models.Enums;
 
 namespace nectarineData.Models
 {
-    public class SocialLink
+    public class ExternalAuthLink
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -16,6 +16,6 @@ namespace nectarineData.Models
         public string PlatformId { get; set; } = string.Empty;
 
         [Required] 
-        public SocialPlatform Platform { get; set; }
+        public ExternalAuthPlatform Platform { get; set; }
     }
 }

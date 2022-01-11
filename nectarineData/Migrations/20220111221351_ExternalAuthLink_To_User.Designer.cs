@@ -10,8 +10,8 @@ using nectarineData.DataAccess;
 namespace nectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
-    [Migration("20211229101050_Add_SocialLink_To_ApplicationUser")]
-    partial class Add_SocialLink_To_ApplicationUser
+    [Migration("20220111221351_ExternalAuthLink_To_User")]
+    partial class ExternalAuthLink_To_User
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -232,7 +232,7 @@ namespace nectarineData.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("nectarineData.Models.SocialLink", b =>
+            modelBuilder.Entity("nectarineData.Models.ExternalAuthLink", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -253,7 +253,7 @@ namespace nectarineData.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("SocialLink");
+                    b.ToTable("ExternalAuthLink");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -307,7 +307,7 @@ namespace nectarineData.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("nectarineData.Models.SocialLink", b =>
+            modelBuilder.Entity("nectarineData.Models.ExternalAuthLink", b =>
                 {
                     b.HasOne("nectarineData.Models.ApplicationUser", null)
                         .WithMany("SocialLinks")

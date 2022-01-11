@@ -1,9 +1,10 @@
 namespace nectarineData.Models.Enums
 {
-    public enum SocialPlatform
+    public enum ExternalAuthPlatform
     {
         Facebook,
         Google,
-        Apple
+        Apple,
+        Microsoft
     }
 }

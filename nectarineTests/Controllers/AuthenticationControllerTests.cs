@@ -13,6 +13,7 @@ using nectarineAPI.Services.Auth;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using nectarineData.Models.Enums;
+using Stripe;
 using Xunit;
 
 namespace nectarineTests.Controllers
@@ -24,7 +25,11 @@ namespace nectarineTests.Controllers
         private readonly Mock<ITokenService> _tokenService;
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IExternalAuthService<GoogleUser>> _mockGoogleService;
+        private readonly Mock<IExternalAuthService<MicrosoftUser>> _mockMicrosoftService;
+        private readonly Mock<IUserCustomerService> _userCustomerService;
+        
         private readonly string googleUserId = Guid.NewGuid().ToString();
+        private readonly string microsoftUserId = Guid.NewGuid().ToString();
         private readonly ApplicationUser _user;
         private readonly AuthenticateSocialUserDTO _authenticateSocialUserDto = new ()
         {
@@ -40,14 +45,15 @@ namespace nectarineTests.Controllers
                 FirstName = "Nectarine",
                 LastName = "User",
                 Email = "googleUser@gmail.com",
-                SocialLinks = new Collection<SocialLink>
+                SocialLinks = new Collection<ExternalAuthLink>
                 {
                     new ()
                     {
                         PlatformId = googleUserId,
-                        Platform = SocialPlatform.Google,
+                        Platform = ExternalAuthPlatform.Google,
                     },
-                }
+                },
+                StripeCustomerId = "StripeCustomerId",
             };
             
             // UserManager setup
@@ -80,7 +86,29 @@ namespace nectarineTests.Controllers
                     LastName = _user.LastName,
                     Email = _user.Email,
                 });
+            
+            // MicrosoftService setup
+            _mockMicrosoftService = new Mock<IExternalAuthService<MicrosoftUser>>();
 
+            _mockMicrosoftService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new MicrosoftUser
+                {
+                    Id = microsoftUserId,
+                    FirstName = _user.FirstName,
+                    LastName = _user.LastName,
+                    Email = _user.Email,
+                });
+            
+            // IUserCustomerService setup
+            _userCustomerService = new Mock<IUserCustomerService>();
+ 
+            _userCustomerService
+                .Setup(x => x.AddStripeCustomerIdAsync(
+                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<CustomerCreateOptions?>()))
+                .Returns(Task.CompletedTask);
+            
             // Database setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
                 .UseInMemoryDatabase("TestDb")
@@ -93,6 +121,8 @@ namespace nectarineTests.Controllers
                 _userManager.Object,
                 _tokenService.Object,
                 _mockGoogleService.Object,
+                _mockMicrosoftService.Object,
+                _userCustomerService.Object,
                 _mockContext);
         }
 
@@ -159,6 +189,8 @@ namespace nectarineTests.Controllers
                 _userManager.Object,
                 _tokenService.Object,
                 _mockGoogleService.Object,
+                _mockMicrosoftService.Object,
+                _userCustomerService.Object,
                 _mockContext);
             
             var createUserDto = new AuthenticateUserDTO
@@ -174,6 +206,48 @@ namespace nectarineTests.Controllers
             Assert.IsType<UnauthorizedObjectResult>(result);
         }
 
+        #endregion
+        
+        #region AuthenticateMicrosoftUser
+        
+        [Fact(DisplayName = "AuthenticateMicrosoftUser should authenticate an existing Microsoft user and return Ok")]
+        public async Task Test_AuthenticateMicrosoftUser_ReturnsOk()
+        {
+            // Assert
+            await _mockContext.Users.AddAsync(_user);
+            await _mockContext.SaveChangesAsync();
+            
+            _mockMicrosoftService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new MicrosoftUser
+                {
+                    Id = googleUserId,
+                    FirstName = _user.FirstName,
+                    LastName = _user.LastName,
+                    Email = _user.Email,
+                });
+            
+            // Act
+            var result = await _subject.AuthenticateMicrosoftUser(_authenticateSocialUserDto);
+            
+            // Arrange
+            Assert.IsType<OkObjectResult>(result);
+        }
+        
+        [Fact(DisplayName = "AuthenticateMicrosoftUser should authenticate a NotFound when a MicrosoftUser can't be found")]
+        public async Task Test_AuthenticateMicrosoftUser_FailsWhen_AGoogleUserDoesNotExist()
+        {
+            // Assert
+            _mockMicrosoftService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()));
+            
+            // Act
+            var result = await _subject.AuthenticateMicrosoftUser(_authenticateSocialUserDto);
+            
+            // Arrange
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+        
         #endregion
 
         #region AuthenticateGoogleUser
@@ -215,7 +289,11 @@ namespace nectarineTests.Controllers
             // Arrange
             Assert.IsType<NotFoundObjectResult>(result);
         }
-        
+
+        #endregion
+
+        #region CreateExternalAuthUser
+
         [Fact(DisplayName = "AuthenticateGoogleUser should authenticate and create a Google user and return Ok")]
         public async Task Test_AuthenticateGoogleUser_CreatesGoogleUserAnd_ReturnsOk()
         {
