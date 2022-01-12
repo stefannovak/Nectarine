@@ -22,6 +22,7 @@ namespace nectarineAPI.Controllers
         private readonly ITokenService _tokenService;
         private readonly IExternalAuthService<GoogleUser> _googleService;
         private readonly IExternalAuthService<MicrosoftUser> _microsoftService;
+        private readonly IExternalAuthService<FacebookUser> _facebookService;
         private readonly IUserCustomerService _userCustomerService;
         private readonly NectarineDbContext _context;
 
@@ -30,6 +31,7 @@ namespace nectarineAPI.Controllers
             ITokenService tokenService,
             IExternalAuthService<GoogleUser> googleService,
             IExternalAuthService<MicrosoftUser> microsoftService,
+            IExternalAuthService<FacebookUser> facebookService,
             IUserCustomerService userCustomerService,
             NectarineDbContext context)
         {
@@ -37,6 +39,7 @@ namespace nectarineAPI.Controllers
             _tokenService = tokenService;
             _googleService = googleService;
             _microsoftService = microsoftService;
+            _facebookService = facebookService;
             _userCustomerService = userCustomerService;
             _context = context;
         }
@@ -91,6 +94,35 @@ namespace nectarineAPI.Controllers
 
             return user == null 
                 ? await CreateExternalAuthUser(microsoftUser, ExternalAuthPlatform.Microsoft)
+                : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
+        }
+        
+        /// <summary>
+        /// Authenticate a user after they have signed in with Facebook.
+        /// Playground at https://developers.facebook.com/tools/explorer/.
+        /// </summary>
+        /// <param name="authenticateSocialUserDto"></param>
+        /// <returns>The user access token.</returns>
+        [HttpPost]
+        [Route("Facebook")]
+        public async Task<IActionResult> AuthenticateFacebookUser([FromBody] AuthenticateSocialUserDTO authenticateSocialUserDto)
+        {
+            var facebookUser = await _facebookService.GetUserFromTokenAsync(authenticateSocialUserDto.Token);
+            if (facebookUser?.Id is null ||
+                facebookUser.FirstName is null ||
+                facebookUser.LastName is null)
+            {
+                return NotFound(new ApiError { Message = "Could not find a Facebook user from the given token." +
+                                                         $" Token: {authenticateSocialUserDto.Token}"});
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == facebookUser.Email &&
+                                                          u.SocialLinks
+                                                              .Any(x => x.PlatformId == facebookUser.Id && 
+                                                                        x.Platform == ExternalAuthPlatform.Facebook));
+
+            return user == null 
+                ? await CreateExternalAuthUser(facebookUser, ExternalAuthPlatform.Facebook)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
