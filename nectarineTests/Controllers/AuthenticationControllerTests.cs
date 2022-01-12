@@ -26,10 +26,12 @@ namespace nectarineTests.Controllers
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IExternalAuthService<GoogleUser>> _mockGoogleService;
         private readonly Mock<IExternalAuthService<MicrosoftUser>> _mockMicrosoftService;
+        private readonly Mock<IExternalAuthService<FacebookUser>> _mockFacebookService;
         private readonly Mock<IUserCustomerService> _userCustomerService;
         
         private readonly string googleUserId = Guid.NewGuid().ToString();
         private readonly string microsoftUserId = Guid.NewGuid().ToString();
+        private readonly string facebookUserId = Guid.NewGuid().ToString();
         private readonly ApplicationUser _user;
         private readonly AuthenticateSocialUserDTO _authenticateSocialUserDto = new ()
         {
@@ -87,7 +89,7 @@ namespace nectarineTests.Controllers
                     Email = _user.Email,
                 });
             
-            // MicrosoftService setup
+            // MicrosoftAuthService setup
             _mockMicrosoftService = new Mock<IExternalAuthService<MicrosoftUser>>();
 
             _mockMicrosoftService
@@ -95,6 +97,19 @@ namespace nectarineTests.Controllers
                 .ReturnsAsync(new MicrosoftUser
                 {
                     Id = microsoftUserId,
+                    FirstName = _user.FirstName,
+                    LastName = _user.LastName,
+                    Email = _user.Email,
+                });
+            
+            // FacebookAuthService setup
+            _mockFacebookService = new Mock<IExternalAuthService<FacebookUser>>();
+
+            _mockFacebookService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new FacebookUser
+                {
+                    Id = facebookUserId,
                     FirstName = _user.FirstName,
                     LastName = _user.LastName,
                     Email = _user.Email,
@@ -122,6 +137,7 @@ namespace nectarineTests.Controllers
                 _tokenService.Object,
                 _mockGoogleService.Object,
                 _mockMicrosoftService.Object,
+                _mockFacebookService.Object,
                 _userCustomerService.Object,
                 _mockContext);
         }
@@ -190,6 +206,7 @@ namespace nectarineTests.Controllers
                 _tokenService.Object,
                 _mockGoogleService.Object,
                 _mockMicrosoftService.Object,
+                _mockFacebookService.Object,
                 _userCustomerService.Object,
                 _mockContext);
             
@@ -243,6 +260,48 @@ namespace nectarineTests.Controllers
             
             // Act
             var result = await _subject.AuthenticateMicrosoftUser(_authenticateSocialUserDto);
+            
+            // Arrange
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+        
+        #endregion
+        
+        #region AuthenticateFacebookUser
+        
+        [Fact(DisplayName = "AuthenticateFacebookUser should authenticate an existing Facebook user and return Ok")]
+        public async Task Test_AuthenticateFacebookUser_ReturnsOk()
+        {
+            // Assert
+            await _mockContext.Users.AddAsync(_user);
+            await _mockContext.SaveChangesAsync();
+            
+            _mockFacebookService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
+                .ReturnsAsync(new FacebookUser
+                {
+                    Id = facebookUserId,
+                    FirstName = _user.FirstName,
+                    LastName = _user.LastName,
+                    Email = _user.Email,
+                });
+            
+            // Act
+            var result = await _subject.AuthenticateFacebookUser(_authenticateSocialUserDto);
+            
+            // Arrange
+            Assert.IsType<OkObjectResult>(result);
+        }
+        
+        [Fact(DisplayName = "AuthenticateFacebookUser should authenticate a NotFound when a FacebookUser can't be found")]
+        public async Task Test_AuthenticateFacebookUser_FailsWhen_AFacebookUserDoesNotExist()
+        {
+            // Assert
+            _mockFacebookService
+                .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()));
+            
+            // Act
+            var result = await _subject.AuthenticateFacebookUser(_authenticateSocialUserDto);
             
             // Arrange
             Assert.IsType<NotFoundObjectResult>(result);
