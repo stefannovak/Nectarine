@@ -10,9 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using nectarineAPI.Configurations;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineAPI.Services.Auth;
+using nectarineAPI.Services.Messaging;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
@@ -79,6 +81,7 @@ namespace nectarineAPI
             });
             
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
+            services.Configure<TwilioOptions>(Configuration.GetSection("Twilio"));
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -86,9 +89,10 @@ namespace nectarineAPI
             })
             .AddEntityFrameworkStores<NectarineDbContext>();
             
-            services.AddScoped<IPaymentService, PaymentService>();
-            services.AddScoped<IUserCustomerService, UserCustomerService>();
-            services.AddScoped<ITokenService, TokenService>();
+            services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IUserCustomerService, UserCustomerService>();
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IPhoneService, TwilioService>();
 
             services.AddTransient<IExternalAuthService<GoogleUser>, GoogleAuthService<GoogleUser>>();
             services.AddTransient<IExternalAuthService<MicrosoftUser>, MicrosoftAuthService<MicrosoftUser>>();

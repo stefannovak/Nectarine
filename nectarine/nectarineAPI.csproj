@@ -27,6 +27,7 @@
     <PackageReference Include="Stripe.net" Version="39.64.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="Twilio" Version="5.70.0" />
   </ItemGroup>
 
   <ItemGroup>
