@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
 using nectarineAPI.Models;
-using nectarineAPI.Services;
 using nectarineAPI.Services.Auth;
 using Xunit;
 
-namespace nectarineTests.Services;
+namespace nectarineTests.Services.Auth;
 
 public class MicrosoftAuthServiceTests
 {

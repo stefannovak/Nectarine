@@ -9,7 +9,7 @@ namespace nectarineAPI.Services.Auth
 {
     public class GoogleAuthService<T> : IExternalAuthService<GoogleUser> where T : GoogleUser, new ()
     {
-        private HttpClient Client { get; set; }
+        private HttpClient Client { get; }
         
         public GoogleAuthService()
         {
