@@ -24,20 +24,25 @@ namespace nectarineTests.Controllers
         private readonly Mock<UserManager<ApplicationUser>> _userManager;
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
-        private readonly Mock<ITokenService> _tokenService;
 
         public UsersControllerTest()
         {
             // UserManager setup
             _userManager = MockHelpers.MockUserManager<ApplicationUser>();
 
-            _userManager.Setup(manager => manager
+            _userManager
+                .Setup(manager => manager
                     .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
                 .ReturnsAsync(new ApplicationUser());
 
-            _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            _userManager
+                .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                 .Returns<string>((email) => Task.FromResult(new ApplicationUser {Email = email}));
 
+            _userManager
+                .Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>()))
+                .ReturnsAsync(IdentityResult.Success);
+            
             // UserCustomerService setup
             _userCustomerServiceMock = new Mock<IUserCustomerService>();
             
@@ -62,9 +67,9 @@ namespace nectarineTests.Controllers
                 .Returns(It.IsAny<Customer>());
             
             // ITokenService setup
-            _tokenService = new Mock<ITokenService>();
+            var tokenService = new Mock<ITokenService>();
             
-            _tokenService
+            tokenService
                 .Setup(x => x.GenerateTokenAsync(It.IsAny<ApplicationUser>()))
                 .Returns("eySampleJWTString");
             
@@ -88,7 +93,7 @@ namespace nectarineTests.Controllers
                 _mockMapper.Object,
                 _userCustomerServiceMock.Object,
                 _mockContext,
-                _tokenService.Object);
+                tokenService.Object);
         }
 
         #region GetCurrentAsync
@@ -369,6 +374,65 @@ namespace nectarineTests.Controllers
             var result = await _controller.UpdateUserAsync(It.IsAny<UpdateUserDTO>());
             
             // Arrange
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        #endregion
+
+        #region UpdatePhoneNumber
+
+        [Fact(DisplayName = "UpdatePhoneNumber should take a phone number and attach it to the user.")]
+        public async Task Test_UpdatePhoneNumber_ReturnsOk()
+        {
+            // Assert
+            var updatePhoneNumberDTO = new UpdatePhoneNumberDTO
+            {
+                PhoneNumber = "123123123123"
+            };
+            
+            // Act
+            var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+            
+            // Assert
+            Assert.IsType<OkResult>(result);
+        }
+        
+        [Fact(DisplayName = "UpdatePhoneNumber should return Unauthorized when a User can't be found.")]
+        public async Task Test_UpdatePhoneNumber_ReturnsUnauthorized()
+        {
+            // Assert
+            var updatePhoneNumberDTO = new UpdatePhoneNumberDTO
+            {
+                PhoneNumber = "123123123123"
+            };
+
+            _userManager
+                .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()));
+            
+            // Act
+            var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+            
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+        
+        [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when the User fails to update.")]
+        public async Task Test_UpdatePhoneNumber_ReturnsBadRequest()
+        {
+            // Assert
+            var updatePhoneNumberDTO = new UpdatePhoneNumberDTO
+            {
+                PhoneNumber = "123123123123"
+            };
+
+            _userManager
+                .Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>()))
+                .ReturnsAsync(IdentityResult.Failed());
+            
+            // Act
+            var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+            
+            // Assert
             Assert.IsType<BadRequestObjectResult>(result);
         }
 

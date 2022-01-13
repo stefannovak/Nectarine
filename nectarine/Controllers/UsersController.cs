@@ -157,5 +157,24 @@ namespace nectarineAPI.Controllers
 
             return Ok(_mapper.Map<UserDTO>(user));
         }
+
+        [HttpPost("UpdatePhoneNumber")]
+        public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberDTO updatePhoneNumberDto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            user.PhoneNumber = updatePhoneNumberDto.PhoneNumber;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return BadRequest(new ApiError { Message = "Failed to update phone number" });
+            }
+
+            return Ok();
+        }
     }
 }
