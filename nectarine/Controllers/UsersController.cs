@@ -64,6 +64,11 @@ namespace nectarineAPI.Controllers
             return Ok(_mapper.Map<UserDTO>(user));
         }
 
+        /// <summary>
+        /// Creates a user with an email and password, and attaches a Stripe ID to the user.
+        /// </summary>
+        /// <param name="createUserDto"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("Create")]
         public async Task<IActionResult> CreateUserAsync(CreateUserDTO createUserDto)
@@ -107,6 +112,10 @@ namespace nectarineAPI.Controllers
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
+        /// <summary>
+        /// Delete a user.
+        /// </summary>
+        /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
         public async Task<IActionResult> DeleteAsync()
@@ -135,6 +144,12 @@ namespace nectarineAPI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Update the user.
+        /// TODO: - This might not be needed. It could either become one giant method for updating, or we can use smaller endpoints to update one thing.
+        /// </summary>
+        /// <param name="updateUserDto"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("Update")]
         [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")] // They CAN be null.
@@ -163,6 +178,11 @@ namespace nectarineAPI.Controllers
             return Ok(_mapper.Map<UserDTO>(user));
         }
 
+        /// <summary>
+        /// Update the users phone number.
+        /// </summary>
+        /// <param name="updatePhoneNumberDto"></param>
+        /// <returns></returns>
         [HttpPost("UpdatePhoneNumber")]
         public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberDTO updatePhoneNumberDto)
         {
@@ -182,6 +202,10 @@ namespace nectarineAPI.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Send a verification code to a users phone number.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("VerificationCode")]
         public async Task<IActionResult> GetVerificationCode()
         {
@@ -207,6 +231,41 @@ namespace nectarineAPI.Controllers
             user.VerificationCodeExpiry = DateTime.Now.AddMinutes(2);
             await _userManager.UpdateAsync(user);
 
+            return Ok();
+        }
+
+        /// <summary>
+        /// Confirm a users phone number with a verification code.
+        /// </summary>
+        /// <param name="confirm2FaCodeDto"></param>
+        /// <returns></returns>
+        [HttpPost("Confirm2FACode")]
+        public async Task<IActionResult> Confirm2FACode(Confirm2FACodeDTO confirm2FaCodeDto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            if (user.VerificationCodeExpiry is null ||
+                user.VerificationCode is null)
+            {
+                return BadRequest(new ApiError { Message = "User did not get a verification code." });
+            }
+
+            if (user.VerificationCodeExpiry < DateTime.Now)
+            {
+                return BadRequest(new ApiError { Message = "Verification code expired." });
+            }
+
+            if (user.VerificationCode != confirm2FaCodeDto.Code)
+            {
+                return BadRequest(new ApiError { Message = "Invalid code." });
+            }
+
+            user.PhoneNumberConfirmed = true;
+            await _userManager.UpdateAsync(user);
             return Ok();
         }
     }
