@@ -76,14 +76,7 @@ namespace nectarineTests.Controllers
             _userCustomerServiceMock
                 .Setup(x => x.GetCustomer(It.IsAny<ApplicationUser>()))
                 .Returns(It.IsAny<Customer>());
-            
-            // ITokenService setup
-            var tokenService = new Mock<ITokenService>();
-            
-            tokenService
-                .Setup(x => x.GenerateTokenAsync(It.IsAny<ApplicationUser>()))
-                .Returns("eySampleJWTString");
-            
+
             // IPhoneService setup
             _phoneServiceMock = new Mock<IPhoneService>();
 
@@ -110,7 +103,6 @@ namespace nectarineTests.Controllers
                 _mockMapper.Object,
                 _userCustomerServiceMock.Object,
                 _mockContext,
-                tokenService.Object,
                 _phoneServiceMock.Object
                 );
         }
@@ -143,90 +135,6 @@ namespace nectarineTests.Controllers
 
         #endregion
 
-        #region CreateUserAsync 
-        
-        [Fact(DisplayName = "CreateUserAsync should create a user")]
-        public async Task Test_CreateUserAsync()
-        {
-            // Arrange
-            var createUserDto = new CreateUserDTO
-            {
-                Email = "test@test.com",
-                Password = "Password123",
-            };
-            
-            // Act
-            var result = await _controller.CreateUserAsync(createUserDto);
-            
-            // Arrange
-            Assert.IsType<OkObjectResult>(result);
-        }
-        
-        [Fact(DisplayName = "CreateUserAsync should return a BadRequest when given an empty email")]
-        public async Task Test_CreateUserAsync_FailsWhen_EmailIsEmpty()
-        {
-            // Arrange
-            var createUserDto = new CreateUserDTO
-            {
-                Email = "",
-                Password = "Password123",
-            };
-            
-            // Act
-            var result = await _controller.CreateUserAsync(createUserDto);
-            
-            // Arrange
-            Assert.IsType<BadRequestObjectResult>(result);
-        }
-        
-        [Fact(DisplayName = "CreateUserAsync should return an Internal Server Error when UserManager goes wrong")]
-        public async Task Test_CreateUserAsync_FailsWhen_UserManagerFailsToFetchTheNewUser()
-        {
-            // Arrange
-            _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()));
-            
-            var createUserDto = new CreateUserDTO
-            {
-                Email = "test@test.com",
-                Password = "Password123",
-            };
-            
-            // Act
-            var result = await _controller.CreateUserAsync(createUserDto);
-            
-            // Arrange
-            Assert.IsType<ObjectResult>(result);
-            Assert.True((result as ObjectResult)?.StatusCode == 500);
-        }
-        
-        [Fact(DisplayName = "CreateUserAsync should return a Bad Request UserManager is unable to create a user")]
-        public async Task Test_CreateUserAsync_FailsWhen_UserManagerFailsToCreateANewUser()
-        {
-            // Arrange
-            _userManager.Setup(x  => x.CreateAsync(
-                    It.IsAny<ApplicationUser>(),
-                    It.IsAny<string>()))
-                .ReturnsAsync(IdentityResult.Failed(new IdentityError
-                {
-                    Code = "555",
-                    Description = "A test failure."
-                }));
-                     
-            var createUserDto = new CreateUserDTO
-            {
-                Email = "test@test.com",
-                Password = "Password123",
-            };
-                     
-            // Act
-            var result = await _controller.CreateUserAsync(createUserDto);
-                     
-            // Arrange
-            Assert.IsType<BadRequestObjectResult>(result);
-        }
-        
-        # endregion
-        
         #region DeleteUserAsync
 
         [Fact(DisplayName = "DeleteAsync should delete the current user and return an Ok")]

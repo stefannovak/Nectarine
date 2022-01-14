@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using nectarineAPI.DTOs.Requests;
@@ -8,6 +9,7 @@ using nectarineAPI.DTOs.Responses;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineAPI.Services.Auth;
+using nectarineAPI.Services.Messaging;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using nectarineData.Models.Enums;
@@ -24,6 +26,7 @@ namespace nectarineAPI.Controllers
         private readonly IExternalAuthService<MicrosoftUser> _microsoftService;
         private readonly IExternalAuthService<FacebookUser> _facebookService;
         private readonly IUserCustomerService _userCustomerService;
+        private readonly IEmailService _emailService;
         private readonly NectarineDbContext _context;
 
         public AuthenticationController(
@@ -33,6 +36,7 @@ namespace nectarineAPI.Controllers
             IExternalAuthService<MicrosoftUser> microsoftService,
             IExternalAuthService<FacebookUser> facebookService,
             IUserCustomerService userCustomerService,
+            IEmailService emailService,
             NectarineDbContext context)
         {
             _userManager = userManager;
@@ -41,6 +45,7 @@ namespace nectarineAPI.Controllers
             _microsoftService = microsoftService;
             _facebookService = facebookService;
             _userCustomerService = userCustomerService;
+            _emailService = emailService;
             _context = context;
         }
         
@@ -138,6 +143,7 @@ namespace nectarineAPI.Controllers
         {
             var googleUser = await _googleService.GetUserFromTokenAsync(authenticateSocialUserDto.Token);
             if (googleUser?.Id is null ||
+                googleUser.Email is null ||
                 googleUser.FirstName is null ||
                 googleUser.LastName is null)
             {
@@ -153,6 +159,49 @@ namespace nectarineAPI.Controllers
             return user == null 
                 ? await CreateExternalAuthUser(googleUser, ExternalAuthPlatform.Google)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
+        }
+        
+        /// <summary>
+        /// Creates a user with an email and password, and attaches a Stripe ID to the user.
+        /// </summary>
+        /// <param name="createUserDto"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("Create")]
+        public async Task<IActionResult> CreateUserAsync(CreateUserDTO createUserDto)
+        {
+            var identityUser = new ApplicationUser
+            {
+                Email = createUserDto.Email,
+                UserName = createUserDto.Email,
+            };
+
+            await _userCustomerService.AddStripeCustomerIdAsync(identityUser);
+            var result = await _userManager.CreateAsync(identityUser, createUserDto.Password);
+
+            if (!result.Succeeded)
+            {
+                var dictionary = new Dictionary<string, string>();
+                foreach (IdentityError error in result.Errors)
+                {
+                    dictionary.Add(error.Code, error.Description);
+                }
+
+                return new BadRequestObjectResult(new ApiError { Message = "User creation failed.", Errors = dictionary });
+            }
+            
+            var user = await _userManager.FindByEmailAsync(identityUser.Email);
+            if (user == null)
+            {
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new ApiError() { Message = "Failed to retrieve new user" }
+                );
+            }
+
+            await _emailService.SendWelcomeEmail(user.Email);
+
+            return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
         private async Task<IActionResult> CreateExternalAuthUser(IExternalAuthUser externalUser, ExternalAuthPlatform platform)
@@ -181,6 +230,7 @@ namespace nectarineAPI.Controllers
 
             await _userCustomerService.AddStripeCustomerIdAsync(user);
             await _context.SaveChangesAsync();
+            await _emailService.SendWelcomeEmail(user.Email!);
 
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
