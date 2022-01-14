@@ -33,7 +33,7 @@ public class SendGridEmailService : IEmailService
     {
         var message = new SendGridMessage
         {
-            From = new EmailAddress("", "Stefan Novak"),
+            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak"),
             Subject = "Welcome to Nectarine",
             PlainTextContent = 
                 "Welcome to Nectarine!\n\n" +
@@ -49,7 +49,7 @@ public class SendGridEmailService : IEmailService
 
     public async Task SendEmail(string destinationAddress, SendGridMessage message)
     {
-        message.From = new EmailAddress("nectarine-noreply@em4146.stefanalexnovak.com", "Stefan Novak");
+        message.From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak");
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
     }
