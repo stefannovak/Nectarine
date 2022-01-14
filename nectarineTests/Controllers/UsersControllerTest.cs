@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace nectarineTests.Controllers
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
         private readonly Mock<IPhoneService> _phoneServiceMock;
+        
+        private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
         public UsersControllerTest()
         {
@@ -37,7 +40,10 @@ namespace nectarineTests.Controllers
                     .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
                 .ReturnsAsync(new ApplicationUser
                 {
-                    PhoneNumber = "123123123123"
+                    PhoneNumber = "123123123123",
+                    VerificationCode = 123123,
+                    VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
+                    PhoneNumberConfirmed = false,
                 });
 
             _userManager
@@ -456,8 +462,6 @@ namespace nectarineTests.Controllers
         [Fact(DisplayName = "SendVerificationCode should return OK.")]
         public async Task Test_SendVerificationCode_ReturnsOk()
         {
-            // Assert
-            
             // Act
             var result = await _controller.GetVerificationCode();
             
@@ -494,6 +498,88 @@ namespace nectarineTests.Controllers
             Assert.IsType<BadRequestObjectResult>(result);
         }
         
+        #endregion
+
+        #region Confirm2FACode
+
+        [Fact(DisplayName = "Confirm2FACode should return Ok")]
+        public async Task Test_Confirm2FACode_ReturnsOk()
+        {
+            // Act
+            var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+            
+            // Assert
+            Assert.IsType<OkResult>(result);
+        }
+        
+        [Fact(DisplayName = "Confirm2FACode should return Unauthorized")]
+        public async Task Test_Confirm2FACode_ReturnsUnauthorized()
+        {
+            // Assert
+            _userManager
+                .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()));
+            
+            // Act
+            var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+            
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+        
+        [Fact(DisplayName = "Confirm2FACode should return BadRequest when the code or expiry is null")]
+        public async Task Test_Confirm2FACode_ReturnsBadRequestWhen_CodeOrExpiryIsNull()
+        {
+            // Assert
+            _userManager
+                .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(new ApplicationUser
+                {
+                    VerificationCode = null,
+                    VerificationCodeExpiry = null,
+                });
+            
+            // Act
+            var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+            
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+        
+        [Fact(DisplayName = "Confirm2FACode should return BadRequest when the code has expired")]
+        public async Task Test_Confirm2FACode_ReturnsBadRequestWhen_CodeExpired()
+        {
+            // Assert
+            _userManager
+                .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(new ApplicationUser
+                {
+                    VerificationCode = 123123,
+                    VerificationCodeExpiry = DateTime.Now.Subtract(TimeSpan.FromHours(1)),
+                });
+            
+            // Act
+            var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+            
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+        
+        [Fact(DisplayName = "Confirm2FACode should return BadRequest when the code is invalid and has not expired")]
+        public async Task Test_Confirm2FACode_ReturnsBadRequestWhen_CodeIsInvalid()
+        {
+            // Assert
+            confirm2FACodeDTO = new Confirm2FACodeDTO
+            {
+                Code = 111111
+            };
+            
+            // Act
+            var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+            
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
         #endregion
     }
 }
