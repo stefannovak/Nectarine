@@ -10,6 +10,7 @@ using nectarineAPI.Controllers;
 using nectarineAPI.DTOs.Generic;
 using nectarineAPI.DTOs.Requests;
 using nectarineAPI.Services;
+using nectarineAPI.Services.Messaging;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
@@ -24,6 +25,7 @@ namespace nectarineTests.Controllers
         private readonly Mock<UserManager<ApplicationUser>> _userManager;
         private readonly NectarineDbContext _mockContext;
         private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
+        private readonly Mock<IPhoneService> _phoneServiceMock;
 
         public UsersControllerTest()
         {
@@ -33,7 +35,10 @@ namespace nectarineTests.Controllers
             _userManager
                 .Setup(manager => manager
                     .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-                .ReturnsAsync(new ApplicationUser());
+                .ReturnsAsync(new ApplicationUser
+                {
+                    PhoneNumber = "123123123123"
+                });
 
             _userManager
                 .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
@@ -73,6 +78,12 @@ namespace nectarineTests.Controllers
                 .Setup(x => x.GenerateTokenAsync(It.IsAny<ApplicationUser>()))
                 .Returns("eySampleJWTString");
             
+            // IPhoneService setup
+            _phoneServiceMock = new Mock<IPhoneService>();
+
+            _phoneServiceMock
+                .Setup(x => x.SendMessage(It.IsAny<string>(), It.IsAny<string>()));
+
             // AutoMapper setup
             _mockMapper.Setup(x => x.Map<UserDTO>(It.IsAny<ApplicationUser>()))
                 .Returns((ApplicationUser source) => new UserDTO
@@ -93,7 +104,9 @@ namespace nectarineTests.Controllers
                 _mockMapper.Object,
                 _userCustomerServiceMock.Object,
                 _mockContext,
-                tokenService.Object);
+                tokenService.Object,
+                _phoneServiceMock.Object
+                );
         }
 
         #region GetCurrentAsync
@@ -436,6 +449,51 @@ namespace nectarineTests.Controllers
             Assert.IsType<BadRequestObjectResult>(result);
         }
 
+        #endregion
+        
+        #region SendVerificationCode
+        
+        [Fact(DisplayName = "SendVerificationCode should return OK.")]
+        public async Task Test_SendVerificationCode_ReturnsOk()
+        {
+            // Assert
+            
+            // Act
+            var result = await _controller.GetVerificationCode();
+            
+            // Assert
+            Assert.IsType<OkResult>(result);
+        }
+        
+        [Fact(DisplayName = "SendVerificationCode should return Unauthorized when a user can't be found.")]
+        public async Task Test_SendVerificationCode_ReturnsUnauthorized()
+        {
+            // Assert
+            _userManager
+                .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()));
+            
+            // Act
+            var result = await _controller.GetVerificationCode();
+            
+            // Assert
+            Assert.IsType<UnauthorizedResult>(result);
+        }
+        
+        [Fact(DisplayName = "SendVerificationCode should return BadRequest when a user does not have a phone number.")]
+        public async Task Test_SendVerificationCode_ReturnsBadRequest()
+        {
+            // Assert
+            _userManager
+                .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(new ApplicationUser());
+
+            // Act
+            var result = await _controller.GetVerificationCode();
+            
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+        
         #endregion
     }
 }

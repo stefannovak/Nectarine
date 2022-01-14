@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,10 @@ namespace nectarineData.Models
         [MaxLength(100)] 
         public string LastName { get; set; } = string.Empty;
 
+        public int? VerificationCode { get; set; }
+
+        public DateTime? VerificationCodeExpiry { get; set; }
+        
         [Required] 
         public virtual IList<ExternalAuthLink> SocialLinks { get; set; } = new List<ExternalAuthLink>();
     }
