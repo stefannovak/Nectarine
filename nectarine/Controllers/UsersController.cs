@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -12,6 +13,7 @@ using nectarineAPI.DTOs.Requests;
 using nectarineAPI.DTOs.Responses;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
+using nectarineAPI.Services.Messaging;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using Stripe;
@@ -27,19 +29,22 @@ namespace nectarineAPI.Controllers
         private readonly IUserCustomerService _userCustomerService;
         private readonly NectarineDbContext _context;
         private readonly ITokenService _tokenService;
+        private readonly IPhoneService _phoneService;
 
         public UsersController(
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
             IUserCustomerService userCustomerService,
             NectarineDbContext context,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IPhoneService phoneService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _userCustomerService = userCustomerService;
             _context = context;
             _tokenService = tokenService;
+            _phoneService = phoneService;
         }
         
         /// <summary>
@@ -173,6 +178,34 @@ namespace nectarineAPI.Controllers
             {
                 return BadRequest(new ApiError { Message = "Failed to update phone number" });
             }
+
+            return Ok();
+        }
+
+        [HttpGet("VerificationCode")]
+        public async Task<IActionResult> GetVerificationCode()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrEmpty(user.PhoneNumber))
+            {
+                return BadRequest(new ApiError{ Message = "User does not have a phone number."});
+            }
+            
+            var random = new Random();
+            var verificationCode = random.Next(100000, 999999);
+
+            _phoneService.SendMessage(
+                $"Your verification code is {verificationCode}. This code will expire in 2 minutes.",
+                user.PhoneNumber);
+
+            user.VerificationCode = verificationCode;
+            user.VerificationCodeExpiry = DateTime.Now.AddMinutes(2);
+            await _userManager.UpdateAsync(user);
 
             return Ok();
         }
