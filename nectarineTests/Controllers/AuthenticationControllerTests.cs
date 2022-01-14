@@ -10,9 +10,11 @@ using nectarineAPI.DTOs.Requests;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineAPI.Services.Auth;
+using nectarineAPI.Services.Messaging;
 using nectarineData.DataAccess;
 using nectarineData.Models;
 using nectarineData.Models.Enums;
+using SendGrid.Helpers.Mail;
 using Stripe;
 using Xunit;
 
@@ -28,6 +30,7 @@ namespace nectarineTests.Controllers
         private readonly Mock<IExternalAuthService<MicrosoftUser>> _mockMicrosoftService;
         private readonly Mock<IExternalAuthService<FacebookUser>> _mockFacebookService;
         private readonly Mock<IUserCustomerService> _userCustomerService;
+        private readonly Mock<IEmailService> _emailServiceMock;
         
         private readonly string googleUserId = Guid.NewGuid().ToString();
         private readonly string microsoftUserId = Guid.NewGuid().ToString();
@@ -124,6 +127,15 @@ namespace nectarineTests.Controllers
                     It.IsAny<CustomerCreateOptions?>()))
                 .Returns(Task.CompletedTask);
             
+            // IEmailService setup
+            _emailServiceMock = new Mock<IEmailService>();
+
+            _emailServiceMock
+                .Setup(x => x.SendEmail(It.IsAny<string>(), It.IsAny<SendGridMessage>()));
+            
+            _emailServiceMock
+                .Setup(x => x.SendWelcomeEmail(It.IsAny<string>()));
+
             // Database setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
                 .UseInMemoryDatabase("TestDb")
@@ -139,6 +151,7 @@ namespace nectarineTests.Controllers
                 _mockMicrosoftService.Object,
                 _mockFacebookService.Object,
                 _userCustomerService.Object,
+                _emailServiceMock.Object,
                 _mockContext);
         }
 
@@ -208,6 +221,7 @@ namespace nectarineTests.Controllers
                 _mockMicrosoftService.Object,
                 _mockFacebookService.Object,
                 _userCustomerService.Object,
+                _emailServiceMock.Object,
                 _mockContext);
             
             var createUserDto = new AuthenticateUserDTO
@@ -350,6 +364,73 @@ namespace nectarineTests.Controllers
         }
 
         #endregion
+        
+        #region CreateUserAsync 
+        
+        [Fact(DisplayName = "CreateUserAsync should create a user")]
+        public async Task Test_CreateUserAsync()
+        {
+            // Arrange
+            var createUserDto = new CreateUserDTO
+            {
+                Email = "test@test.com",
+                Password = "Password123",
+            };
+            
+            // Act
+            var result = await _subject.CreateUserAsync(createUserDto);
+            
+            // Arrange
+            Assert.IsType<OkObjectResult>(result);
+        }
+        
+        [Fact(DisplayName = "CreateUserAsync should return an Internal Server Error when UserManager goes wrong")]
+        public async Task Test_CreateUserAsync_FailsWhen_UserManagerFailsToFetchTheNewUser()
+        {
+            // Arrange
+            _userManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()));
+            
+            var createUserDto = new CreateUserDTO
+            {
+                Email = "test@test.com",
+                Password = "Password123",
+            };
+            
+            // Act
+            var result = await _subject.CreateUserAsync(createUserDto);
+            
+            // Arrange
+            Assert.IsType<ObjectResult>(result);
+            Assert.True((result as ObjectResult)?.StatusCode == 500);
+        }
+        
+        [Fact(DisplayName = "CreateUserAsync should return a Bad Request UserManager is unable to create a user")]
+        public async Task Test_CreateUserAsync_FailsWhen_UserManagerFailsToCreateANewUser()
+        {
+            // Arrange
+            _userManager.Setup(x  => x.CreateAsync(
+                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<string>()))
+                .ReturnsAsync(IdentityResult.Failed(new IdentityError
+                {
+                    Code = "555",
+                    Description = "A test failure."
+                }));
+                     
+            var createUserDto = new CreateUserDTO
+            {
+                Email = "test@test.com",
+                Password = "Password123",
+            };
+                     
+            // Act
+            var result = await _subject.CreateUserAsync(createUserDto);
+                     
+            // Arrange
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+        
+        # endregion
 
         #region CreateExternalAuthUser
 

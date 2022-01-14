@@ -80,19 +80,21 @@ namespace nectarineAPI
                 });
             });
             
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+                {
+                    options.User.RequireUniqueEmail = true;
+                })
+                .AddEntityFrameworkStores<NectarineDbContext>();
+            
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
             services.Configure<TwilioOptions>(Configuration.GetSection("Twilio"));
+            services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddEntityFrameworkStores<NectarineDbContext>();
-            
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IUserCustomerService, UserCustomerService>();
             services.AddTransient<ITokenService, TokenService>();
             services.AddTransient<IPhoneService, TwilioService>();
+            services.AddTransient<IEmailService, SendGridEmailService>();
 
             services.AddTransient<IExternalAuthService<GoogleUser>, GoogleAuthService<GoogleUser>>();
             services.AddTransient<IExternalAuthService<MicrosoftUser>, MicrosoftAuthService<MicrosoftUser>>();

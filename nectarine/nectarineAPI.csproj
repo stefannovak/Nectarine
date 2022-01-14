@@ -20,6 +20,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.9" />
+    <PackageReference Include="SendGrid" Version="9.25.2" />
+    <PackageReference Include="SendGrid.Extensions.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="8.27.0.35380">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

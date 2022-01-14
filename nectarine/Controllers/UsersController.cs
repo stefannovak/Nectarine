@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Castle.Core.Internal;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using nectarineAPI.DTOs.Generic;
 using nectarineAPI.DTOs.Requests;
-using nectarineAPI.DTOs.Responses;
 using nectarineAPI.Models;
 using nectarineAPI.Services;
 using nectarineAPI.Services.Messaging;
@@ -28,7 +24,6 @@ namespace nectarineAPI.Controllers
         private readonly IMapper _mapper;
         private readonly IUserCustomerService _userCustomerService;
         private readonly NectarineDbContext _context;
-        private readonly ITokenService _tokenService;
         private readonly IPhoneService _phoneService;
 
         public UsersController(
@@ -36,14 +31,12 @@ namespace nectarineAPI.Controllers
             IMapper mapper,
             IUserCustomerService userCustomerService,
             NectarineDbContext context,
-            ITokenService tokenService,
             IPhoneService phoneService)
         {
             _userManager = userManager;
             _mapper = mapper;
             _userCustomerService = userCustomerService;
             _context = context;
-            _tokenService = tokenService;
             _phoneService = phoneService;
         }
         
@@ -62,54 +55,6 @@ namespace nectarineAPI.Controllers
             }
 
             return Ok(_mapper.Map<UserDTO>(user));
-        }
-
-        /// <summary>
-        /// Creates a user with an email and password, and attaches a Stripe ID to the user.
-        /// </summary>
-        /// <param name="createUserDto"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("Create")]
-        public async Task<IActionResult> CreateUserAsync(CreateUserDTO createUserDto)
-        {
-            if (createUserDto.Email.IsNullOrEmpty() || createUserDto.Password.IsNullOrEmpty())
-            {
-                return BadRequest(new ApiError {Message = "Email or Password can not be null."});
-            }
-
-            var identityUser = new ApplicationUser
-            {
-                Email = createUserDto.Email,
-                UserName = createUserDto.Email,
-            };
-
-            await _userCustomerService.AddStripeCustomerIdAsync(identityUser);
-
-
-            var result = await _userManager.CreateAsync(identityUser, createUserDto.Password);
-
-            if (!result.Succeeded)
-            {
-                var dictionary = new Dictionary<string, string>();
-                foreach (IdentityError error in result.Errors)
-                {
-                    dictionary.Add(error.Code, error.Description);
-                }
-
-                return new BadRequestObjectResult(new ApiError { Message = "User creation failed.", Errors = dictionary });
-            }
-            
-            var user = await _userManager.FindByEmailAsync(identityUser.Email);
-            if (user == null)
-            {
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    new ApiError() { Message = "Failed to retrieve new user" }
-                    );
-            }
-
-            return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
         /// <summary>
