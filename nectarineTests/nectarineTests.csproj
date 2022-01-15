@@ -30,6 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nectarine\nectarineAPI.csproj" />
+    <ProjectReference Include="..\Nectarine\NectarineAPI.csproj" />
   </ItemGroup>
 </Project>

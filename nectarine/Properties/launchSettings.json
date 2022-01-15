@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "nectarine": {
+    "Nectarine": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
