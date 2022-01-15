@@ -1,8 +1,6 @@
-using System.Linq;
-using System.Threading.Tasks;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Requests;
@@ -16,39 +14,40 @@ namespace NectarineTests.Controllers
 {
     public class PaymentControllerTests
     {
-        private readonly Mock<IConfigurationSection> _configurationSection = new ();
-        private readonly PaymentController _controller;
-        private readonly PaymentService _paymentService = new ();
-        private readonly UserCustomerService _userCustomerService;
-        private readonly ApplicationUser user = new ();
+        private readonly PaymentController _subject;
+        private readonly Mock<IPaymentService> _paymentServiceMock;
+        private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
 
         public PaymentControllerTests()
         {
-            // Configuration setup
-            _configurationSection.Setup(x => x.Path).Returns("Stripe");
-            _configurationSection.Setup(x => x.Key).Returns("Secret");
-            _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
-            StripeConfiguration.ApiKey = _configurationSection.Object.Value;
+            // IPaymentServiceMock setup
+            _paymentServiceMock = new Mock<IPaymentService>();
 
-            // UserCustomerService setup
+            _paymentServiceMock
+                .Setup(x => x.AddCardPaymentMethod(
+                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<string>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>()));
+
+            // DbContext setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb")
+                .UseInMemoryDatabase("TestDb")
                 .Options;
 
             NectarineDbContext mockContext = new (options);
-            _userCustomerService = new UserCustomerService(mockContext);
             mockContext.Users.Add(user);
+            mockContext.SaveChanges();
 
             // PaymentController setup
-            _controller = new PaymentController(mockContext, _paymentService);
+            _subject = new PaymentController(mockContext, _paymentServiceMock.Object);
         }
 
         [Fact(DisplayName = "AddPaymentMethod should add a payment method to the user")]
-        public async Task Test_AddPaymentMethod()
+        public void Test_AddPaymentMethod()
         {
             // Arrange
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
-
             var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
@@ -58,19 +57,16 @@ namespace NectarineTests.Controllers
             };
 
             // Act
-            _controller.AddPaymentMethod(user.Id, addPaymentMethodDto);
-            var cards = _paymentService.GetCardsForUser(user);
+            var result = _subject.AddPaymentMethod(user.Id, addPaymentMethodDto);
 
             // Assert
-            Assert.True(cards.Any());
+            Assert.IsType<OkResult>(result);
         }
 
         [Fact(DisplayName = "AddPaymentMethod should return a NotFound when given a userId that is not in the database")]
-        public async Task Test_AddPaymentMethod_ReturnsNotFoundWhenInvalidUserId()
+        public void Test_AddPaymentMethod_ReturnsNotFoundWhenInvalidUserId()
         {
             // Arrange
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
-
             var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
@@ -80,17 +76,24 @@ namespace NectarineTests.Controllers
             };
 
             // Act
-            var result = _controller.AddPaymentMethod(string.Empty, addPaymentMethodDto);
+            var result = _subject.AddPaymentMethod(string.Empty, addPaymentMethodDto);
 
             // Assert
             Assert.True(result.GetType() == typeof(NotFoundObjectResult));
         }
 
         [Fact(DisplayName = "AddPaymentMethod should return a BadRequest when passed invalid card details")]
-        public async Task Test_AddPaymentMethod_ReturnsBadRequestWhenInvalidCardDetails()
+        public void Test_AddPaymentMethod_ReturnsBadRequestWhenInvalidCardDetails()
         {
             // Arrange
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            _paymentServiceMock
+                .Setup(x => x.AddCardPaymentMethod(
+                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<string>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<string>()))
+                .Returns(new StripeException());
 
             var addPaymentMethodDto = new AddPaymentMethodDTO
             {
@@ -101,10 +104,10 @@ namespace NectarineTests.Controllers
             };
 
             // Act
-            var result = _controller.AddPaymentMethod(user.Id, addPaymentMethodDto);
+            var result = _subject.AddPaymentMethod(user.Id, addPaymentMethodDto);
 
             // Assert
-            Assert.True(result.GetType() == typeof(BadRequestObjectResult));
+            Assert.IsType<BadRequestObjectResult>(result);
         }
     }
 }

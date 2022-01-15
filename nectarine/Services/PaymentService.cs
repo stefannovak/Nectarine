@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using NectarineData.Models;
 using Stripe;
 
@@ -7,9 +8,19 @@ namespace NectarineAPI.Services
 {
     public class PaymentService : IPaymentService
     {
-        private PaymentMethodService PaymentMethodService { get; } = new ();
+        private readonly PaymentMethodService _paymentMethodService;
+        private readonly PaymentIntentService _paymentIntentService;
+        private readonly ILogger<PaymentService> _logger;
 
-        private PaymentIntentService PaymentIntentService { get; } = new ();
+        public PaymentService(
+            PaymentMethodService paymentMethodService,
+            PaymentIntentService paymentIntentService,
+            ILogger<PaymentService> logger)
+        {
+            _paymentMethodService = paymentMethodService;
+            _paymentIntentService = paymentIntentService;
+            _logger = logger;
+        }
 
         public StripeException? AddCardPaymentMethod(
             ApplicationUser user,
@@ -33,11 +44,11 @@ namespace NectarineAPI.Services
             PaymentMethod? paymentMethod;
             try
             {
-                paymentMethod = PaymentMethodService.Create(paymentMethodCreateOptions);
+                paymentMethod = _paymentMethodService.Create(paymentMethodCreateOptions);
             }
             catch (StripeException e)
             {
-                Console.WriteLine(e);
+                _logger.LogError($"Failed to create a payment method for the user: {e}");
                 return e;
             }
 
@@ -46,7 +57,7 @@ namespace NectarineAPI.Services
                 Customer = user.StripeCustomerId,
             };
 
-            PaymentMethodService.Attach(
+            _paymentMethodService.Attach(
                 paymentMethod.Id,
                 paymentMethodAttachOptions);
 
@@ -61,7 +72,7 @@ namespace NectarineAPI.Services
                 Type = "card",
             };
 
-            return PaymentMethodService.List(options);
+            return _paymentMethodService.List(options);
         }
 
         public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId)
@@ -75,10 +86,10 @@ namespace NectarineAPI.Services
                 SetupFutureUsage = "on_session",
             };
 
-            return PaymentIntentService.Create(options);
+            return _paymentIntentService.Create(options);
         }
 
         public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret) =>
-            PaymentIntentService.Confirm(paymentIntentClientSecret);
+            _paymentIntentService.Confirm(paymentIntentClientSecret);
     }
 }
