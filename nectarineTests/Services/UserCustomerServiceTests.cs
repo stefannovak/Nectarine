@@ -24,7 +24,7 @@ namespace nectarineTests.Services
             _configurationSection.Setup(x => x.Key).Returns("Secret");
             _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
-            
+
             // Database setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
@@ -33,16 +33,15 @@ namespace nectarineTests.Services
             NectarineDbContext mockContext = new (options);
             _userCustomerService = new UserCustomerService(mockContext);
         }
-        
-        
+
         [Fact(DisplayName = "An API key should be correctly set up at 'Stripe:Secret' in IConfiguration")]
         public void Test_Configuration_ReturnsAnApiKey()
         {
             // Assert
             Assert.NotNull(StripeConfiguration.ApiKey);
         }
-        
-        # region Customers
+
+        #region Customers
 
         [Fact(DisplayName = "AddStripeCustomerIdAsync should save a StripeId to the User")]
         public async Task Test_AddStripeCustomerIdAsync()
@@ -50,12 +49,12 @@ namespace nectarineTests.Services
             // Arrange
             var customerCreateOptions = new CustomerCreateOptions
             {
-                Email = "test@test.com"
+                Email = "test@test.com",
             };
-            
+
             // Act
             await _userCustomerService.AddStripeCustomerIdAsync(user, customerCreateOptions);
-            
+
             // Assert
             Assert.False(user.StripeCustomerId.IsNullOrEmpty());
         }
@@ -65,10 +64,10 @@ namespace nectarineTests.Services
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             // Act
             var result = _userCustomerService.GetCustomer(user);
-            
+
             // Arrange
             Assert.NotNull(result);
         }
@@ -81,16 +80,16 @@ namespace nectarineTests.Services
             var customerBeforeUpdate = _userCustomerService.GetCustomer(user);
             var updateOptions = new CustomerUpdateOptions
             {
-                Balance = 100
+                Balance = 100,
             };
-            
+
             // Act
             var customerAfterUpdate = _userCustomerService.UpdateCustomer(user, updateOptions);
-            
+
             // Assert
             Assert.NotEqual(customerBeforeUpdate.Balance, customerAfterUpdate.Balance);
         }
-        
+
         [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
         public async Task Test_DeleteCustomer()
         {
@@ -99,24 +98,24 @@ namespace nectarineTests.Services
 
             // Act
             var result = _userCustomerService.DeleteCustomer(user);
-            
+
             // Assert
             Assert.True(result);
         }
-        
+
         [Fact(DisplayName = "DeleteCustomer should return false when unable to delete a customer.")]
-        public async Task Test_DeleteCustomer_FailsWhen_DeletingAUserWithoutACustomerObject()
+        public void Test_DeleteCustomer_FailsWhen_DeletingAUserWithoutACustomerObject()
         {
             // Arrange
             user.StripeCustomerId = "test";
-            
+
             // Act
             var result = _userCustomerService.DeleteCustomer(user);
-            
+
             // Assert
             Assert.False(result);
         }
 
-        # endregion
+        #endregion
     }
 }

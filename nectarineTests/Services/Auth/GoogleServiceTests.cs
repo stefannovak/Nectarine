@@ -8,8 +8,8 @@ namespace nectarineTests.Services.Auth
 {
     public class GoogleServiceTests
     {
-        private readonly GoogleAuthService<GoogleUser> _subject = new();
-        private readonly Mock<IExternalAuthService<GoogleUser>> _mockSubject = new();
+        private readonly GoogleAuthService<GoogleUser> _subject = new ();
+        private readonly Mock<IExternalAuthService<GoogleUser>> _mockSubject = new ();
 
         // TODO: - Figure out this test
         [Fact(DisplayName = "GetUserFromTokenAsync should return a GoogleUser")]
@@ -19,14 +19,14 @@ namespace nectarineTests.Services.Auth
             _mockSubject
                 .Setup(x => x.GetUserFromTokenAsync(It.IsAny<string>()))
                 .ReturnsAsync(new GoogleUser());
-            
+
             // Act
             var result = await _mockSubject.Object.GetUserFromTokenAsync("token");
 
             // Assert
             Assert.IsType<GoogleUser>(result);
         }
-        
+
         [Fact(DisplayName = "GetUserFromTokenAsync should return null")]
         public async Task Test_GetUserFromTokenAsync_ReturnsNullWhen_InvalidGoogleUser()
         {

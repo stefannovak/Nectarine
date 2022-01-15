@@ -19,9 +19,9 @@ public class TwilioServiceTests
         {
             AccountSid = "A7b",
             AuthToken = "a33",
-            TwilioPhoneNumber = "1"
+            TwilioPhoneNumber = "1",
         };
-            
+
         mockTwilioOptions
             .Setup(x => x.Value)
             .Returns(options);

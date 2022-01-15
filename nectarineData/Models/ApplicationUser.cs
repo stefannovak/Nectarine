@@ -10,11 +10,11 @@ namespace nectarineData.Models
         [Required] 
         [MaxLength(100)] 
         public string StripeCustomerId { get; set; } = string.Empty;
-        
+
         [Required] 
         [MaxLength(100)] 
         public string FirstName { get; set; } = string.Empty;
-        
+
         [Required] 
         [MaxLength(100)] 
         public string LastName { get; set; } = string.Empty;
@@ -22,7 +22,7 @@ namespace nectarineData.Models
         public int? VerificationCode { get; set; }
 
         public DateTime? VerificationCodeExpiry { get; set; }
-        
+
         [Required] 
         public virtual IList<ExternalAuthLink> SocialLinks { get; set; } = new List<ExternalAuthLink>();
     }

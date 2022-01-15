@@ -10,7 +10,7 @@ namespace nectarineData.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
-        
+
         [Required]
         [MaxLength(512)]
         public string PlatformId { get; set; } = string.Empty;

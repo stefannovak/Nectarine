@@ -12,7 +12,7 @@ namespace nectarineTests.Services.Messaging;
 public class EmailServiceTests
 {
     private readonly SendGridEmailService _subject;
-    
+
     public EmailServiceTests()
     {
         // SendGrid Options setup
@@ -21,13 +21,13 @@ public class EmailServiceTests
         var options = new SendGridOptions
         {
             ApiKey = "SG",
-            FromAddress = "from@nectarine.com"
+            FromAddress = "from@nectarine.com",
         };
-            
+
         mockSendGridOptions
             .Setup(x => x.Value)
             .Returns(options);
-        
+
         // ILogger setup
         var loggerMock = new Mock<ILogger<SendGridEmailService>>();
 
@@ -40,7 +40,7 @@ public class EmailServiceTests
         // Act
         await _subject.SendWelcomeEmail("a");
     }
-    
+
     [Fact(DisplayName = "SendEmail should send an email")]
     public async Task Test_SendEmail()
     {
@@ -48,9 +48,9 @@ public class EmailServiceTests
         var message = new SendGridMessage
         {
             PlainTextContent = "Test email",
-            Subject = "test subject"
+            Subject = "test subject",
         };
-        
+
         // Act
         await _subject.SendEmail("a", message);
     }

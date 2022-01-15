@@ -15,11 +15,11 @@ public class MicrosoftAuthServiceTests
     // {
     //     // Act
     //     var result = await _subject.GetUserFromTokenAsync("A mock microsoft token?");
-    //     
+    //
     //     // Assert
     //     Assert.IsType<MicrosoftUser>(result);
     // }
-    
+
     [Fact(DisplayName = "GetUserFromTokenAsync should return null")]
     public async Task Test_GetUserFromTokenAsync_ReturnsNullWhen_InvalidGoogleUser()
     {

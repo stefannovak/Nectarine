@@ -5,6 +5,6 @@ namespace nectarineData.Models.Enums
         Facebook,
         Google,
         Apple,
-        Microsoft
+        Microsoft,
     }
 }

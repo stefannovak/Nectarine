@@ -15,11 +15,11 @@ public class FacebookAuthServiceTests
     // {
     //     // Act
     //     var result = await _subject.GetUserFromTokenAsync("A Facebook token");
-    //     
+    //
     //     // Assert
     //     Assert.IsType<FacebookUser>(result);
     // }
-    
+
     [Fact(DisplayName = "GetUserFromTokenAsync should return null")]
     public async Task Test_GetUserFromTokenAsync_ReturnsNullWhen_InvalidFacebookUser()
     {
