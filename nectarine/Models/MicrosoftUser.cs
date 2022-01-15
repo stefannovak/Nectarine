@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace nectarineAPI.Models
+namespace NectarineAPI.Models
 {
     public class MicrosoftUser : IExternalAuthUser
     {

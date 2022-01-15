@@ -2,12 +2,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using nectarineAPI.Configurations;
-using nectarineAPI.Services.Messaging;
+using NectarineAPI.Configurations;
+using NectarineAPI.Services.Messaging;
 using SendGrid.Helpers.Mail;
 using Xunit;
 
-namespace nectarineTests.Services.Messaging;
+namespace NectarineTests.Services.Messaging;
 
 public class EmailServiceTests
 {

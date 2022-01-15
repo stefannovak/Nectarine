@@ -2,7 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace nectarineData.Migrations
+namespace NectarineData.Migrations
 {
     public partial class Add_VerificationCodeAndExpiry_To_User : Migration
     {

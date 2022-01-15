@@ -1,4 +1,4 @@
-namespace nectarineAPI.Models
+namespace NectarineAPI.Models
 {
     public interface IExternalAuthUser
     {

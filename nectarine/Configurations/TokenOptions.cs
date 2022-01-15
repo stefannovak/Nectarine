@@ -1,4 +1,4 @@
-namespace nectarineAPI.Configurations
+namespace NectarineAPI.Configurations
 {
     public class TokenOptions
     {

@@ -2,11 +2,11 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using nectarineAPI.Configurations;
+using NectarineAPI.Configurations;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace nectarineAPI.Services.Messaging;
+namespace NectarineAPI.Services.Messaging;
 
 public class SendGridEmailService : IEmailService
 {

@@ -3,9 +3,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using nectarineAPI.Models;
+using NectarineAPI.Models;
 
-namespace nectarineAPI.Services.Auth;
+namespace NectarineAPI.Services.Auth;
 
 public class FacebookAuthService<T> : IExternalAuthService<FacebookUser>
     where T : FacebookUser, new()

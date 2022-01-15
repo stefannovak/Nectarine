@@ -1,4 +1,4 @@
-namespace nectarineAPI.DTOs.Responses
+namespace NectarineAPI.DTOs.Responses
 {
     public class CreateUserResponse
     {

@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using nectarineAPI.DTOs.Generic;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.DTOs.Generic;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Controllers
+namespace NectarineAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]

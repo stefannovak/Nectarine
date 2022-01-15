@@ -5,10 +5,10 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using nectarineAPI.Configurations;
-using nectarineData.Models;
+using NectarineAPI.Configurations;
+using NectarineData.Models;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public class TokenService : ITokenService
     {

@@ -10,18 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using nectarineAPI.Configurations;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Auth;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.Configurations;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Auth;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
-using TokenOptions = nectarineAPI.Configurations.TokenOptions;
-using TokenService = nectarineAPI.Services.TokenService;
+using TokenOptions = NectarineAPI.Configurations.TokenOptions;
+using TokenService = NectarineAPI.Services.TokenService;
 
-namespace nectarineAPI
+namespace NectarineAPI
 {
     public class Startup
     {

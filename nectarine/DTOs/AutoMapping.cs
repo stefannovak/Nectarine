@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using nectarineAPI.DTOs.Generic;
-using nectarineData.Models;
+using NectarineAPI.DTOs.Generic;
+using NectarineData.Models;
 
-namespace nectarineAPI.DTOs
+namespace NectarineAPI.DTOs
 {
     public class AutoMapping : Profile
     {

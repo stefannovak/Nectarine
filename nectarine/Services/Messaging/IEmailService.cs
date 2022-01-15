@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using SendGrid.Helpers.Mail;
 
-namespace nectarineAPI.Services.Messaging;
+namespace NectarineAPI.Services.Messaging;
 
 public interface IEmailService
 {

@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineData.DataAccess;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineData.DataAccess;
 using Stripe;
 
-namespace nectarineAPI.Controllers
+namespace NectarineAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]

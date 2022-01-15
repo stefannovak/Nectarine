@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using nectarineData.Models;
+using NectarineData.Models;
 
-namespace nectarineData.DataAccess
+namespace NectarineData.DataAccess
 {
     public class NectarineDbContext : IdentityDbContext<ApplicationUser>
     {

@@ -1,20 +1,20 @@
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.DTOs.Responses;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Auth;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
-using nectarineData.Models.Enums;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.DTOs.Responses;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Auth;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
+using NectarineData.Models.Enums;
 
-namespace nectarineAPI.Controllers
+namespace NectarineAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]

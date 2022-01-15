@@ -1,6 +1,6 @@
 using Stripe;
 
-namespace nectarineAPI.DTOs.Requests
+namespace NectarineAPI.DTOs.Requests
 {
     public class UpdateUserDTO
     {

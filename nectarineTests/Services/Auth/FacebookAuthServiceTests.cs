@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using nectarineAPI.Models;
-using nectarineAPI.Services.Auth;
+using NectarineAPI.Models;
+using NectarineAPI.Services.Auth;
 using Xunit;
 
-namespace nectarineTests.Services.Auth;
+namespace NectarineTests.Services.Auth;
 
 public class FacebookAuthServiceTests
 {

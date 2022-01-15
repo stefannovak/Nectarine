@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using nectarineAPI.Controllers;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.Services;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.Controllers;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Services;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 using Xunit;
 
-namespace nectarineTests.Controllers
+namespace NectarineTests.Controllers
 {
     public class PaymentControllerTests
     {

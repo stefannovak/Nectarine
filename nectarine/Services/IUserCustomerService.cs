@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using nectarineData.Models;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public interface IUserCustomerService
     {

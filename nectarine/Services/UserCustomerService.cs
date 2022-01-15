@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public class UserCustomerService : IUserCustomerService
     {

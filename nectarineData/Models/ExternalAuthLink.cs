@@ -1,9 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using nectarineData.Models.Enums;
+using NectarineData.Models.Enums;
 
-namespace nectarineData.Models
+namespace NectarineData.Models
 {
     public class ExternalAuthLink
     {

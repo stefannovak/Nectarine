@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Options;
 using Moq;
-using nectarineAPI.Configurations;
-using nectarineAPI.Services.Messaging;
+using NectarineAPI.Configurations;
+using NectarineAPI.Services.Messaging;
 using Xunit;
 
-namespace nectarineTests.Services.Messaging;
+namespace NectarineTests.Services.Messaging;
 
 public class TwilioServiceTests
 {

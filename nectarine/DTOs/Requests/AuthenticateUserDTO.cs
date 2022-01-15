@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace nectarineAPI.DTOs.Requests
+namespace NectarineAPI.DTOs.Requests
 {
     public class AuthenticateUserDTO
     {

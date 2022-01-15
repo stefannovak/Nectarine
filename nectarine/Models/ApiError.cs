@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace nectarineAPI.Models
+namespace NectarineAPI.Models
 {
     public class ApiError
     {

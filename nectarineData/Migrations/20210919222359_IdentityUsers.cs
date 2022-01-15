@@ -2,7 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace nectarineData.Migrations
+namespace NectarineData.Migrations
 {
     public partial class IdentityUsers : Migration
     {

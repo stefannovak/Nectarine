@@ -2,12 +2,12 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 using Moq;
-using nectarineAPI.Configurations;
-using nectarineAPI.Services;
-using nectarineData.Models;
+using NectarineAPI.Configurations;
+using NectarineAPI.Services;
+using NectarineData.Models;
 using Xunit;
 
-namespace nectarineTests.Services
+namespace NectarineTests.Services
 {
     public class TokenServiceTests
     {

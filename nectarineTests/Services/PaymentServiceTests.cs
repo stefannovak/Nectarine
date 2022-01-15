@@ -4,13 +4,13 @@ using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using nectarineAPI.Services;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.Services;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 using Xunit;
 
-namespace nectarineTests.Services
+namespace NectarineTests.Services
 {
     public class PaymentServiceTests
     {

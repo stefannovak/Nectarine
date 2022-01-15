@@ -5,20 +5,20 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using nectarineAPI.Controllers;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Auth;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
-using nectarineData.Models.Enums;
+using NectarineAPI.Controllers;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Auth;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
+using NectarineData.Models.Enums;
 using SendGrid.Helpers.Mail;
 using Stripe;
 using Xunit;
 
-namespace nectarineTests.Controllers
+namespace NectarineTests.Controllers
 {
     public class AuthenticationControllerTests
     {
