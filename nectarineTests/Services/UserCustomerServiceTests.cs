@@ -14,7 +14,6 @@ namespace NectarineTests.Services
 {
     public class UserCustomerServiceTests
     {
-        private readonly Mock<IConfigurationSection> _configurationSection = new ();
         private readonly ApplicationUser user = new ()
         {
             StripeCustomerId = "StripeId",
@@ -25,12 +24,6 @@ namespace NectarineTests.Services
 
         public UserCustomerServiceTests()
         {
-            // Configuration setup
-            _configurationSection.Setup(x => x.Path).Returns("Stripe");
-            _configurationSection.Setup(x => x.Key).Returns("Secret");
-            _configurationSection.Setup(x => x.Value).Returns("StripeAPIkey");
-            StripeConfiguration.ApiKey = _configurationSection.Object.Value;
-
             // Stripe CustomerService setup
             _mockCustomerService = new Mock<CustomerService>();
             var returnedCustomer = new Customer
