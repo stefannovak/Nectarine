@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
@@ -14,31 +15,68 @@ namespace NectarineTests.Services
     public class UserCustomerServiceTests
     {
         private readonly Mock<IConfigurationSection> _configurationSection = new ();
-        private readonly ApplicationUser user = new ();
+        private readonly ApplicationUser user = new ()
+        {
+            StripeCustomerId = "StripeId",
+        };
+
         private readonly UserCustomerService _userCustomerService;
+        private readonly Mock<CustomerService> _mockCustomerService;
 
         public UserCustomerServiceTests()
         {
             // Configuration setup
             _configurationSection.Setup(x => x.Path).Returns("Stripe");
             _configurationSection.Setup(x => x.Key).Returns("Secret");
-            _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
+            _configurationSection.Setup(x => x.Value).Returns("StripeAPIkey");
             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
+
+            // Stripe CustomerService setup
+            _mockCustomerService = new Mock<CustomerService>();
+            var returnedCustomer = new Customer
+            {
+                Id = "StripeCustomerId",
+            };
+
+            _mockCustomerService
+                .Setup(x => x.CreateAsync(
+                    It.IsAny<CustomerCreateOptions>(),
+                    It.IsAny<RequestOptions>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(returnedCustomer);
+
+            _mockCustomerService
+                .Setup(x => x.Get(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerGetOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(returnedCustomer);
+
+            _mockCustomerService
+                .Setup(x => x.Update(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerUpdateOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(new Customer
+                {
+                    Id = user.StripeCustomerId,
+                    Balance = 100,
+                });
+
+            _mockCustomerService
+                .Setup(x => x.Delete(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerDeleteOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(new Customer { Deleted = true });
 
             // Database setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb")
+                .UseInMemoryDatabase("TestDb")
                 .Options;
 
             NectarineDbContext mockContext = new (options);
-            _userCustomerService = new UserCustomerService(mockContext);
-        }
-
-        [Fact(DisplayName = "An API key should be correctly set up at 'Stripe:Secret' in IConfiguration")]
-        public void Test_Configuration_ReturnsAnApiKey()
-        {
-            // Assert
-            Assert.NotNull(StripeConfiguration.ApiKey);
+            _userCustomerService = new UserCustomerService(mockContext, _mockCustomerService.Object);
         }
 
         #region Customers
@@ -60,11 +98,8 @@ namespace NectarineTests.Services
         }
 
         [Fact(DisplayName = "GetCustomer should fetch a customer object, filled with customer information.")]
-        public async Task Test_GetCustomer()
+        public void Test_GetCustomer()
         {
-            // Arrange
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
-
             // Act
             var result = _userCustomerService.GetCustomer(user);
 
@@ -73,10 +108,9 @@ namespace NectarineTests.Services
         }
 
         [Fact(DisplayName = "UpdateCustomer should update the user's Customer object.")]
-        public async Task Test_UpdateCustomer()
+        public void Test_UpdateCustomer()
         {
             // Arrange
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
             var customerBeforeUpdate = _userCustomerService.GetCustomer(user);
             var updateOptions = new CustomerUpdateOptions
             {
@@ -91,11 +125,8 @@ namespace NectarineTests.Services
         }
 
         [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
-        public async Task Test_DeleteCustomer()
+        public void Test_DeleteCustomer()
         {
-            // Arrange
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
-
             // Act
             var result = _userCustomerService.DeleteCustomer(user);
 
@@ -107,7 +138,11 @@ namespace NectarineTests.Services
         public void Test_DeleteCustomer_FailsWhen_DeletingAUserWithoutACustomerObject()
         {
             // Arrange
-            user.StripeCustomerId = "test";
+            _mockCustomerService
+                .Setup(x => x.Delete(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerDeleteOptions>(),
+                    It.IsAny<RequestOptions>()));
 
             // Act
             var result = _userCustomerService.DeleteCustomer(user);
