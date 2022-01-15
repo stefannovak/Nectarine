@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using nectarineData.DataAccess;
+using NectarineData.DataAccess;
 
-namespace nectarineData.Migrations
+namespace NectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
     [Migration("20210902201105_Create_Application_User")]
@@ -21,7 +21,7 @@ namespace nectarineData.Migrations
                 .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("nectarineData.Models.ApplicationUser", b =>
+            modelBuilder.Entity("NectarineData.Models.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

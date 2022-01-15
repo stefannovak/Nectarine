@@ -1,4 +1,4 @@
-namespace nectarineAPI.Configurations;
+namespace NectarineAPI.Configurations;
 
 public class TwilioOptions
 {
@@ -7,6 +7,4 @@ public class TwilioOptions
     public string AuthToken { get; set; } = string.Empty;
 
     public string TwilioPhoneNumber { get; set; } = string.Empty;
-
-    public string DestinationPhoneNumber { get; set; } = string.Empty;
 }

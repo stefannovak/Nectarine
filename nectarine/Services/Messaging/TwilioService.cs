@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Options;
-using nectarineAPI.Configurations;
+using NectarineAPI.Configurations;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
-namespace nectarineAPI.Services.Messaging;
+namespace NectarineAPI.Services.Messaging;
 
 public class TwilioService : IPhoneService
 {

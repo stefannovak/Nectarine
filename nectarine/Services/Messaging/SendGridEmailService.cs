@@ -1,19 +1,17 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using nectarineAPI.Configurations;
+using Microsoft.Extensions.Options;
+using NectarineAPI.Configurations;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace nectarineAPI.Services.Messaging;
+namespace NectarineAPI.Services.Messaging;
 
 public class SendGridEmailService : IEmailService
 {
     private readonly IOptions<SendGridOptions> _sendGridOptions;
     private readonly ILogger<SendGridEmailService> _logger;
-    private SendGridClient Client { get; }
 
     public SendGridEmailService(
         IOptions<SendGridOptions> sendGridOptions,
@@ -25,9 +23,11 @@ public class SendGridEmailService : IEmailService
         Client = new SendGridClient(new SendGridClientOptions
         {
             ApiKey = _sendGridOptions.Value.ApiKey,
-            HttpErrorAsException = true
+            HttpErrorAsException = true,
         });
     }
+
+    private SendGridClient Client { get; }
 
     public async Task SendWelcomeEmail(string destinationAddress)
     {
@@ -35,13 +35,13 @@ public class SendGridEmailService : IEmailService
         {
             From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak"),
             Subject = "Welcome to Nectarine",
-            PlainTextContent = 
+            PlainTextContent =
                 "Welcome to Nectarine!\n\n" +
                 "You have successfully signed up to Nectarine.\n" +
                 "This is a side project I've been working on to showcase my .NET skills.\n" +
                 "I hope you enjoy the app!\n\n" +
                 "Stefan Novak\n" +
-                "This email was sent with SendGrid."
+                "This email was sent with SendGrid.",
         };
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
@@ -53,7 +53,7 @@ public class SendGridEmailService : IEmailService
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
     }
-    
+
     private async Task TrySendEmail(SendGridMessage message)
     {
         try

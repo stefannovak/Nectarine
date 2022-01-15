@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using nectarineAPI.DTOs.Generic;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.DTOs.Generic;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Controllers
+namespace NectarineAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -39,7 +39,7 @@ namespace nectarineAPI.Controllers
             _context = context;
             _phoneService = phoneService;
         }
-        
+
         /// <summary>
         /// Returns the current user from their <see cref="ControllerBase"/> Claims Principle.
         /// </summary>
@@ -97,7 +97,7 @@ namespace nectarineAPI.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("Update")]
-        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")] // They CAN be null.
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "They can be null")]
         public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserDTO updateUserDto)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -162,9 +162,9 @@ namespace nectarineAPI.Controllers
 
             if (string.IsNullOrEmpty(user.PhoneNumber))
             {
-                return BadRequest(new ApiError{ Message = "User does not have a phone number."});
+                return BadRequest(new ApiError { Message = "User does not have a phone number." });
             }
-            
+
             var random = new Random();
             var verificationCode = random.Next(100000, 999999);
 

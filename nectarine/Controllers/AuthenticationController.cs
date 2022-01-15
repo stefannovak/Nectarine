@@ -1,20 +1,20 @@
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using nectarineAPI.DTOs.Requests;
-using nectarineAPI.DTOs.Responses;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Auth;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
-using nectarineData.Models.Enums;
+using NectarineAPI.DTOs.Requests;
+using NectarineAPI.DTOs.Responses;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Auth;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
+using NectarineData.Models.Enums;
 
-namespace nectarineAPI.Controllers
+namespace NectarineAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -48,7 +48,7 @@ namespace nectarineAPI.Controllers
             _emailService = emailService;
             _context = context;
         }
-        
+
         [HttpPost]
         [Route("Authenticate")]
         public async Task<IActionResult> AuthenticateUser([FromBody] AuthenticateUserDTO authenticateUserDto)
@@ -73,7 +73,7 @@ namespace nectarineAPI.Controllers
                 Token = _tokenService.GenerateTokenAsync(user),
             });
         }
-        
+
         /// <summary>
         /// Authenticate a user after they have signed in with Microsoft.
         /// </summary>
@@ -88,20 +88,22 @@ namespace nectarineAPI.Controllers
                 microsoftUser.FirstName is null ||
                 microsoftUser.LastName is null)
             {
-                return NotFound(new ApiError { Message = "Could not find a Microsoft user from the given token." +
-                                                         $" Token: {authenticateSocialUserDto.Token}"});
+                return NotFound(new ApiError
+                {
+                    Message = $"Could not find a Microsoft user from the given token. Token: {authenticateSocialUserDto.Token}",
+                });
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == microsoftUser.Email &&
                                                           u.SocialLinks
-                                                              .Any(x => x.PlatformId == microsoftUser.Id && 
+                                                              .Any(x => x.PlatformId == microsoftUser.Id &&
                                                                         x.Platform == ExternalAuthPlatform.Microsoft));
 
-            return user == null 
+            return user == null
                 ? await CreateExternalAuthUser(microsoftUser, ExternalAuthPlatform.Microsoft)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
-        
+
         /// <summary>
         /// Authenticate a user after they have signed in with Facebook.
         /// Playground at https://developers.facebook.com/tools/explorer/.
@@ -117,16 +119,18 @@ namespace nectarineAPI.Controllers
                 facebookUser.FirstName is null ||
                 facebookUser.LastName is null)
             {
-                return NotFound(new ApiError { Message = "Could not find a Facebook user from the given token." +
-                                                         $" Token: {authenticateSocialUserDto.Token}"});
+                return NotFound(new ApiError
+                {
+                    Message = $"Could not find a Facebook user from the given token. Token: {authenticateSocialUserDto.Token}",
+                });
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == facebookUser.Email &&
                                                           u.SocialLinks
-                                                              .Any(x => x.PlatformId == facebookUser.Id && 
+                                                              .Any(x => x.PlatformId == facebookUser.Id &&
                                                                         x.Platform == ExternalAuthPlatform.Facebook));
 
-            return user == null 
+            return user == null
                 ? await CreateExternalAuthUser(facebookUser, ExternalAuthPlatform.Facebook)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
@@ -147,20 +151,22 @@ namespace nectarineAPI.Controllers
                 googleUser.FirstName is null ||
                 googleUser.LastName is null)
             {
-                return NotFound(new ApiError { Message = "Could not find a Google user from the given token." +
-                                                         $" Token: {authenticateSocialUserDto.Token}"});
+                return NotFound(new ApiError
+                {
+                    Message = $"Could not find a Google user from the given token. Token: {authenticateSocialUserDto.Token}",
+                });
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == googleUser.Email &&
                                                           u.SocialLinks
-                                                              .Any(x => x.PlatformId == googleUser.Id && 
+                                                              .Any(x => x.PlatformId == googleUser.Id &&
                                                                         x.Platform == ExternalAuthPlatform.Google));
 
-            return user == null 
+            return user == null
                 ? await CreateExternalAuthUser(googleUser, ExternalAuthPlatform.Google)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
-        
+
         /// <summary>
         /// Creates a user with an email and password, and attaches a Stripe ID to the user.
         /// </summary>
@@ -189,14 +195,13 @@ namespace nectarineAPI.Controllers
 
                 return new BadRequestObjectResult(new ApiError { Message = "User creation failed.", Errors = dictionary });
             }
-            
+
             var user = await _userManager.FindByEmailAsync(identityUser.Email);
             if (user == null)
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new ApiError() { Message = "Failed to retrieve new user" }
-                );
+                    new ApiError() { Message = "Failed to retrieve new user" });
             }
 
             await _emailService.SendWelcomeEmail(user.Email);
@@ -210,11 +215,11 @@ namespace nectarineAPI.Controllers
             {
                 SocialLinks = new List<ExternalAuthLink>
                 {
-                    new()
+                    new ()
                     {
                         PlatformId = externalUser.Id!,
                         Platform = platform,
-                    }
+                    },
                 },
                 Email = externalUser.Email,
                 UserName = externalUser.Email,

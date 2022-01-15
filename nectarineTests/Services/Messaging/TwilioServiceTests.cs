@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Options;
 using Moq;
-using nectarineAPI.Configurations;
-using nectarineAPI.Services.Messaging;
+using NectarineAPI.Configurations;
+using NectarineAPI.Services.Messaging;
 using Xunit;
 
-namespace nectarineTests.Services.Messaging;
+namespace NectarineTests.Services.Messaging;
 
 public class TwilioServiceTests
 {
@@ -19,9 +19,9 @@ public class TwilioServiceTests
         {
             AccountSid = "A7b",
             AuthToken = "a33",
-            TwilioPhoneNumber = "1"
+            TwilioPhoneNumber = "1",
         };
-            
+
         mockTwilioOptions
             .Setup(x => x.Value)
             .Returns(options);

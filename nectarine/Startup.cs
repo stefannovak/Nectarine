@@ -10,18 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using nectarineAPI.Configurations;
-using nectarineAPI.Models;
-using nectarineAPI.Services;
-using nectarineAPI.Services.Auth;
-using nectarineAPI.Services.Messaging;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.Configurations;
+using NectarineAPI.Models;
+using NectarineAPI.Services;
+using NectarineAPI.Services.Auth;
+using NectarineAPI.Services.Messaging;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
-using TokenOptions = nectarineAPI.Configurations.TokenOptions;
-using TokenService = nectarineAPI.Services.TokenService;
+using TokenOptions = NectarineAPI.Configurations.TokenOptions;
+using TokenService = NectarineAPI.Services.TokenService;
 
-namespace nectarineAPI
+namespace NectarineAPI
 {
     public class Startup
     {
@@ -45,13 +45,13 @@ namespace nectarineAPI
             services.AddControllers();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+
             ConfigureJWTAuthentication(services);
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "nectarine", Version = "v1" });
-                
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Nectarine", Version = "v1" });
+
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -62,7 +62,7 @@ namespace nectarineAPI
                     Type = SecuritySchemeType.ApiKey,
                 });
 
-                OpenApiSecurityScheme securityScheme = new()
+                OpenApiSecurityScheme securityScheme = new ()
                 {
                     Reference = new OpenApiReference
                     {
@@ -73,19 +73,19 @@ namespace nectarineAPI
                     Name = "Bearer",
                     Scheme = "Bearer",
                 };
-                
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     { securityScheme, Array.Empty<string>() },
                 });
             });
-            
+
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
                     options.User.RequireUniqueEmail = true;
                 })
                 .AddEntityFrameworkStores<NectarineDbContext>();
-            
+
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
             services.Configure<TwilioOptions>(Configuration.GetSection("Twilio"));
             services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
@@ -112,7 +112,7 @@ namespace nectarineAPI
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "nectarine v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nectarine v1"));
             }
 
             app.UseHttpsRedirection();
@@ -126,12 +126,12 @@ namespace nectarineAPI
                 endpoints.MapControllers();
             });
         }
-        
+
         private void ConfigureJWTAuthentication(IServiceCollection services)
         {
             services.Configure<TokenOptions>(Configuration.GetSection("JWT"));
             var tokenConfig = Configuration.GetSection("JWT").Get<TokenOptions>();
-            
+
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using nectarineData.Models.Enums;
+using NectarineData.Models.Enums;
 
-namespace nectarineAPI.Models
+namespace NectarineAPI.Models
 {
     public class GoogleUser : IExternalAuthUser
     {
@@ -11,7 +11,7 @@ namespace nectarineAPI.Models
 
         [JsonPropertyName("given_name")]
         public string? FirstName { get; set; }
-        
+
         [JsonPropertyName("family_name")]
         public string? LastName { get; set; }
 

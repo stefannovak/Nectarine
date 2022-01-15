@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using nectarineData.Models;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public interface IUserCustomerService
     {
@@ -12,7 +12,7 @@ namespace nectarineAPI.Services
         /// </summary>
         /// <param name="user"></param>
         /// <param name="options"></param>
-        /// <returns>Returns </returns>
+        /// <returns></returns>
         public Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null);
 
         /// <summary>

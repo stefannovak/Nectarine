@@ -4,13 +4,13 @@ using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using nectarineAPI.Services;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineAPI.Services;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 using Xunit;
 
-namespace nectarineTests.Services
+namespace NectarineTests.Services
 {
     public class PaymentServiceTests
     {
@@ -26,7 +26,7 @@ namespace nectarineTests.Services
             _configurationSection.Setup(x => x.Key).Returns("Secret");
             _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
-            
+
             // UserCustomerService setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
@@ -41,12 +41,12 @@ namespace nectarineTests.Services
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             // Act
             paymentService.AddCardPaymentMethod(
-                user, 
+                user,
                 "4242424242424242",
-                9, 
+                9,
                 2025,
                 "552");
 
@@ -55,7 +55,7 @@ namespace nectarineTests.Services
             // Assert
             Assert.True(cards.Any());
         }
-        
+
         [Theory]
         [InlineData("4242", "9", "2025", "552")] // Invalid card number
         [InlineData("4242424242424242", "99", "2025", "552")] // Invalid month
@@ -65,15 +65,15 @@ namespace nectarineTests.Services
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             // Act
             var exception = paymentService.AddCardPaymentMethod(
-                user, 
-                cardData[0] as string ?? "",
-                int.Parse(cardData[1] as string ?? ""),
-                int.Parse(cardData[2] as string ?? ""),
-                cardData[3] as string ?? "");
-            
+                user,
+                cardData[0] as string ?? string.Empty,
+                int.Parse(cardData[1] as string ?? string.Empty),
+                int.Parse(cardData[2] as string ?? string.Empty),
+                cardData[3] as string ?? string.Empty);
+
             Assert.NotNull(exception);
         }
 
@@ -82,46 +82,46 @@ namespace nectarineTests.Services
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             paymentService.AddCardPaymentMethod(
-                user, 
+                user,
                 "4242424242424242",
-                9, 
+                9,
                 2025,
                 "552");
-            
+
             paymentService.AddCardPaymentMethod(
-                user, 
+                user,
                 "4242424242424242",
-                3, 
+                3,
                 2022,
                 "123");
-            
+
             // Act
             var cards = paymentService.GetCardsForUser(user);
-            
+
             // Assert
             Assert.True(cards.Any());
         }
-        
+
         [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
-        public async Task Test_CreatePaymentIntent() 
+        public async Task Test_CreatePaymentIntent()
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             // Arrange
             paymentService.AddCardPaymentMethod(
-                user, 
+                user,
                 "4242424242424242",
-                9, 
+                9,
                 2025,
                 "552");
             var cards = paymentService.GetCardsForUser(user);
-            
+
             // Act
             var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
-            
+
             // Assert
             Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
         }
@@ -131,7 +131,7 @@ namespace nectarineTests.Services
         {
             // Arrange
             await _userCustomerService.AddStripeCustomerIdAsync(user);
-            
+
             paymentService.AddCardPaymentMethod(
                 user,
                 "4242424242424242",
@@ -143,10 +143,9 @@ namespace nectarineTests.Services
 
             // Act
             var newPaymentIntent = paymentService.ConfirmPaymentIntent(paymentIntent.Id);
-            
+
             // Assert
             Assert.True(newPaymentIntent.Status == "succeeded");
         }
-
     }
 }

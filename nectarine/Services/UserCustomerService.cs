@@ -1,22 +1,22 @@
 using System;
 using System.Threading.Tasks;
-using nectarineData.DataAccess;
-using nectarineData.Models;
+using NectarineData.DataAccess;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public class UserCustomerService : IUserCustomerService
     {
         private readonly NectarineDbContext _context;
-        
+
         public UserCustomerService(NectarineDbContext context)
         {
             _context = context;
         }
 
         private CustomerService CustomerService { get; } = new ();
-        
+
         public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)
         {
             var customer = await CustomerService.CreateAsync(options ?? new CustomerCreateOptions());
@@ -25,7 +25,7 @@ namespace nectarineAPI.Services
         }
 
         public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.StripeCustomerId);
-        
+
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
             CustomerService.Update(user.StripeCustomerId, updateOptions);
 
@@ -34,7 +34,7 @@ namespace nectarineAPI.Services
             try
             {
                 var customer = CustomerService.Delete(user.StripeCustomerId);
-                return customer?.Deleted is not null && customer.Deleted != false;
+                return customer?.Deleted == true;
             }
             catch (StripeException e)
             {

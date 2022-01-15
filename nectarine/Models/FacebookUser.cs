@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace nectarineAPI.Models;
+namespace NectarineAPI.Models;
 
 public class FacebookUser : IExternalAuthUser
 {
@@ -10,7 +10,7 @@ public class FacebookUser : IExternalAuthUser
 
     [JsonPropertyName("first_name")]
     public string? FirstName { get; set; }
-        
+
     [JsonPropertyName("last_name")]
     public string? LastName { get; set; }
 

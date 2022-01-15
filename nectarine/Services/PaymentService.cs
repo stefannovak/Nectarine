@@ -1,12 +1,14 @@
 using System;
-using nectarineData.Models;
+using System.Collections.Generic;
+using NectarineData.Models;
 using Stripe;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public class PaymentService : IPaymentService
-    { 
+    {
         private PaymentMethodService PaymentMethodService { get; } = new ();
+
         private PaymentIntentService PaymentIntentService { get; } = new ();
 
         public StripeException? AddCardPaymentMethod(
@@ -38,21 +40,20 @@ namespace nectarineAPI.Services
                 Console.WriteLine(e);
                 return e;
             }
-            
+
             var paymentMethodAttachOptions = new PaymentMethodAttachOptions
             {
                 Customer = user.StripeCustomerId,
             };
-            
+
             PaymentMethodService.Attach(
                 paymentMethod.Id,
-                paymentMethodAttachOptions
-            );
+                paymentMethodAttachOptions);
 
             return null;
         }
 
-        public StripeList<PaymentMethod> GetCardsForUser(ApplicationUser user)
+        public IEnumerable<PaymentMethod> GetCardsForUser(ApplicationUser user)
         {
             var options = new PaymentMethodListOptions
             {
@@ -60,9 +61,7 @@ namespace nectarineAPI.Services
                 Type = "card",
             };
 
-            return PaymentMethodService.List(
-                options
-            );
+            return PaymentMethodService.List(options);
         }
 
         public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId)
@@ -73,13 +72,13 @@ namespace nectarineAPI.Services
                 Currency = "gbp",
                 Customer = user.StripeCustomerId,
                 PaymentMethod = paymentMethodId,
-                SetupFutureUsage = "on_session"
+                SetupFutureUsage = "on_session",
             };
-            
+
             return PaymentIntentService.Create(options);
         }
 
-        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret) => 
+        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret) =>
             PaymentIntentService.Confirm(paymentIntentClientSecret);
     }
 }

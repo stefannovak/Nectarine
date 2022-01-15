@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using nectarineData.DataAccess;
+using NectarineData.DataAccess;
 
-namespace nectarineData.Migrations
+namespace NectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
     [Migration("20210830182054_InitialMigration")]

@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using nectarineAPI.Models;
-using nectarineAPI.Services.Auth;
+using NectarineAPI.Models;
+using NectarineAPI.Services.Auth;
 using Xunit;
 
-namespace nectarineTests.Services.Auth;
+namespace NectarineTests.Services.Auth;
 
 public class FacebookAuthServiceTests
 {
@@ -15,11 +15,11 @@ public class FacebookAuthServiceTests
     // {
     //     // Act
     //     var result = await _subject.GetUserFromTokenAsync("A Facebook token");
-    //     
+    //
     //     // Assert
     //     Assert.IsType<FacebookUser>(result);
     // }
-    
+
     [Fact(DisplayName = "GetUserFromTokenAsync should return null")]
     public async Task Test_GetUserFromTokenAsync_ReturnsNullWhen_InvalidFacebookUser()
     {

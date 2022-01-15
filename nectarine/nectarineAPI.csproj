@@ -7,7 +7,7 @@
     <UserSecretsId>b5eac63c-e802-4372-84a9-ae8eb5dcf84d</UserSecretsId>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'nectarine' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Nectarine' " />
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="Castle.Core" Version="4.4.0" />
@@ -26,14 +26,17 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Stripe.net" Version="39.64.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="Twilio" Version="5.70.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nectarineData\nectarineData.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    <ProjectReference Include="..\NectarineData\NectarineData.csproj">
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using nectarineData.Models;
+using NectarineData.Models;
 
-namespace nectarineData.DataAccess
+namespace NectarineData.DataAccess
 {
     public class NectarineDbContext : IdentityDbContext<ApplicationUser>
     {
-        public NectarineDbContext(DbContextOptions<NectarineDbContext> opt) : base(opt)
+        public NectarineDbContext(DbContextOptions<NectarineDbContext> opt)
+            : base(opt)
         {
         }
     }

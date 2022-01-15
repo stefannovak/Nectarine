@@ -1,4 +1,4 @@
-namespace nectarineAPI.Services.Messaging;
+namespace NectarineAPI.Services.Messaging;
 
 public interface IPhoneService
 {

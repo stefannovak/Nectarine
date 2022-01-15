@@ -1,7 +1,6 @@
-using System.Threading.Tasks;
-using nectarineData.Models;
+using NectarineData.Models;
 
-namespace nectarineAPI.Services
+namespace NectarineAPI.Services
 {
     public interface ITokenService
     {

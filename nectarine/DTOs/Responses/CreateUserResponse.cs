@@ -1,4 +1,4 @@
-namespace nectarineAPI.DTOs.Responses
+namespace NectarineAPI.DTOs.Responses
 {
     public class CreateUserResponse
     {
@@ -6,7 +6,7 @@ namespace nectarineAPI.DTOs.Responses
         {
             Token = token;
         }
-        
+
         public string Token { get; set; }
     }
 }

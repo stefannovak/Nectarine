@@ -3,14 +3,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
-using nectarineAPI.Models;
+using NectarineAPI.Models;
 
-namespace nectarineAPI.Services.Auth;
+namespace NectarineAPI.Services.Auth;
 
-public class FacebookAuthService<T> : IExternalAuthService<FacebookUser> where T : FacebookUser, new ()
+public class FacebookAuthService<T> : IExternalAuthService<FacebookUser>
+    where T : FacebookUser, new()
 {
-    private HttpClient Client { get; }
-        
     public FacebookAuthService()
     {
         Client = new HttpClient
@@ -18,7 +17,9 @@ public class FacebookAuthService<T> : IExternalAuthService<FacebookUser> where T
             BaseAddress = new Uri("https://graph.facebook.com/v12.0/"),
         };
     }
-    
+
+    private HttpClient Client { get; }
+
     public async Task<FacebookUser?> GetUserFromTokenAsync(string token)
     {
         var response = await Client.GetAsync($"me?fields=id,name,email,first_name,last_name&access_token={token}");

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using nectarineData.DataAccess;
+using NectarineData.DataAccess;
 
-namespace nectarineData.Migrations
+namespace NectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
     partial class NectarineDbContextModelSnapshot : ModelSnapshot
@@ -150,7 +150,7 @@ namespace nectarineData.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("nectarineData.Models.ApplicationUser", b =>
+            modelBuilder.Entity("NectarineData.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -236,7 +236,7 @@ namespace nectarineData.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("nectarineData.Models.ExternalAuthLink", b =>
+            modelBuilder.Entity("NectarineData.Models.ExternalAuthLink", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -271,7 +271,7 @@ namespace nectarineData.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
+                    b.HasOne("NectarineData.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -280,7 +280,7 @@ namespace nectarineData.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
+                    b.HasOne("NectarineData.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -295,7 +295,7 @@ namespace nectarineData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
+                    b.HasOne("NectarineData.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -304,21 +304,21 @@ namespace nectarineData.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
+                    b.HasOne("NectarineData.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("nectarineData.Models.ExternalAuthLink", b =>
+            modelBuilder.Entity("NectarineData.Models.ExternalAuthLink", b =>
                 {
-                    b.HasOne("nectarineData.Models.ApplicationUser", null)
+                    b.HasOne("NectarineData.Models.ApplicationUser", null)
                         .WithMany("SocialLinks")
                         .HasForeignKey("ApplicationUserId");
                 });
 
-            modelBuilder.Entity("nectarineData.Models.ApplicationUser", b =>
+            modelBuilder.Entity("NectarineData.Models.ApplicationUser", b =>
                 {
                     b.Navigation("SocialLinks");
                 });
