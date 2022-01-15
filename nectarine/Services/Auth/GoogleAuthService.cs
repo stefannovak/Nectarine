@@ -7,10 +7,9 @@ using nectarineAPI.Models;
 
 namespace nectarineAPI.Services.Auth
 {
-    public class GoogleAuthService<T> : IExternalAuthService<GoogleUser> where T : GoogleUser, new ()
+    public class GoogleAuthService<T> : IExternalAuthService<GoogleUser>
+        where T : GoogleUser, new()
     {
-        private HttpClient Client { get; }
-        
         public GoogleAuthService()
         {
             Client = new HttpClient
@@ -19,10 +18,12 @@ namespace nectarineAPI.Services.Auth
             };
             Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
-        
+
+        private HttpClient Client { get; }
+
         public async Task<GoogleUser?> GetUserFromTokenAsync(string token)
         {
-            var response = await Client.GetAsync(Uri.EscapeUriString($"userinfo?access_token={token}"));
+            var response = await Client.GetAsync($"userinfo?access_token={token}");
             if (!response.IsSuccessStatusCode)
             {
                 return null;

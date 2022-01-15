@@ -10,11 +10,11 @@ namespace nectarineAPI.Models
 
         [JsonPropertyName("givenName")]
         public string? FirstName { get; set; }
-        
+
         [JsonPropertyName("surname")]
         public string? LastName { get; set; }
 
         [JsonPropertyName("userPrincipalName")]
         public string? Email { get; set; }
-    }   
+    }
 }

@@ -45,13 +45,13 @@ namespace nectarineAPI
             services.AddControllers();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+
             ConfigureJWTAuthentication(services);
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "nectarine", Version = "v1" });
-                
+
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -62,7 +62,7 @@ namespace nectarineAPI
                     Type = SecuritySchemeType.ApiKey,
                 });
 
-                OpenApiSecurityScheme securityScheme = new()
+                OpenApiSecurityScheme securityScheme = new ()
                 {
                     Reference = new OpenApiReference
                     {
@@ -73,19 +73,19 @@ namespace nectarineAPI
                     Name = "Bearer",
                     Scheme = "Bearer",
                 };
-                
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     { securityScheme, Array.Empty<string>() },
                 });
             });
-            
+
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
                     options.User.RequireUniqueEmail = true;
                 })
                 .AddEntityFrameworkStores<NectarineDbContext>();
-            
+
             StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
             services.Configure<TwilioOptions>(Configuration.GetSection("Twilio"));
             services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
@@ -126,12 +126,12 @@ namespace nectarineAPI
                 endpoints.MapControllers();
             });
         }
-        
+
         private void ConfigureJWTAuthentication(IServiceCollection services)
         {
             services.Configure<TokenOptions>(Configuration.GetSection("JWT"));
             var tokenConfig = Configuration.GetSection("JWT").Get<TokenOptions>();
-            
+
             services.AddAuthentication(x =>
                 {
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

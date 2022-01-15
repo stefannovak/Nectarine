@@ -18,18 +18,18 @@ namespace nectarineAPI.Services
         {
             _tokenOptions = tokenOptions;
         }
-        
+
         public string GenerateTokenAsync(ApplicationUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Value.Secret));
             var issuer = _tokenOptions.Value.Issuer;
             var audience = _tokenOptions.Value.Audience;
-            
+
             var claims = new List<Claim>
             {
                 new (ClaimTypes.Email, user.Email),
-                new (ClaimTypes.NameIdentifier, user.Id)
+                new (ClaimTypes.NameIdentifier, user.Id),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -40,7 +40,7 @@ namespace nectarineAPI.Services
                 Issuer = issuer,
                 Audience = audience,
             };
-            
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }

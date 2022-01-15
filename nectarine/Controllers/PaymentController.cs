@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +23,7 @@ namespace nectarineAPI.Controllers
             _context = context;
             _paymentService = paymentService;
         }
-        
+
         /// <summary>
         /// Creates a <see cref="PaymentMethod"/> and attaches it the user's <see cref="Customer"/> object.
         /// </summary>
@@ -32,7 +31,7 @@ namespace nectarineAPI.Controllers
         /// <param name="addPaymentMethodDto">A customers card details.</param>
         /// <returns></returns>
         [HttpPost("AddPaymentMethod")]
-        public ActionResult AddPaymentMethod(String userId, AddPaymentMethodDTO addPaymentMethodDto)
+        public ActionResult AddPaymentMethod(string userId, AddPaymentMethodDTO addPaymentMethodDto)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == userId);
             if (user is null)
@@ -53,8 +52,8 @@ namespace nectarineAPI.Controllers
                     Message = "Could not create the payment method.",
                     Errors =
                     {
-                        new KeyValuePair<string, string>("Error", result.Message)
-                    }
+                        new KeyValuePair<string, string>("Error", result.Message),
+                    },
                 });
             }
 

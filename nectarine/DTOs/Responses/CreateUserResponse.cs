@@ -6,7 +6,7 @@ namespace nectarineAPI.DTOs.Responses
         {
             Token = token;
         }
-        
+
         public string Token { get; set; }
     }
 }

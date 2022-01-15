@@ -3,7 +3,8 @@ using nectarineAPI.Models;
 
 namespace nectarineAPI.Services.Auth
 {
-    public interface IExternalAuthService<T> where T : IExternalAuthUser
+    public interface IExternalAuthService<T>
+        where T : IExternalAuthUser
     {
         /// <summary>
         /// Get a user profile for an external auth platform through a token.

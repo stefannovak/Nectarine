@@ -12,7 +12,7 @@ namespace nectarineAPI.Services
         /// </summary>
         /// <param name="user"></param>
         /// <param name="options"></param>
-        /// <returns>Returns </returns>
+        /// <returns></returns>
         public Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null);
 
         /// <summary>

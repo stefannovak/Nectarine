@@ -6,7 +6,8 @@ using nectarineAPI.Models;
 
 namespace nectarineAPI.Services.Auth
 {
-    public class MicrosoftAuthService<T> : IExternalAuthService<MicrosoftUser> where T : MicrosoftUser, new ()
+    public class MicrosoftAuthService<T> : IExternalAuthService<MicrosoftUser>
+        where T : MicrosoftUser, new()
     {
         public async Task<MicrosoftUser?> GetUserFromTokenAsync(string token)
         {
@@ -14,11 +15,11 @@ namespace nectarineAPI.Services.Auth
             {
                 DefaultRequestHeaders =
                 {
-                    Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}")
-                }
+                    Authorization = AuthenticationHeaderValue.Parse($"Bearer {token}"),
+                },
             };
 
-           var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
+            var response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -32,5 +33,5 @@ namespace nectarineAPI.Services.Auth
             });
             return user;
         }
-    }   
+    }
 }
