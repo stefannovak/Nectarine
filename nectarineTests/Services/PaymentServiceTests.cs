@@ -1,151 +1,151 @@
-// using System.Linq;
-// using System.Threading.Tasks;
-// using Castle.Core.Internal;
-// using Microsoft.EntityFrameworkCore;
-// using Microsoft.Extensions.Configuration;
-// using Moq;
-// using NectarineAPI.Services;
-// using NectarineData.DataAccess;
-// using NectarineData.Models;
-// using Stripe;
-// using Xunit;
-//
-// namespace NectarineTests.Services
-// {
-//     public class PaymentServiceTests
-//     {
-//         private readonly Mock<IConfigurationSection> _configurationSection = new ();
-//         private readonly PaymentService paymentService = new ();
-//         private readonly IUserCustomerService _userCustomerService;
-//         private readonly ApplicationUser user = new ();
-//
-//         public PaymentServiceTests()
-//         {
-//             // Configuration setup
-//             _configurationSection.Setup(x => x.Path).Returns("Stripe");
-//             _configurationSection.Setup(x => x.Key).Returns("Secret");
-//             _configurationSection.Setup(x => x.Value).Returns("sk_test_26PHem9AhJZvU623DfE1x4sd");
-//             StripeConfiguration.ApiKey = _configurationSection.Object.Value;
-//
-//             // UserCustomerService setup
-//             var options = new DbContextOptionsBuilder<NectarineDbContext>()
-//                 .UseInMemoryDatabase(databaseName: "TestDb")
-//                 .Options;
-//
-//             NectarineDbContext mockContext = new (options);
-//             _userCustomerService = new UserCustomerService(mockContext);
-//         }
-//
-//         [Fact(DisplayName = "AddCardPaymentMethod should add a reference for a card to the user.")]
-//         public async Task Test_AddCardPaymentMethod()
-//         {
-//             // Arrange
-//             await _userCustomerService.AddStripeCustomerIdAsync(user);
-//
-//             // Act
-//             paymentService.AddCardPaymentMethod(
-//                 user,
-//                 "4242424242424242",
-//                 9,
-//                 2025,
-//                 "552");
-//
-//             var cards = paymentService.GetCardsForUser(user);
-//
-//             // Assert
-//             Assert.True(cards.Any());
-//         }
-//
-//         [Theory]
-//         [InlineData("4242", "9", "2025", "552")] // Invalid card number
-//         [InlineData("4242424242424242", "99", "2025", "552")] // Invalid month
-//         [InlineData("4242424242424242", "9", "9999", "552")] // Invalid year
-//         [InlineData("4242424242424242", "9", "2025", "0")] // Invalid CSV
-//         public async Task Test_AddCardPaymentMethod_ShouldFailWithInvalidCardDetails(params object[] cardData)
-//         {
-//             // Arrange
-//             await _userCustomerService.AddStripeCustomerIdAsync(user);
-//
-//             // Act
-//             var exception = paymentService.AddCardPaymentMethod(
-//                 user,
-//                 cardData[0] as string ?? string.Empty,
-//                 int.Parse(cardData[1] as string ?? string.Empty),
-//                 int.Parse(cardData[2] as string ?? string.Empty),
-//                 cardData[3] as string ?? string.Empty);
-//
-//             Assert.NotNull(exception);
-//         }
-//
-//         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
-//         public async Task Test_GetCardsForUser()
-//         {
-//             // Arrange
-//             await _userCustomerService.AddStripeCustomerIdAsync(user);
-//
-//             paymentService.AddCardPaymentMethod(
-//                 user,
-//                 "4242424242424242",
-//                 9,
-//                 2025,
-//                 "552");
-//
-//             paymentService.AddCardPaymentMethod(
-//                 user,
-//                 "4242424242424242",
-//                 3,
-//                 2022,
-//                 "123");
-//
-//             // Act
-//             var cards = paymentService.GetCardsForUser(user);
-//
-//             // Assert
-//             Assert.True(cards.Any());
-//         }
-//
-//         [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
-//         public async Task Test_CreatePaymentIntent()
-//         {
-//             // Arrange
-//             await _userCustomerService.AddStripeCustomerIdAsync(user);
-//
-//             // Arrange
-//             paymentService.AddCardPaymentMethod(
-//                 user,
-//                 "4242424242424242",
-//                 9,
-//                 2025,
-//                 "552");
-//             var cards = paymentService.GetCardsForUser(user);
-//
-//             // Act
-//             var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
-//
-//             // Assert
-//             Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
-//         }
-//
-//         [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
-//         public async Task Test_ConfirmPaymentIntent()
-//         {
-//             // Arrange
-//             await _userCustomerService.AddStripeCustomerIdAsync(user);
-//
-//             paymentService.AddCardPaymentMethod(
-//                 user,
-//                 "4242424242424242",
-//                 9,
-//                 2025,
-//                 "552");
-//             var cards = paymentService.GetCardsForUser(user);
-//             var paymentIntent = paymentService.CreatePaymentIntent(user, 500, cards.Last().Id);
-//
-//             // Act
-//             var newPaymentIntent = paymentService.ConfirmPaymentIntent(paymentIntent.Id);
-//
-//             // Assert
-//             Assert.True(newPaymentIntent.Status == "succeeded");
-//         }
-//     }
-// }
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Castle.Core.Internal;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NectarineAPI.Services;
+using NectarineData.Models;
+using Stripe;
+using Xunit;
+
+namespace NectarineTests.Services
+{
+    public class PaymentServiceTests
+    {
+        private readonly PaymentService _subject;
+        private readonly Mock<PaymentMethodService> _paymentMethodServiceMock;
+        private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
+        private readonly PaymentMethod fakePaymentMethod = new () { Id = "FakePaymentMethodId" };
+
+        public PaymentServiceTests()
+        {
+            // PaymentMethodServiceMock setup
+            _paymentMethodServiceMock = new Mock<PaymentMethodService>();
+
+            _paymentMethodServiceMock
+                .Setup(x => x.Create(
+                    It.IsAny<PaymentMethodCreateOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(fakePaymentMethod);
+
+            _paymentMethodServiceMock
+                .Setup(x => x.Attach(
+                    It.IsAny<string>(),
+                    It.IsAny<PaymentMethodAttachOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(fakePaymentMethod);
+
+            _paymentMethodServiceMock
+                .Setup(x => x.List(
+                    It.IsAny<PaymentMethodListOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(new StripeList<PaymentMethod>
+                {
+                    Data = new List<PaymentMethod>
+                    {
+                        fakePaymentMethod,
+                        fakePaymentMethod,
+                    },
+                });
+
+            // PaymentIntentServiceMock setup
+            var paymentIntentServiceMock = new Mock<PaymentIntentService>();
+
+            paymentIntentServiceMock
+                .Setup(x => x.Create(
+                    It.IsAny<PaymentIntentCreateOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(new PaymentIntent
+                {
+                    ClientSecret = "ClientSecret",
+                });
+
+            paymentIntentServiceMock
+                .Setup(x => x.Confirm(
+                    It.IsAny<string>(),
+                    It.IsAny<PaymentIntentConfirmOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(new PaymentIntent
+                {
+                    Status = "succeeded",
+                });
+
+            // Logger setup
+            var loggerMock = new Mock<ILogger<PaymentService>>();
+
+            // PaymentService setup
+            _subject = new PaymentService(
+                _paymentMethodServiceMock.Object,
+                paymentIntentServiceMock.Object,
+                loggerMock.Object);
+        }
+
+        [Fact(DisplayName = "AddCardPaymentMethod should add a reference for a card to the user.")]
+        public void Test_AddCardPaymentMethod()
+        {
+            // Act
+            var result = _subject.AddCardPaymentMethod(
+                user,
+                "4242424242424242",
+                9,
+                2025,
+                "552");
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        [Fact(DisplayName = "AddCardToPaymentMethod should throw an exception Stripe fails to create a payment method")]
+        public void Test_AddCardPaymentMethod_ShouldFailWithInvalidCardDetails()
+        {
+            // Arrange
+            _paymentMethodServiceMock
+                .Setup(x => x.Create(
+                    It.IsAny<PaymentMethodCreateOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Throws(new StripeException());
+
+            // Act
+            var result = _subject.AddCardPaymentMethod(
+                user,
+                "4242424242424242",
+                9,
+                2025,
+                "0");
+
+            // Assert
+            Assert.IsType<StripeException>(result);
+        }
+
+        [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]
+        public void Test_GetCardsForUser()
+        {
+            // Act
+            var cards = _subject.GetCardsForUser(user);
+
+            // Assert
+            Assert.True((cards as StripeList<PaymentMethod>)?.Data.Any() == true);
+        }
+
+        [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
+        public void Test_CreatePaymentIntent()
+        {
+            // Act
+            var paymentIntent = _subject.CreatePaymentIntent(user, 500, "paymentMethodId");
+
+            // Assert
+            Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
+        }
+
+        [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
+        public void Test_ConfirmPaymentIntent()
+        {
+            // Act
+            var result = _subject.ConfirmPaymentIntent("paymentMethodId");
+
+            // Assert
+            Assert.True(result.Status == "succeeded");
+        }
+    }
+}
