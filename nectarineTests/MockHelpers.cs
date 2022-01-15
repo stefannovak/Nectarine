@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace nectarineTests
+namespace NectarineTests
 {
     public static class MockHelpers
     {
