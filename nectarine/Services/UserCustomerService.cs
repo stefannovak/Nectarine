@@ -9,12 +9,15 @@ namespace NectarineAPI.Services
     public class UserCustomerService : IUserCustomerService
     {
         private readonly NectarineDbContext _context;
-        private readonly CustomerService _customerService;
+        public CustomerService _customerService;
 
-        public UserCustomerService(NectarineDbContext context, CustomerService customerService)
+        public UserCustomerService(
+            NectarineDbContext context
+            // CustomerService customerService
+            )
         {
             _context = context;
-            _customerService = customerService;
+            _customerService = new CustomerService();
         }
 
         public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)

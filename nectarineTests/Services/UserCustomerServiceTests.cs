@@ -2,7 +2,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
@@ -69,7 +68,11 @@ namespace NectarineTests.Services
                 .Options;
 
             NectarineDbContext mockContext = new (options);
-            _userCustomerService = new UserCustomerService(mockContext, _mockCustomerService.Object);
+
+            _userCustomerService = new UserCustomerService(mockContext)
+            {
+                _customerService = _mockCustomerService.Object,
+            };
         }
 
         #region Customers

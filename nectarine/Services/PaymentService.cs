@@ -8,17 +8,19 @@ namespace NectarineAPI.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly PaymentMethodService _paymentMethodService;
-        private readonly PaymentIntentService _paymentIntentService;
+        public PaymentMethodService _paymentMethodService;
+        public PaymentIntentService _paymentIntentService;
         private readonly ILogger<PaymentService> _logger;
 
         public PaymentService(
-            PaymentMethodService paymentMethodService,
-            PaymentIntentService paymentIntentService,
+            // PaymentMethodService paymentMethodService,
+            // PaymentIntentService paymentIntentService,
             ILogger<PaymentService> logger)
         {
-            _paymentMethodService = paymentMethodService;
-            _paymentIntentService = paymentIntentService;
+            // _paymentMethodService = paymentMethodService;
+            // _paymentIntentService = paymentIntentService;
+            _paymentMethodService = new PaymentMethodService();
+            _paymentIntentService = new PaymentIntentService();
             _logger = logger;
         }
 

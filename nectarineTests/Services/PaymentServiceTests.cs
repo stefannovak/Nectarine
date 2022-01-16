@@ -75,10 +75,11 @@ namespace NectarineTests.Services
             var loggerMock = new Mock<ILogger<PaymentService>>();
 
             // PaymentService setup
-            _subject = new PaymentService(
-                _paymentMethodServiceMock.Object,
-                paymentIntentServiceMock.Object,
-                loggerMock.Object);
+            _subject = new PaymentService(loggerMock.Object)
+            {
+                _paymentIntentService = paymentIntentServiceMock.Object,
+                _paymentMethodService = _paymentMethodServiceMock.Object,
+            };
         }
 
         [Fact(DisplayName = "AddCardPaymentMethod should add a reference for a card to the user.")]
