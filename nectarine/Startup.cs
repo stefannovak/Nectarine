@@ -37,18 +37,25 @@ namespace NectarineAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<NectarineDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
             services.AddHttpClient();
 
             services.AddHttpContextAccessor();
 
+            services.AddDbContext<NectarineDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+                {
+                    options.User.RequireUniqueEmail = true;
+                })
+                .AddEntityFrameworkStores<NectarineDbContext>();
+
+            ConfigureJWTAuthentication(services);
+            ConfigureApplicationServices(services);
+
             services.AddControllers();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            ConfigureJWTAuthentication(services);
 
             services.AddSwaggerGen(c =>
             {
@@ -85,26 +92,6 @@ namespace NectarineAPI
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
-
-            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-                {
-                    options.User.RequireUniqueEmail = true;
-                })
-                .AddEntityFrameworkStores<NectarineDbContext>();
-
-            StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
-            services.Configure<TwilioOptions>(Configuration.GetSection("Twilio"));
-            services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
-
-            services.AddTransient<IPaymentService, PaymentService>();
-            services.AddTransient<IUserCustomerService, UserCustomerService>();
-            services.AddTransient<ITokenService, TokenService>();
-            services.AddTransient<IPhoneService, TwilioService>();
-            services.AddTransient<IEmailService, SendGridEmailService>();
-
-            services.AddTransient<IExternalAuthService<GoogleUser>, GoogleAuthService<GoogleUser>>();
-            services.AddTransient<IExternalAuthService<MicrosoftUser>, MicrosoftAuthService<MicrosoftUser>>();
-            services.AddTransient<IExternalAuthService<FacebookUser>, FacebookAuthService<FacebookUser>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -122,15 +109,30 @@ namespace NectarineAPI
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private void ConfigureApplicationServices(IServiceCollection services)
+        {
+            StripeConfiguration.ApiKey = Configuration.GetSection("Stripe:Secret").Value;
+            services.Configure<TwilioOptions>(Configuration.GetSection("Twilio"));
+            services.Configure<SendGridOptions>(Configuration.GetSection("SendGrid"));
+
+            services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IUserCustomerService, UserCustomerService>();
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IPhoneService, TwilioService>();
+            services.AddTransient<IEmailService, SendGridEmailService>();
+
+            services.AddTransient<IExternalAuthService<GoogleUser>, GoogleAuthService<GoogleUser>>();
+            services.AddTransient<IExternalAuthService<MicrosoftUser>, MicrosoftAuthService<MicrosoftUser>>();
+            services.AddTransient<IExternalAuthService<FacebookUser>, FacebookAuthService<FacebookUser>>();
         }
 
         private void ConfigureJWTAuthentication(IServiceCollection services)
