@@ -10,26 +10,33 @@ namespace NectarineTests.Controllers.OrderController;
 
 public partial class OrderControllerTests
 {
-    [Fact(DisplayName = "GetOrder should get an order for a user")]
-    public async Task Test_GetOrder_ReturnsOk()
+    [Fact(DisplayName = "GetAllOrders should return a list of Orders for the User")]
+    public async Task Test_GetAllOrders_ReturnsOk()
     {
-        // Arrange
+        // Assert
         _context.Orders.Add(new Order
         {
-            Id = orderId,
+            Id = Guid.NewGuid(),
             User = user,
         });
+
+        _context.Orders.Add(new Order
+        {
+            Id = Guid.NewGuid(),
+            User = user,
+        });
+
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _subject.GetOrder(orderId);
+        var result = await _subject.GetAllOrders();
 
         // Assert
         Assert.IsType<OkObjectResult>(result);
     }
 
-    [Fact(DisplayName = "GetOrder should return Unauthorized when a User can't be found")]
-    public async Task Test_GetOrder_FailsWhen_UserCantBeFound()
+    [Fact(DisplayName = "GetAllOrders should return Unauthorized when a User can't be found")]
+    public async Task Test_GetAllOrders_FailsWhen_UserCantBeFound()
     {
         // Arrange
         _userManager
@@ -37,20 +44,19 @@ public partial class OrderControllerTests
                 .GetUserAsync(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _subject.GetOrder(orderId);
+        var result = await _subject.GetAllOrders();
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
     }
 
-    [Fact(DisplayName = "CreateOrderTests should return NotFound when an Order can't be found for a User")]
-    public async Task Test_GetOrder_FailsWhen_AnOrderCantBeFound()
+    [Fact(DisplayName = "GetAllOrders should return NotFound when an Order can't be found for a User")]
+    public async Task Test_GetAllOrders_FailsWhen_AnOrderCantBeFound()
     {
         // Act
-        var result = await _subject.GetOrder(Guid.NewGuid());
+        var result = await _subject.GetAllOrders();
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
     }
-
 }

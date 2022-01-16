@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests.Orders;
 using NectarineAPI.Models;
@@ -82,5 +84,27 @@ public class OrderController : ControllerBase
         }
 
         return Ok(_mapper.Map<OrderDTO>(order));
+    }
+
+    /// <summary>
+    /// Get a Users orders.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("GetAll")]
+    public async Task<IActionResult> GetAllOrders()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var orders = _context.Orders.Where(x => x.User.Id == user.Id);
+        if (!orders.Any())
+        {
+            return NotFound(new ApiError { Message = "Could not find any orders for this user." });
+        }
+
+        return Ok(_mapper.Map<IList<OrderDTO>>(orders));
     }
 }
