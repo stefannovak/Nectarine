@@ -15,6 +15,7 @@ namespace NectarineAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    
                     webBuilder.ConfigureAppConfiguration(config =>
                     {
                         var settings = config.Build();
