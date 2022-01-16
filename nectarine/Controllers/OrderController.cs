@@ -107,4 +107,29 @@ public class OrderController : ControllerBase
 
         return Ok(_mapper.Map<IList<OrderDTO>>(orders));
     }
+
+    /// <summary>
+    /// Cancel an order. Does not delete the order.
+    /// </summary>
+    /// <param name="orderId"></param>
+    /// <returns></returns>
+    [HttpPost("Cancel")]
+    public async Task<IActionResult> CancelOrder([FromBody] string orderId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var order = _context.Orders.FirstOrDefault(x => x.Id == Guid.Parse(orderId) && x.User.Id == user.Id);
+        if (order is null)
+        {
+            return NotFound(new ApiError { Message = "Could not find an order with the given Id for this user." });
+        }
+
+        order.IsCancelled = true;
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
 }
