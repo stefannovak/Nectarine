@@ -9,6 +9,7 @@ namespace NectarineAPI.DTOs
         public AutoMapping()
         {
             CreateMap<ApplicationUser, UserDTO>().ReverseMap();
+            CreateMap<Order, OrderDTO>().ReverseMap();
         }
     }
 }

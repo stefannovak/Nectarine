@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -13,15 +14,18 @@ namespace NectarineTests.Controllers.OrderController;
 public partial class OrderControllerTests
 {
     private readonly NectarineAPI.Controllers.OrderController _subject;
+
     private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
     private readonly Mock<UserManager<ApplicationUser>> _userManager;
+    private readonly NectarineDbContext _context;
 
-    private readonly CreateOrderDto createOrderDto;
+    private readonly Guid orderId = Guid.NewGuid();
+    private readonly CreateOrderDTO createOrderDto;
 
     public OrderControllerTests()
     {
         // CreateOrderDto setup
-        createOrderDto = new ()
+        createOrderDto = new CreateOrderDTO
         {
             ProductIds = new List<string>
             {
@@ -36,24 +40,21 @@ public partial class OrderControllerTests
         _userManager
             .Setup(manager => manager
                 .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(new ApplicationUser
-            {
-                PhoneNumber = "123123123123",
-                VerificationCode = 123123,
-                VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
-                PhoneNumberConfirmed = false,
-            });
+            .ReturnsAsync(user);
 
         // DbContext setup
         var options = new DbContextOptionsBuilder<NectarineDbContext>()
             .UseInMemoryDatabase("TestDb")
             .Options;
 
-        NectarineDbContext mockContext = new (options);
-        mockContext.Users.Add(user);
-        mockContext.SaveChanges();
+        _context = new NectarineDbContext(options);
+        _context.Users.Add(user);
+        _context.SaveChanges();
+
+        // Mapper setup
+        var mapperMock = new Mock<IMapper>();
 
         // PaymentController setup
-        _subject = new NectarineAPI.Controllers.OrderController(mockContext, _userManager.Object);
+        _subject = new NectarineAPI.Controllers.OrderController(_context, _userManager.Object, mapperMock.Object);
     }
 }

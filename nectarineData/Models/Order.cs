@@ -13,7 +13,7 @@ public class Order
     public Guid Id { get; set; }
 
     [Required]
-    public virtual ApplicationUser? User { get; set; }
+    public virtual ApplicationUser User { get; set; } = null!;
 
     [Required]
     public virtual ICollection<string> ProductIds { get; set; } = new List<string>();

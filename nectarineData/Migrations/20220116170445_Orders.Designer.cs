@@ -10,7 +10,7 @@ using NectarineData.DataAccess;
 namespace NectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
-    [Migration("20220116163504_Orders")]
+    [Migration("20220116170445_Orders")]
     partial class Orders
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
