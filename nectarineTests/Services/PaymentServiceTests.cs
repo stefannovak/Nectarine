@@ -77,8 +77,8 @@ namespace NectarineTests.Services
             // PaymentService setup
             _subject = new PaymentService(loggerMock.Object)
             {
-                _paymentIntentService = paymentIntentServiceMock.Object,
-                _paymentMethodService = _paymentMethodServiceMock.Object,
+                PaymentIntentService = paymentIntentServiceMock.Object,
+                PaymentMethodService = _paymentMethodServiceMock.Object,
             };
         }
 

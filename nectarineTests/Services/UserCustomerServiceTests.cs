@@ -71,7 +71,7 @@ namespace NectarineTests.Services
 
             _userCustomerService = new UserCustomerService(mockContext)
             {
-                _customerService = _mockCustomerService.Object,
+                CustomerService = _mockCustomerService.Object,
             };
         }
 
