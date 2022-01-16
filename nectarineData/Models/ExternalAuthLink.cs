@@ -15,7 +15,7 @@ namespace NectarineData.Models
         [MaxLength(512)]
         public string PlatformId { get; set; } = string.Empty;
 
-        [Required] 
+        [Required]
         public ExternalAuthPlatform Platform { get; set; }
     }
 }
