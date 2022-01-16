@@ -1,4 +1,7 @@
 using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -17,6 +20,7 @@ namespace NectarineTests.Controllers
         private readonly PaymentController _subject;
         private readonly Mock<IPaymentService> _paymentServiceMock;
         private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
+        private readonly Mock<UserManager<ApplicationUser>> _userManager;
 
         public PaymentControllerTests()
         {
@@ -31,6 +35,20 @@ namespace NectarineTests.Controllers
                     It.IsAny<int>(),
                     It.IsAny<string>()));
 
+            // UserManager setup
+            _userManager = MockHelpers.MockUserManager<ApplicationUser>();
+
+            _userManager
+                .Setup(manager => manager
+                    .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync(new ApplicationUser
+                {
+                    PhoneNumber = "123123123123",
+                    VerificationCode = 123123,
+                    VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
+                    PhoneNumberConfirmed = false,
+                });
+
             // DbContext setup
             var options = new DbContextOptionsBuilder<NectarineDbContext>()
                 .UseInMemoryDatabase("TestDb")
@@ -41,11 +59,11 @@ namespace NectarineTests.Controllers
             mockContext.SaveChanges();
 
             // PaymentController setup
-            _subject = new PaymentController(mockContext, _paymentServiceMock.Object);
+            _subject = new PaymentController(mockContext, _paymentServiceMock.Object, _userManager.Object);
         }
 
         [Fact(DisplayName = "AddPaymentMethod should add a payment method to the user")]
-        public void Test_AddPaymentMethod()
+        public async Task Test_AddPaymentMethod()
         {
             // Arrange
             var addPaymentMethodDto = new AddPaymentMethodDTO
@@ -57,16 +75,20 @@ namespace NectarineTests.Controllers
             };
 
             // Act
-            var result = _subject.AddPaymentMethod(user.Id, addPaymentMethodDto);
+            var result = await _subject.AddPaymentMethod(addPaymentMethodDto);
 
             // Assert
             Assert.IsType<OkResult>(result);
         }
 
-        [Fact(DisplayName = "AddPaymentMethod should return a NotFound when given a userId that is not in the database")]
-        public void Test_AddPaymentMethod_ReturnsNotFoundWhenInvalidUserId()
+        [Fact(DisplayName = "AddPaymentMethod should return Unauthorized when a User can't be found")]
+        public async Task Test_AddPaymentMethod_ReturnsUnauthorized()
         {
             // Arrange
+            _userManager
+                .Setup(manager => manager
+                    .GetUserAsync(It.IsAny<ClaimsPrincipal>()));
+
             var addPaymentMethodDto = new AddPaymentMethodDTO
             {
                 CardNumber = "4242424242424242",
@@ -76,14 +98,14 @@ namespace NectarineTests.Controllers
             };
 
             // Act
-            var result = _subject.AddPaymentMethod(string.Empty, addPaymentMethodDto);
+            var result = await _subject.AddPaymentMethod(addPaymentMethodDto);
 
             // Assert
-            Assert.True(result.GetType() == typeof(NotFoundObjectResult));
+            Assert.IsType<UnauthorizedResult>(result);
         }
 
         [Fact(DisplayName = "AddPaymentMethod should return a BadRequest when passed invalid card details")]
-        public void Test_AddPaymentMethod_ReturnsBadRequestWhenInvalidCardDetails()
+        public async Task Test_AddPaymentMethod_ReturnsBadRequest()
         {
             // Arrange
             _paymentServiceMock
@@ -104,7 +126,7 @@ namespace NectarineTests.Controllers
             };
 
             // Act
-            var result = _subject.AddPaymentMethod(user.Id, addPaymentMethodDto);
+            var result = await _subject.AddPaymentMethod(addPaymentMethodDto);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
