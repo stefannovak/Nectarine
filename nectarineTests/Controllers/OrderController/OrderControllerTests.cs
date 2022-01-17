@@ -32,6 +32,7 @@ public partial class OrderControllerTests
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
             },
+            OrderTotal = "100.25",
         };
 
         // UserManager setup

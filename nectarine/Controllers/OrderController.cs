@@ -52,6 +52,7 @@ public class OrderController : ControllerBase
         {
             User = user,
             ProductIds = createOrderDto.ProductIds,
+            OrderTotal = createOrderDto.OrderTotal,
         };
 
         _context.Orders.Add(order);

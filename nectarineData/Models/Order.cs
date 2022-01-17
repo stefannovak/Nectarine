@@ -26,5 +26,6 @@ public class Order
 
     public string? PaymentMethod { get; set; }
 
+    [Required]
     public string OrderTotal { get; set; } = string.Empty;
 }
