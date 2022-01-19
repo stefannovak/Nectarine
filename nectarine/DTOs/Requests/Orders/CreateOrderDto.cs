@@ -10,4 +10,7 @@ public class CreateOrderDTO
 
     [Required]
     public string OrderTotal { get; set; } = null!;
+
+    [Required]
+    public string PaymentMethodId { get; set; } = null!;
 }

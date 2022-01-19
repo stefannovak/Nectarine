@@ -43,7 +43,7 @@ public partial class OrderControllerTests
         Assert.IsType<UnauthorizedResult>(result);
     }
 
-    [Fact(DisplayName = "CreateOrderTests should return NotFound when an Order can't be found for a User")]
+    [Fact(DisplayName = "CreateOrder should return NotFound when an Order can't be found for a User")]
     public async Task Test_GetOrder_FailsWhen_AnOrderCantBeFound()
     {
         // Act
@@ -52,5 +52,4 @@ public partial class OrderControllerTests
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
     }
-
 }

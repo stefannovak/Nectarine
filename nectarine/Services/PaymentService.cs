@@ -74,6 +74,8 @@ namespace NectarineAPI.Services
             return PaymentMethodService.List(options);
         }
 
+        public PaymentMethod? GetPaymentMethod(string id) => PaymentMethodService.Get(id);
+
         public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId)
         {
             var options = new PaymentIntentCreateOptions

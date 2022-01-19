@@ -15,6 +15,8 @@ namespace NectarineAPI.Services
 
         public IEnumerable<PaymentMethod> GetCardsForUser(ApplicationUser user);
 
+        public PaymentMethod? GetPaymentMethod(string id);
+
         /// <summary>
         /// Creates a <see cref="PaymentIntent"/> object which attaches the user to it. It should be used at the start
         /// of the checkout process, and updated throughout.

@@ -32,4 +32,18 @@ public partial class OrderControllerTests
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
     }
+
+    [Fact(DisplayName = "CreateOrderTests should return BadRequest when the given PaymentMethodId does not correspond to the user")]
+    public async Task Test_CreateOrder_FailsWhen_WrongPaymentMethodId()
+    {
+        // Arrange
+        _paymentServiceMock
+            .Setup(x => x.GetPaymentMethod(It.IsAny<string>()));
+
+        // Act
+        var result = await _subject.CreateOrder(createOrderDto);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
 }
