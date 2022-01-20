@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,4 +14,7 @@ public class CreateOrderDTO
 
     [Required]
     public string PaymentMethodId { get; set; } = null!;
+
+    [Required]
+    public Guid AddressId { get; set; }
 }

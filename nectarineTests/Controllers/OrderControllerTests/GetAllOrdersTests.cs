@@ -6,7 +6,7 @@ using Moq;
 using NectarineData.Models;
 using Xunit;
 
-namespace NectarineTests.Controllers.OrderController;
+namespace NectarineTests.Controllers.OrderControllerTests;
 
 public partial class OrderControllerTests
 {

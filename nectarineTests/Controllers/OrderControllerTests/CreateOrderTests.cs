@@ -1,10 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using NectarineAPI.DTOs.Requests.Orders;
 using Xunit;
 
-namespace NectarineTests.Controllers.OrderController;
+namespace NectarineTests.Controllers.OrderControllerTests;
 
 public partial class OrderControllerTests
 {
@@ -39,6 +42,29 @@ public partial class OrderControllerTests
         // Arrange
         _paymentServiceMock
             .Setup(x => x.GetPaymentMethod(It.IsAny<string>()));
+
+        // Act
+        var result = await _subject.CreateOrder(createOrderDto);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact(DisplayName = "CreateOrderTests should return BadRequest when the given AddressId does not correspond to the users addresses")]
+    public async Task Test_CreateOrder_FailsWhen_WrongAddressId()
+    {
+        // Arrange
+        createOrderDto = new CreateOrderDTO
+        {
+            ProductIds = new List<string>
+            {
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+            },
+            OrderTotal = "100.25",
+            PaymentMethodId = "pm_123123213123123",
+            AddressId = Guid.NewGuid(),
+        };
 
         // Act
         var result = await _subject.CreateOrder(createOrderDto);

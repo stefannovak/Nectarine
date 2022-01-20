@@ -6,7 +6,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests.Orders;
 using NectarineAPI.Models;
@@ -60,11 +59,20 @@ public class OrderController : ControllerBase
         }
 
         var paymentMethod = _paymentService.GetPaymentMethod(createOrderDto.PaymentMethodId);
-        if (paymentMethod is null || paymentMethod?.CustomerId != user.StripeCustomerId)
+        if (paymentMethod is null || paymentMethod.CustomerId != user.StripeCustomerId)
         {
             return BadRequest(new ApiError
             {
                 Message = $"The payment method ID: {createOrderDto.PaymentMethodId} does not correspond to this user.",
+            });
+        }
+
+        var address = _context.Addresses.FirstOrDefault(x => x.Id == createOrderDto.AddressId);
+        if (address is null)
+        {
+            return BadRequest(new ApiError
+            {
+                Message = $"Could not find an address in the users record with the given id: {createOrderDto.AddressId}",
             });
         }
 
@@ -73,11 +81,12 @@ public class OrderController : ControllerBase
             User = user,
             ProductIds = createOrderDto.ProductIds,
             OrderTotal = createOrderDto.OrderTotal,
-            PaymentMethod = paymentMethod.Id,
+            PaymentMethodId = paymentMethod.Id,
+            AddressId = address.Id,
         };
 
         _context.Orders.Add(order);
-        await SendOrderConfirmationEmail(user, order, paymentMethod);
+        await SendOrderConfirmationEmail(user, order, paymentMethod, address);
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -137,7 +146,7 @@ public class OrderController : ControllerBase
     /// <param name="orderId"></param>
     /// <returns></returns>
     [HttpPost("Cancel")]
-    public async Task<IActionResult> CancelOrder([FromBody] string orderId)
+    public async Task<IActionResult> CancelOrder([FromQuery] string orderId)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
@@ -156,7 +165,11 @@ public class OrderController : ControllerBase
         return Ok();
     }
 
-    private async Task SendOrderConfirmationEmail(ApplicationUser user, Order order, PaymentMethod paymentMethod)
+    private async Task SendOrderConfirmationEmail(
+        ApplicationUser user,
+        Order order,
+        PaymentMethod paymentMethod,
+        UserAddress address)
     {
         await _emailService.SendEmail(user.Email, new SendGridMessage
         {
@@ -165,7 +178,7 @@ public class OrderController : ControllerBase
                 $"Thanks for your order {user.FirstName}!\n" +
                 "Your order has been created and will be dispatched soon.\n" +
                 $"Order Confirmation Number: {order.Id.ToString()}\n\n" +
-                $"Your order will be sent to .\n" +
+                $"Your order will be sent to {address.Line1} {address.Postcode}.\n" +
                 $"Order Total: {order.OrderTotal}\n" +
                 $"Payment method ending in: {paymentMethod.Card.Last4}\n\n" +
                 "We hope to see you again soon.\n" +

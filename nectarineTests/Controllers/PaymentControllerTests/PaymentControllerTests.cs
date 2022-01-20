@@ -1,17 +1,13 @@
 using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Controllers;
-using NectarineAPI.DTOs.Requests;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 using Stripe;
-using Xunit;
 
 namespace NectarineTests.Controllers.PaymentControllerTests
 {
@@ -63,6 +59,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                     VerificationCode = 123123,
                     VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
                     PhoneNumberConfirmed = false,
+                    StripeCustomerId = stripeCustomerId,
                 });
 
             // DbContext setup
