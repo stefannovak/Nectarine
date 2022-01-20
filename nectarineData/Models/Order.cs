@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,5 +25,9 @@ public class Order
 
     public string? PaymentMethod { get; set; }
 
+    [Required]
     public string OrderTotal { get; set; } = string.Empty;
+
+    [Required]
+    public Guid AddressId { get; set; }
 }

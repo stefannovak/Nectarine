@@ -37,6 +37,13 @@ namespace NectarineTests.Services
                 .Returns(fakePaymentMethod);
 
             _paymentMethodServiceMock
+                .Setup(x => x.Get(
+                    It.IsAny<string>(),
+                    It.IsAny<PaymentMethodGetOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Returns(fakePaymentMethod);
+
+            _paymentMethodServiceMock
                 .Setup(x => x.List(
                     It.IsAny<PaymentMethodListOptions>(),
                     It.IsAny<RequestOptions>()))
@@ -127,6 +134,16 @@ namespace NectarineTests.Services
 
             // Assert
             Assert.True((cards as StripeList<PaymentMethod>)?.Data.Any() == true);
+        }
+
+        [Fact(DisplayName = "GetPaymentMethod should return a payment method")]
+        public void Test_GetPaymentMethod()
+        {
+            // Act
+            var result = _subject.GetPaymentMethod("paymentMethodId");
+
+            // Assert
+            Assert.IsType<PaymentMethod>(result);
         }
 
         [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]

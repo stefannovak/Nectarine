@@ -90,15 +90,14 @@ namespace NectarineAPI.Controllers
         }
 
         /// <summary>
-        /// Update the user.
-        /// TODO: - This might not be needed. It could either become one giant method for updating, or we can use smaller endpoints to update one thing.
+        /// Update the user's address.
         /// </summary>
-        /// <param name="updateUserDto"></param>
+        /// <param name="updateAddressDto"></param>
         /// <returns></returns>
         [HttpPut]
         [Route("Update")]
         [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "They can be null")]
-        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserDTO updateUserDto)
+        public async Task<IActionResult> UpdateAddressAsync([FromBody] UpdateAddressDTO updateAddressDto)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
@@ -112,15 +111,29 @@ namespace NectarineAPI.Controllers
                 return BadRequest(new ApiError { Message = "Could not get a customer from the user" });
             }
 
-            _userCustomerService.UpdateCustomer(user, new CustomerUpdateOptions
+            var addressId = Guid.NewGuid();
+            _context.Add(new UserAddress
             {
-                Email = updateUserDto.Email,
-                Address = updateUserDto.Address,
+                Id = addressId,
+                User = user,
+                Line1 = updateAddressDto.Address.Line1,
+                Line2 = updateAddressDto.Address.Line2,
+                City = updateAddressDto.Address.City,
+                Postcode = updateAddressDto.Address.PostalCode,
             });
+
+            if (updateAddressDto.IsPrimaryAddress)
+            {
+                _userCustomerService.UpdateCustomer(user, new CustomerUpdateOptions
+                {
+                    Address = updateAddressDto.Address,
+                });
+                user.CurrentShippingAddressId = addressId;
+            }
 
             await _context.SaveChangesAsync();
 
-            return Ok(_mapper.Map<UserDTO>(user));
+            return Ok();
         }
 
         /// <summary>
