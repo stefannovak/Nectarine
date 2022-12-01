@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Requests.Orders;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
@@ -17,7 +18,7 @@ namespace NectarineTests.Controllers.OrderControllerTests;
 
 public partial class OrderControllerTests
 {
-    private readonly NectarineAPI.Controllers.OrderController _subject;
+    private readonly OrderController _subject;
 
     private readonly ApplicationUser user;
     private readonly Mock<UserManager<ApplicationUser>> _userManager;
@@ -62,8 +63,10 @@ public partial class OrderControllerTests
             .ReturnsAsync(user);
 
         // DbContext setup
+        // https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/breaking-changes#in-memory-required
         var options = new DbContextOptionsBuilder<NectarineDbContext>()
-            .UseInMemoryDatabase("TestDb")
+            .UseInMemoryDatabase("TestDb", b => b.EnableNullChecks(false))
+            .EnableSensitiveDataLogging()
             .Options;
 
         _context = new NectarineDbContext(options);
@@ -102,7 +105,7 @@ public partial class OrderControllerTests
             });
 
         // PaymentController setup
-        _subject = new NectarineAPI.Controllers.OrderController(
+        _subject = new OrderController(
             _context,
             _userManager.Object,
             mapperMock.Object,
