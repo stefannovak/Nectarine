@@ -42,7 +42,7 @@ namespace NectarineAPI
             services.AddHttpContextAccessor();
 
             services.AddDbContext<NectarineDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection") ?? string.Empty));
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
@@ -138,7 +138,7 @@ namespace NectarineAPI
         private void ConfigureJWTAuthentication(IServiceCollection services)
         {
             services.Configure<TokenOptions>(Configuration.GetSection("JWT"));
-            var tokenConfig = Configuration.GetSection("JWT").Get<TokenOptions>();
+            var tokenConfig = Configuration.GetSection("JWT").Get<TokenOptions>() ?? new TokenOptions();
 
             services.AddAuthentication(x =>
                 {

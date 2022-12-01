@@ -153,7 +153,7 @@ namespace NectarineTests.Services
             var paymentIntent = _subject.CreatePaymentIntent(user, 500, "paymentMethodId");
 
             // Assert
-            Assert.False(paymentIntent.ClientSecret.IsNullOrEmpty());
+            Assert.False(string.IsNullOrEmpty(paymentIntent.ClientSecret));
         }
 
         [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
