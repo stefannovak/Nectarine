@@ -59,7 +59,7 @@ public partial class PaymentControllerTests
             // Arrange
             _paymentServiceMock
                 .Setup(x => x.AddCardPaymentMethod(
-                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),

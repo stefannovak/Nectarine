@@ -22,7 +22,7 @@ namespace NectarineAPI.Services
         public PaymentIntentService PaymentIntentService { get; init; }
 
         public StripeException? AddCardPaymentMethod(
-            ApplicationUser user,
+            string stripeCustomerId,
             string cardNumber,
             int expiryMonth,
             int expiryYear,
@@ -53,7 +53,7 @@ namespace NectarineAPI.Services
 
             var paymentMethodAttachOptions = new PaymentMethodAttachOptions
             {
-                Customer = user.StripeCustomerId,
+                Customer = stripeCustomerId,
             };
 
             PaymentMethodService.Attach(

@@ -94,7 +94,7 @@ namespace NectarineTests.Services
         {
             // Act
             var result = _subject.AddCardPaymentMethod(
-                user,
+                user.StripeCustomerId,
                 "4242424242424242",
                 9,
                 2025,
@@ -116,7 +116,7 @@ namespace NectarineTests.Services
 
             // Act
             var result = _subject.AddCardPaymentMethod(
-                user,
+                user.StripeCustomerId,
                 "4242424242424242",
                 9,
                 2025,

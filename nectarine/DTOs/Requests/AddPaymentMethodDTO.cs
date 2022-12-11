@@ -10,7 +10,7 @@ namespace NectarineAPI.DTOs.Requests
         [Range(1, 12)]
         public int ExpiryMonth { get; set; }
 
-        [Range(2021, 2030)]
+        [Range(2021, 2080)]
         public int ExpiryYear { get; set; }
 
         [StringLength(4, MinimumLength = 3)]

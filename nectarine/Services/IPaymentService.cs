@@ -4,10 +4,11 @@ using Stripe;
 
 namespace NectarineAPI.Services
 {
+    // TODO: - Do not return Stripe classes in an interface
     public interface IPaymentService
     {
         public StripeException? AddCardPaymentMethod(
-            ApplicationUser user,
+            string stripeCustomerId,
             string cardNumber,
             int expiryMonth,
             int expiryYear,

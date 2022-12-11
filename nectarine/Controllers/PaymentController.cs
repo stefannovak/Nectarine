@@ -46,7 +46,7 @@ namespace NectarineAPI.Controllers
             }
 
             var result = _paymentService.AddCardPaymentMethod(
-                user,
+                user.StripeCustomerId,
                 addPaymentMethodDto.CardNumber,
                 addPaymentMethodDto.ExpiryMonth,
                 addPaymentMethodDto.ExpiryYear,
