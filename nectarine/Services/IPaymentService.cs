@@ -46,7 +46,10 @@ namespace NectarineAPI.Services
         /// <param name="amount">The amount to charge in the smallest currency unit. (100 = 100p in GBP).</param>
         /// <param name="paymentMethodId">The selected payment method from the user to charge.</param>
         /// <returns><see cref="PaymentIntent"/>. The ClientSecret parameter should be passed back to the client.</returns>
-        public PaymentIntent CreatePaymentIntent(string paymentProviderCustomerId, long amount, string paymentMethodId);
+        public CreatePaymentIntentResponse? CreatePaymentIntent(
+            string paymentProviderCustomerId,
+            long amount,
+            string paymentMethodId);
 
         /// <summary>
         /// Confirms a <see cref="PaymentIntent"/>.

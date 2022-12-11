@@ -15,6 +15,7 @@ namespace NectarineTests.Services
     {
         private readonly PaymentService _subject;
         private readonly Mock<PaymentMethodService> _paymentMethodServiceMock;
+        private readonly Mock<PaymentIntentService> _paymentIntentServiceMock;
         private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
         private readonly PaymentMethod fakePaymentMethod = new ()
         {
@@ -66,9 +67,9 @@ namespace NectarineTests.Services
                 });
 
             // PaymentIntentServiceMock setup
-            var paymentIntentServiceMock = new Mock<PaymentIntentService>();
+            _paymentIntentServiceMock = new Mock<PaymentIntentService>();
 
-            paymentIntentServiceMock
+            _paymentIntentServiceMock
                 .Setup(x => x.Create(
                     It.IsAny<PaymentIntentCreateOptions>(),
                     It.IsAny<RequestOptions>()))
@@ -77,7 +78,7 @@ namespace NectarineTests.Services
                     ClientSecret = "ClientSecret",
                 });
 
-            paymentIntentServiceMock
+            _paymentIntentServiceMock
                 .Setup(x => x.Confirm(
                     It.IsAny<string>(),
                     It.IsAny<PaymentIntentConfirmOptions>(),
@@ -93,7 +94,7 @@ namespace NectarineTests.Services
             // PaymentService setup
             _subject = new PaymentService(loggerMock.Object)
             {
-                PaymentIntentService = paymentIntentServiceMock.Object,
+                PaymentIntentService = _paymentIntentServiceMock.Object,
                 PaymentMethodService = _paymentMethodServiceMock.Object,
             };
         }
@@ -155,15 +156,38 @@ namespace NectarineTests.Services
             Assert.IsType<SensitivePaymentMethod>(result);
         }
 
-        [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
+        #region CreatePaymentIntent
+
+        [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and return a CreatePaymentIntentResponse")]
         public void Test_CreatePaymentIntent()
         {
             // Act
-            var paymentIntent = _subject.CreatePaymentIntent(user.PaymentProviderCustomerId, 500, "paymentMethodId");
+            var result = _subject.CreatePaymentIntent(user.PaymentProviderCustomerId, 500, "paymentMethodId");
 
             // Assert
-            Assert.False(string.IsNullOrEmpty(paymentIntent.ClientSecret));
+            Assert.IsType<CreatePaymentIntentResponse>(result);
         }
+        
+        [Fact(DisplayName = "CreatePaymentIntent should fail to create a PaymentIntent and return null")]
+        public void Test_CreatePaymentIntent_ReturnsNull()
+        {
+            // Arrange
+            _paymentIntentServiceMock
+                .Setup(x => x.Create(
+                    It.IsAny<PaymentIntentCreateOptions>(),
+                    It.IsAny<RequestOptions>()));
+            
+            // Act
+            var result = _subject.CreatePaymentIntent(
+                user.PaymentProviderCustomerId,
+                500,
+                "paymentMethodId");
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        #endregion
 
         [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
         public void Test_ConfirmPaymentIntent()
