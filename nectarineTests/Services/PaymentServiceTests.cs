@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NectarineAPI.Services;
@@ -94,17 +93,17 @@ namespace NectarineTests.Services
         {
             // Act
             var result = _subject.AddCardPaymentMethod(
-                user.StripeCustomerId,
+                user.PaymentProviderCustomerId,
                 "4242424242424242",
                 9,
                 2025,
                 "552");
 
             // Assert
-            Assert.Null(result);
+            Assert.True(result);
         }
 
-        [Fact(DisplayName = "AddCardToPaymentMethod should throw an exception Stripe fails to create a payment method")]
+        [Fact(DisplayName = "AddCardToPaymentMethod should return false when fails to create a payment method")]
         public void Test_AddCardPaymentMethod_ShouldFailWithInvalidCardDetails()
         {
             // Arrange
@@ -116,14 +115,14 @@ namespace NectarineTests.Services
 
             // Act
             var result = _subject.AddCardPaymentMethod(
-                user.StripeCustomerId,
+                user.PaymentProviderCustomerId,
                 "4242424242424242",
                 9,
                 2025,
                 "0");
 
             // Assert
-            Assert.IsType<StripeException>(result);
+            Assert.False(result);
         }
 
         [Fact(DisplayName = "GetCardsForUser should return a list of cards attached to the user")]

@@ -21,7 +21,7 @@ namespace NectarineAPI.Services
 
         public PaymentIntentService PaymentIntentService { get; init; }
 
-        public StripeException? AddCardPaymentMethod(
+        public bool AddCardPaymentMethod(
             string stripeCustomerId,
             string cardNumber,
             int expiryMonth,
@@ -48,7 +48,7 @@ namespace NectarineAPI.Services
             catch (StripeException e)
             {
                 _logger.LogError($"Failed to create a payment method for the user: {e}");
-                return e;
+                return false;
             }
 
             var paymentMethodAttachOptions = new PaymentMethodAttachOptions
@@ -60,14 +60,14 @@ namespace NectarineAPI.Services
                 paymentMethod.Id,
                 paymentMethodAttachOptions);
 
-            return null;
+            return true;
         }
 
         public IEnumerable<PaymentMethod> GetCardsForUser(ApplicationUser user)
         {
             var options = new PaymentMethodListOptions
             {
-                Customer = user.StripeCustomerId,
+                Customer = user.PaymentProviderCustomerId,
                 Type = "card",
             };
 
@@ -82,7 +82,7 @@ namespace NectarineAPI.Services
             {
                 Amount = amount,
                 Currency = "gbp",
-                Customer = user.StripeCustomerId,
+                Customer = user.PaymentProviderCustomerId,
                 PaymentMethod = paymentMethodId,
                 SetupFutureUsage = "on_session",
             };

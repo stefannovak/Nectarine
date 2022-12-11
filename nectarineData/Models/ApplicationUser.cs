@@ -9,7 +9,7 @@ namespace NectarineData.Models
     {
         [Required]
         [MaxLength(100)]
-        public string StripeCustomerId { get; set; } = string.Empty;
+        public string PaymentProviderCustomerId { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(100)]

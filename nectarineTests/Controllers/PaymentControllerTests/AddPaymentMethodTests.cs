@@ -64,7 +64,7 @@ public partial class PaymentControllerTests
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<string>()))
-                .Returns(new StripeException());
+                .Returns(false);
 
             var addPaymentMethodDto = new AddPaymentMethodDTO
             {

@@ -7,8 +7,17 @@ namespace NectarineAPI.Services
     // TODO: - Do not return Stripe classes in an interface
     public interface IPaymentService
     {
-        public StripeException? AddCardPaymentMethod(
-            string stripeCustomerId,
+        /// <summary>
+        /// Attaches a payment card to the user.
+        /// </summary>
+        /// <param name="paymentProviderCustomerId">The Payment Provider ID of a user.</param>
+        /// <param name="cardNumber">16 digit card number.</param>
+        /// <param name="expiryMonth">2 digit expiry month.</param>
+        /// <param name="expiryYear">2 digit expiry year.</param>
+        /// <param name="cvc">3-4 digit security code.</param>
+        /// <returns>Whether the card was successfully added or not.</returns>
+        public bool AddCardPaymentMethod(
+            string paymentProviderCustomerId,
             string cardNumber,
             int expiryMonth,
             int expiryYear,

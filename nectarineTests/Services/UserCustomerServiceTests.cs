@@ -15,7 +15,7 @@ namespace NectarineTests.Services
     {
         private readonly ApplicationUser user = new ()
         {
-            StripeCustomerId = "StripeId",
+            PaymentProviderCustomerId = "StripeId",
         };
 
         private readonly UserCustomerService _userCustomerService;
@@ -51,7 +51,7 @@ namespace NectarineTests.Services
                     It.IsAny<RequestOptions>()))
                 .Returns(new Customer
                 {
-                    Id = user.StripeCustomerId,
+                    Id = user.PaymentProviderCustomerId,
                     Balance = 100,
                 });
 
@@ -90,7 +90,7 @@ namespace NectarineTests.Services
             await _userCustomerService.AddStripeCustomerIdAsync(user, customerCreateOptions);
 
             // Assert
-            Assert.False(string.IsNullOrEmpty(user.StripeCustomerId));
+            Assert.False(string.IsNullOrEmpty(user.PaymentProviderCustomerId));
         }
 
         [Fact(DisplayName = "GetCustomer should fetch a customer object, filled with customer information.")]

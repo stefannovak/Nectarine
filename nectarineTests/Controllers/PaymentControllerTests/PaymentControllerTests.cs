@@ -26,7 +26,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
             user = new ApplicationUser
             {
                 Id = Guid.NewGuid().ToString(),
-                StripeCustomerId = stripeCustomerId,
+                PaymentProviderCustomerId = stripeCustomerId,
             };
 
             // IPaymentServiceMock setup
@@ -38,7 +38,8 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                     It.IsAny<string>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),
-                    It.IsAny<string>()));
+                    It.IsAny<string>()))
+                .Returns(true);
 
             _paymentServiceMock
                 .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
@@ -59,7 +60,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                     VerificationCode = 123123,
                     VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
                     PhoneNumberConfirmed = false,
-                    StripeCustomerId = stripeCustomerId,
+                    PaymentProviderCustomerId = stripeCustomerId,
                 });
 
             // DbContext setup

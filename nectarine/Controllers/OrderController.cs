@@ -59,7 +59,7 @@ public class OrderController : ControllerBase
         }
 
         var paymentMethod = _paymentService.GetPaymentMethod(createOrderDto.PaymentMethodId);
-        if (paymentMethod is null || paymentMethod.CustomerId != user.StripeCustomerId)
+        if (paymentMethod is null || paymentMethod.CustomerId != user.PaymentProviderCustomerId)
         {
             return BadRequest(new ApiError
             {
