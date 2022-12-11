@@ -89,7 +89,7 @@ namespace NectarineAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetAllPaymentMethods")]
-        public async Task<IActionResult> GetPaymentMethod()
+        public async Task<IActionResult> GetPaymentMethods()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
@@ -97,7 +97,7 @@ namespace NectarineAPI.Controllers
                 return Unauthorized();
             }
 
-            var paymentMethods = _paymentService.GetCardsForUser(user);
+            var paymentMethods = _paymentService.GetCardsForUser(user.PaymentProviderCustomerId);
             if (!paymentMethods.Any())
             {
                 return NotFound(new ApiError { Message = "Could not find any payment methods for this user." });

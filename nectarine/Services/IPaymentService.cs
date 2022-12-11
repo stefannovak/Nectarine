@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NectarineAPI.Models.Payments;
 using NectarineData.Models;
 using Stripe;
 
@@ -8,7 +9,7 @@ namespace NectarineAPI.Services
     public interface IPaymentService
     {
         /// <summary>
-        /// Attaches a payment card to the user.
+        /// Attaches a payment carCd to the user.
         /// </summary>
         /// <param name="paymentProviderCustomerId">The Payment Provider ID of a user.</param>
         /// <param name="cardNumber">16 digit card number.</param>
@@ -23,7 +24,12 @@ namespace NectarineAPI.Services
             int expiryYear,
             string cvc);
 
-        public IEnumerable<PaymentMethod> GetCardsForUser(ApplicationUser user);
+        /// <summary>
+        /// Get a list of visa type cards for a user.
+        /// </summary>
+        /// <param name="paymentProviderCustomerId"></param>
+        /// <returns>A list of expiry months, years and last 4 digits.</returns>
+        public IEnumerable<InsensitivePaymentCard> GetCardsForUser(string paymentProviderCustomerId);
 
         public PaymentMethod? GetPaymentMethod(string id);
 

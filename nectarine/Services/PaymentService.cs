@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using NectarineAPI.Models.Payments;
 using NectarineData.Models;
 using Stripe;
 
@@ -22,7 +25,7 @@ namespace NectarineAPI.Services
         public PaymentIntentService PaymentIntentService { get; init; }
 
         public bool AddCardPaymentMethod(
-            string stripeCustomerId,
+            string paymentProviderCustomerId,
             string cardNumber,
             int expiryMonth,
             int expiryYear,
@@ -53,7 +56,7 @@ namespace NectarineAPI.Services
 
             var paymentMethodAttachOptions = new PaymentMethodAttachOptions
             {
-                Customer = stripeCustomerId,
+                Customer = paymentProviderCustomerId,
             };
 
             PaymentMethodService.Attach(
@@ -63,15 +66,25 @@ namespace NectarineAPI.Services
             return true;
         }
 
-        public IEnumerable<PaymentMethod> GetCardsForUser(ApplicationUser user)
+        public IEnumerable<InsensitivePaymentCard> GetCardsForUser(string paymentProviderCustomerId)
         {
             var options = new PaymentMethodListOptions
             {
-                Customer = user.PaymentProviderCustomerId,
+                Customer = paymentProviderCustomerId,
                 Type = "card",
             };
 
-            return PaymentMethodService.List(options);
+            var paymentMethods = PaymentMethodService.List(options);
+            var cards =
+                paymentMethods.Data
+                    .Where(x => x.Card is not null)
+                    .Select(paymentMethod =>
+                        new InsensitivePaymentCard(
+                            paymentMethod.Card.ExpMonth,
+                            paymentMethod.Card.ExpYear,
+                            paymentMethod.Card.Last4));
+
+            return cards;
         }
 
         public PaymentMethod? GetPaymentMethod(string id) => PaymentMethodService.Get(id);

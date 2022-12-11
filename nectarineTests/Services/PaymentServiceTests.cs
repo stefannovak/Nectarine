@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Moq;
+using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineData.Models;
 using Stripe;
@@ -15,7 +16,16 @@ namespace NectarineTests.Services
         private readonly PaymentService _subject;
         private readonly Mock<PaymentMethodService> _paymentMethodServiceMock;
         private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
-        private readonly PaymentMethod fakePaymentMethod = new () { Id = "FakePaymentMethodId" };
+        private readonly PaymentMethod fakePaymentMethod = new ()
+        {
+            Id = "FakePaymentMethodId",
+            Card = new PaymentMethodCard
+            {
+                ExpMonth = 12,
+                ExpYear = 2025,
+                Last4 = "4242",
+            },
+        };
 
         public PaymentServiceTests()
         {
@@ -129,10 +139,10 @@ namespace NectarineTests.Services
         public void Test_GetCardsForUser()
         {
             // Act
-            var cards = _subject.GetCardsForUser(user);
+            var cards = _subject.GetCardsForUser(user.PaymentProviderCustomerId);
 
             // Assert
-            Assert.True((cards as StripeList<PaymentMethod>)?.Data.Any() == true);
+            Assert.True(cards.Any());
         }
 
         [Fact(DisplayName = "GetPaymentMethod should return a payment method")]

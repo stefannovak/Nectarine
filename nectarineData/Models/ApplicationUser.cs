@@ -19,6 +19,7 @@ namespace NectarineData.Models
         [MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
+        // TODO: - Time to live
         public int? VerificationCode { get; set; }
 
         public DateTime? VerificationCodeExpiry { get; set; }
