@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests.Orders;
 using NectarineAPI.Models;
+using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
@@ -86,7 +87,7 @@ public class OrderController : ControllerBase
         };
 
         _context.Orders.Add(order);
-        await SendOrderConfirmationEmail(user, order, paymentMethod, address);
+        await SendOrderConfirmationEmail(user.Email, order, paymentMethod, address);
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -166,21 +167,21 @@ public class OrderController : ControllerBase
     }
 
     private async Task SendOrderConfirmationEmail(
-        ApplicationUser user,
+        string destinationEmail,
         Order order,
-        PaymentMethod paymentMethod,
+        SensitivePaymentMethod paymentMethod,
         UserAddress address)
     {
-        await _emailService.SendEmail(user.Email, new SendGridMessage
+        await _emailService.SendEmail(destinationEmail, new SendGridMessage
         {
             Subject = "Your Nectarine order receipt",
             PlainTextContent =
-                $"Thanks for your order {user.FirstName}!\n" +
+                $"Thanks for your order {destinationEmail}!\n" +
                 "Your order has been created and will be dispatched soon.\n" +
                 $"Order Confirmation Number: {order.Id.ToString()}\n\n" +
                 $"Your order will be sent to {address.Line1} {address.Postcode}.\n" +
                 $"Order Total: {order.OrderTotal}\n" +
-                $"Payment method ending in: {paymentMethod.Card.Last4}\n\n" +
+                $"Payment method ending in: {paymentMethod.LastFour}\n\n" +
                 "We hope to see you again soon.\n" +
                 "Nectarine",
         });

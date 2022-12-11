@@ -87,15 +87,26 @@ namespace NectarineAPI.Services
             return cards;
         }
 
-        public PaymentMethod? GetPaymentMethod(string id) => PaymentMethodService.Get(id);
+        public SensitivePaymentMethod? GetPaymentMethod(string id)
+        {
+            var paymentMethod = PaymentMethodService.Get(id);
+            return paymentMethod == null
+                ? null
+                : new SensitivePaymentMethod(
+                    paymentMethod.Id,
+                    paymentMethod.CustomerId,
+                    paymentMethod.Card.ExpMonth,
+                    paymentMethod.Card.ExpYear,
+                    paymentMethod.Card.Last4);
+        }
 
-        public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId)
+        public PaymentIntent CreatePaymentIntent(string paymentProviderCustomerId, long amount, string paymentMethodId)
         {
             var options = new PaymentIntentCreateOptions
             {
                 Amount = amount,
                 Currency = "gbp",
-                Customer = user.PaymentProviderCustomerId,
+                Customer = paymentProviderCustomerId,
                 PaymentMethod = paymentMethodId,
                 SetupFutureUsage = "on_session",
             };

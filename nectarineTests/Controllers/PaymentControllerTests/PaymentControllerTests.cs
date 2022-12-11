@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Controllers;
+using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
 using NectarineData.Models;
@@ -43,10 +44,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
 
             _paymentServiceMock
                 .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
-                .Returns(new PaymentMethod
-                {
-                    CustomerId = stripeCustomerId,
-                });
+                .Returns(new SensitivePaymentMethod("pm_something", stripeCustomerId, 12, 2025, "1234"));
 
             // UserManager setup
             _userManager = MockHelpers.MockUserManager<ApplicationUser>();

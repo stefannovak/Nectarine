@@ -31,17 +31,22 @@ namespace NectarineAPI.Services
         /// <returns>A list of expiry months, years and last 4 digits.</returns>
         public IEnumerable<InsensitivePaymentCard> GetCardsForUser(string paymentProviderCustomerId);
 
-        public PaymentMethod? GetPaymentMethod(string id);
+        /// <summary>
+        /// Get a visa type card by ID.
+        /// </summary>
+        /// <param name="id">Payment Card ID.</param>
+        /// <returns></returns>
+        public SensitivePaymentMethod? GetPaymentMethod(string id);
 
         /// <summary>
         /// Creates a <see cref="PaymentIntent"/> object which attaches the user to it. It should be used at the start
         /// of the checkout process, and updated throughout.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="paymentProviderCustomerId"></param>
         /// <param name="amount">The amount to charge in the smallest currency unit. (100 = 100p in GBP).</param>
         /// <param name="paymentMethodId">The selected payment method from the user to charge.</param>
         /// <returns><see cref="PaymentIntent"/>. The ClientSecret parameter should be passed back to the client.</returns>
-        public PaymentIntent CreatePaymentIntent(ApplicationUser user, long amount, string paymentMethodId);
+        public PaymentIntent CreatePaymentIntent(string paymentProviderCustomerId, long amount, string paymentMethodId);
 
         /// <summary>
         /// Confirms a <see cref="PaymentIntent"/>.

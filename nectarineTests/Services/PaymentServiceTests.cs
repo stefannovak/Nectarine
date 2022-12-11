@@ -152,14 +152,14 @@ namespace NectarineTests.Services
             var result = _subject.GetPaymentMethod("paymentMethodId");
 
             // Assert
-            Assert.IsType<PaymentMethod>(result);
+            Assert.IsType<SensitivePaymentMethod>(result);
         }
 
         [Fact(DisplayName = "CreatePaymentIntent should create a PaymentIntent and attach it to the user's Customer object")]
         public void Test_CreatePaymentIntent()
         {
             // Act
-            var paymentIntent = _subject.CreatePaymentIntent(user, 500, "paymentMethodId");
+            var paymentIntent = _subject.CreatePaymentIntent(user.PaymentProviderCustomerId, 500, "paymentMethodId");
 
             // Assert
             Assert.False(string.IsNullOrEmpty(paymentIntent.ClientSecret));
