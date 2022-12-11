@@ -100,7 +100,9 @@ namespace NectarineAPI.Services
                     paymentMethod.Card.Last4);
         }
 
-        public CreatePaymentIntentResponse? CreatePaymentIntent(string paymentProviderCustomerId, long amount,
+        public PaymentIntentResponse? CreatePaymentIntent(
+            string paymentProviderCustomerId,
+            long amount,
             string paymentMethodId)
         {
             var options = new PaymentIntentCreateOptions
@@ -115,7 +117,7 @@ namespace NectarineAPI.Services
             var paymentIntent = PaymentIntentService.Create(options);
             return paymentIntent == null
                 ? null
-                : new CreatePaymentIntentResponse(
+                : new PaymentIntentResponse(
                     paymentIntent.Id,
                     paymentIntent.Amount,
                     paymentIntent.Created,
@@ -124,7 +126,19 @@ namespace NectarineAPI.Services
                     paymentIntent.ClientSecret);
         }
 
-        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret) =>
-            PaymentIntentService.Confirm(paymentIntentClientSecret);
+        public PaymentIntentResponse? ConfirmPaymentIntent(string paymentIntentClientSecret)
+        {
+            var paymentIntent = PaymentIntentService.Confirm(paymentIntentClientSecret);
+            return paymentIntent == null
+                ? null
+                : new PaymentIntentResponse(
+                    paymentIntent.Id,
+                    paymentIntent.Amount,
+                    paymentIntent.Created,
+                    paymentIntent.Currency,
+                    paymentIntent.Status,
+                    paymentIntent.ClientSecret);
+        }
+
     }
 }

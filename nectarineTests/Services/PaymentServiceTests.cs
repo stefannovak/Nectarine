@@ -165,7 +165,7 @@ namespace NectarineTests.Services
             var result = _subject.CreatePaymentIntent(user.PaymentProviderCustomerId, 500, "paymentMethodId");
 
             // Assert
-            Assert.IsType<CreatePaymentIntentResponse>(result);
+            Assert.IsType<PaymentIntentResponse>(result);
         }
         
         [Fact(DisplayName = "CreatePaymentIntent should fail to create a PaymentIntent and return null")]
@@ -189,6 +189,8 @@ namespace NectarineTests.Services
 
         #endregion
 
+        #region ConfirmPaymentIntent
+
         [Fact(DisplayName = "ConfirmPaymentIntent should confirm a PaymentIntent with a given client secret")]
         public void Test_ConfirmPaymentIntent()
         {
@@ -196,7 +198,26 @@ namespace NectarineTests.Services
             var result = _subject.ConfirmPaymentIntent("paymentMethodId");
 
             // Assert
-            Assert.True(result.Status == "succeeded");
+            Assert.IsType<PaymentIntentResponse>(result);
         }
+        
+        [Fact(DisplayName = "ConfirmPaymentIntent should fail to confirm a PaymentIntent and return null")]
+        public void Test_ConfirmPaymentIntent_ReturnsNull()
+        {
+            // Arrange
+            _paymentIntentServiceMock
+                .Setup(x => x.Confirm(
+                    It.IsAny<string>(),
+                    It.IsAny<PaymentIntentConfirmOptions>(),
+                    It.IsAny<RequestOptions>()));
+            
+            // Act
+            var result = _subject.ConfirmPaymentIntent("paymentMethodId");
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        #endregion
     }
 }

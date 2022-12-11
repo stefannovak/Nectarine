@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,13 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                 .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
                 .Returns(new SensitivePaymentMethod("pm_something", stripeCustomerId, 12, 2025, "1234"));
 
+            _paymentServiceMock
+                .Setup(x => x.GetCardsForUser(It.IsAny<string>()))
+                .Returns(new List<InsensitivePaymentCard>
+                {
+                    new (12, 25, "121")
+                });
+            
             // UserManager setup
             _userManager = MockHelpers.MockUserManager<ApplicationUser>();
 

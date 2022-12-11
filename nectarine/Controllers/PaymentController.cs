@@ -103,10 +103,7 @@ namespace NectarineAPI.Controllers
                 return NotFound(new ApiError { Message = "Could not find any payment methods for this user." });
             }
 
-            return Ok(new
-            {
-                PaymentMethods = paymentMethods,
-            });
+            return Ok(paymentMethods);
         }
     }
 }

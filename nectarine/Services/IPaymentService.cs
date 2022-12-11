@@ -39,23 +39,23 @@ namespace NectarineAPI.Services
         public SensitivePaymentMethod? GetPaymentMethod(string id);
 
         /// <summary>
-        /// Creates a <see cref="PaymentIntent"/> object which attaches the user to it. It should be used at the start
+        /// Creates a PaymentIntent object which attaches the user to it. It should be used at the start
         /// of the checkout process, and updated throughout.
         /// </summary>
         /// <param name="paymentProviderCustomerId"></param>
         /// <param name="amount">The amount to charge in the smallest currency unit. (100 = 100p in GBP).</param>
         /// <param name="paymentMethodId">The selected payment method from the user to charge.</param>
-        /// <returns><see cref="PaymentIntent"/>. The ClientSecret parameter should be passed back to the client.</returns>
-        public CreatePaymentIntentResponse? CreatePaymentIntent(
+        /// <returns><see cref="PaymentIntentResponse"/>. The ClientSecret parameter should be passed back to the client.</returns>
+        public PaymentIntentResponse? CreatePaymentIntent(
             string paymentProviderCustomerId,
             long amount,
             string paymentMethodId);
 
         /// <summary>
-        /// Confirms a <see cref="PaymentIntent"/>.
+        /// Confirm a PaymentIntent. This will bill the user.
         /// </summary>
-        /// <param name="paymentIntentClientSecret"></param>
-        /// <returns>Returns an updated <see cref="PaymentIntent"/>.</returns>
-        public PaymentIntent ConfirmPaymentIntent(string paymentIntentClientSecret);
+        /// <param name="paymentIntentClientSecret">A value given by the client, from a previous payment intent.</param>
+        /// <returns>Returns an updated <see cref="PaymentIntentResponse"/>.</returns>
+        public PaymentIntentResponse? ConfirmPaymentIntent(string paymentIntentClientSecret);
     }
 }

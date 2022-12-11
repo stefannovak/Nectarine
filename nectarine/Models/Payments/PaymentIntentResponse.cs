@@ -2,9 +2,9 @@ using System;
 
 namespace NectarineAPI.Models.Payments;
 
-public class CreatePaymentIntentResponse
+public class PaymentIntentResponse
 {
-    public CreatePaymentIntentResponse(
+    public PaymentIntentResponse(
         string paymentIntentId,
         long amount,
         DateTime createdAt,
