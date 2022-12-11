@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using NectarineAPI.Models.Payments;
-using NectarineData.Models;
-using Stripe;
 
 namespace NectarineAPI.Services
 {
-    // TODO: - Do not return Stripe classes in an interface
     public interface IPaymentService
     {
         /// <summary>
