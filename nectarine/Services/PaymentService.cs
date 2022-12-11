@@ -66,7 +66,7 @@ namespace NectarineAPI.Services
             return true;
         }
 
-        public IEnumerable<InsensitivePaymentCard> GetCardsForUser(string paymentProviderCustomerId)
+        public IEnumerable<InsensitivePaymentMethod> GetCardsForUser(string paymentProviderCustomerId)
         {
             var options = new PaymentMethodListOptions
             {
@@ -79,7 +79,7 @@ namespace NectarineAPI.Services
                 paymentMethods.Data
                     .Where(x => x.Card is not null)
                     .Select(paymentMethod =>
-                        new InsensitivePaymentCard(
+                        new InsensitivePaymentMethod(
                             paymentMethod.Card.ExpMonth,
                             paymentMethod.Card.ExpYear,
                             paymentMethod.Card.Last4));

@@ -26,7 +26,7 @@ namespace NectarineAPI.Services
         /// </summary>
         /// <param name="paymentProviderCustomerId"></param>
         /// <returns>A list of expiry months, years and last 4 digits.</returns>
-        public IEnumerable<InsensitivePaymentCard> GetCardsForUser(string paymentProviderCustomerId);
+        public IEnumerable<InsensitivePaymentMethod> GetCardsForUser(string paymentProviderCustomerId);
 
         /// <summary>
         /// Get a visa type card by ID.

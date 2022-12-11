@@ -31,7 +31,7 @@ public partial class PaymentControllerTests
         // Arrange
         _paymentServiceMock
             .Setup(x => x.GetCardsForUser(It.IsAny<string>()))
-            .Returns(new List<InsensitivePaymentCard>());
+            .Returns(new List<InsensitivePaymentMethod>());
         
         // Act
         var result = await _subject.GetPaymentMethods();

@@ -49,7 +49,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
 
             _paymentServiceMock
                 .Setup(x => x.GetCardsForUser(It.IsAny<string>()))
-                .Returns(new List<InsensitivePaymentCard>
+                .Returns(new List<InsensitivePaymentMethod>
                 {
                     new (12, 25, "121")
                 });

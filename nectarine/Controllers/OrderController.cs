@@ -9,14 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests.Orders;
 using NectarineAPI.Models;
-using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 using SendGrid.Helpers.Mail;
-using Stripe;
-using Order = NectarineData.Models.Order;
 
 namespace NectarineAPI.Controllers;
 
@@ -87,7 +84,7 @@ public class OrderController : ControllerBase
         };
 
         _context.Orders.Add(order);
-        await SendOrderConfirmationEmail(user.Email, order, paymentMethod, address);
+        await SendOrderConfirmationEmail(user.Email, order, paymentMethod.LastFour, address);
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -169,7 +166,7 @@ public class OrderController : ControllerBase
     private async Task SendOrderConfirmationEmail(
         string destinationEmail,
         Order order,
-        SensitivePaymentMethod paymentMethod,
+        string lastFourCardNumber,
         UserAddress address)
     {
         await _emailService.SendEmail(destinationEmail, new SendGridMessage
@@ -181,7 +178,7 @@ public class OrderController : ControllerBase
                 $"Order Confirmation Number: {order.Id.ToString()}\n\n" +
                 $"Your order will be sent to {address.Line1} {address.Postcode}.\n" +
                 $"Order Total: {order.OrderTotal}\n" +
-                $"Payment method ending in: {paymentMethod.LastFour}\n\n" +
+                $"Payment method ending in: {lastFourCardNumber}\n\n" +
                 "We hope to see you again soon.\n" +
                 "Nectarine",
         });
