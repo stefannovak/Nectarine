@@ -14,8 +14,6 @@ using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 using SendGrid.Helpers.Mail;
-using Stripe;
-using Order = NectarineData.Models.Order;
 
 namespace NectarineAPI.Controllers;
 
@@ -59,7 +57,7 @@ public class OrderController : ControllerBase
         }
 
         var paymentMethod = _paymentService.GetPaymentMethod(createOrderDto.PaymentMethodId);
-        if (paymentMethod is null || paymentMethod.CustomerId != user.StripeCustomerId)
+        if (paymentMethod is null || paymentMethod.CustomerId != user.PaymentProviderCustomerId)
         {
             return BadRequest(new ApiError
             {
@@ -86,7 +84,7 @@ public class OrderController : ControllerBase
         };
 
         _context.Orders.Add(order);
-        await SendOrderConfirmationEmail(user, order, paymentMethod, address);
+        await SendOrderConfirmationEmail(user.Email, order, paymentMethod.LastFour, address);
         await _context.SaveChangesAsync();
 
         return Ok(new
@@ -166,21 +164,21 @@ public class OrderController : ControllerBase
     }
 
     private async Task SendOrderConfirmationEmail(
-        ApplicationUser user,
+        string destinationEmail,
         Order order,
-        PaymentMethod paymentMethod,
+        string lastFourCardNumber,
         UserAddress address)
     {
-        await _emailService.SendEmail(user.Email, new SendGridMessage
+        await _emailService.SendEmail(destinationEmail, new SendGridMessage
         {
             Subject = "Your Nectarine order receipt",
             PlainTextContent =
-                $"Thanks for your order {user.FirstName}!\n" +
+                $"Thanks for your order {destinationEmail}!\n" +
                 "Your order has been created and will be dispatched soon.\n" +
                 $"Order Confirmation Number: {order.Id.ToString()}\n\n" +
                 $"Your order will be sent to {address.Line1} {address.Postcode}.\n" +
                 $"Order Total: {order.OrderTotal}\n" +
-                $"Payment method ending in: {paymentMethod.Card.Last4}\n\n" +
+                $"Payment method ending in: {lastFourCardNumber}\n\n" +
                 "We hope to see you again soon.\n" +
                 "Nectarine",
         });

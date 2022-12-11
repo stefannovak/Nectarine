@@ -59,7 +59,7 @@ namespace NectarineTests.Controllers
                         Platform = ExternalAuthPlatform.Google,
                     },
                 },
-                StripeCustomerId = "StripeCustomerId",
+                PaymentProviderCustomerId = "StripeCustomerId",
             };
 
             // UserManager setup

@@ -21,20 +21,20 @@ namespace NectarineAPI.Services
         public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)
         {
             var customer = await CustomerService.CreateAsync(options ?? new CustomerCreateOptions());
-            user.StripeCustomerId = customer.Id;
+            user.PaymentProviderCustomerId = customer.Id;
             await _context.SaveChangesAsync();
         }
 
-        public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.StripeCustomerId);
+        public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.PaymentProviderCustomerId);
 
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
-            CustomerService.Update(user.StripeCustomerId, updateOptions);
+            CustomerService.Update(user.PaymentProviderCustomerId, updateOptions);
 
         public bool DeleteCustomer(ApplicationUser user)
         {
             try
             {
-                var customer = CustomerService.Delete(user.StripeCustomerId);
+                var customer = CustomerService.Delete(user.PaymentProviderCustomerId);
                 return customer?.Deleted == true;
             }
             catch (StripeException e)

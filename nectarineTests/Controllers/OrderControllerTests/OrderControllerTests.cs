@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Requests.Orders;
+using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
@@ -38,7 +39,7 @@ public partial class OrderControllerTests
             Email = "test@email.com",
             FirstName = "First Name",
             Id = Guid.NewGuid().ToString(),
-            StripeCustomerId = stripeCustomerId,
+            PaymentProviderCustomerId = stripeCustomerId,
         };
 
         // CreateOrderDto setup
@@ -95,14 +96,7 @@ public partial class OrderControllerTests
 
         _paymentServiceMock
             .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
-            .Returns(new PaymentMethod
-            {
-                CustomerId = stripeCustomerId,
-                Card = new PaymentMethodCard
-                {
-                    Last4 = "1243",
-                },
-            });
+            .Returns(new SensitivePaymentMethod("pm_something", stripeCustomerId, 12, 2025, "1234"));
 
         // PaymentController setup
         _subject = new OrderController(

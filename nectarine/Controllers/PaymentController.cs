@@ -45,25 +45,19 @@ namespace NectarineAPI.Controllers
                 return Unauthorized();
             }
 
-            var result = _paymentService.AddCardPaymentMethod(
-                user,
+            var success = _paymentService.AddCardPaymentMethod(
+                user.PaymentProviderCustomerId,
                 addPaymentMethodDto.CardNumber,
                 addPaymentMethodDto.ExpiryMonth,
                 addPaymentMethodDto.ExpiryYear,
                 addPaymentMethodDto.CVC);
-            if (result is not null)
-            {
-                return BadRequest(new ApiError
+
+            return success
+                ? Ok()
+                : BadRequest(new ApiError
                 {
                     Message = "Could not create the payment method.",
-                    Errors =
-                    {
-                        new KeyValuePair<string, string>("Error", result.Message),
-                    },
                 });
-            }
-
-            return Ok();
         }
 
         /// <summary>
@@ -81,7 +75,7 @@ namespace NectarineAPI.Controllers
             }
 
             var paymentMethod = _paymentService.GetPaymentMethod(paymentMethodId);
-            if (paymentMethod is null || user.StripeCustomerId != paymentMethod.CustomerId)
+            if (paymentMethod is null || user.PaymentProviderCustomerId != paymentMethod.CustomerId)
             {
                 return NotFound(new ApiError { Message = "Could not find a Payment Method with the given Id for this user." });
             }
@@ -95,7 +89,7 @@ namespace NectarineAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetAllPaymentMethods")]
-        public async Task<IActionResult> GetPaymentMethod()
+        public async Task<IActionResult> GetPaymentMethods()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
@@ -103,16 +97,13 @@ namespace NectarineAPI.Controllers
                 return Unauthorized();
             }
 
-            var paymentMethods = _paymentService.GetCardsForUser(user);
+            var paymentMethods = _paymentService.GetCardsForUser(user.PaymentProviderCustomerId);
             if (!paymentMethods.Any())
             {
                 return NotFound(new ApiError { Message = "Could not find any payment methods for this user." });
             }
 
-            return Ok(new
-            {
-                PaymentMethods = paymentMethods,
-            });
+            return Ok(paymentMethods);
         }
     }
 }

@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Controllers;
+using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
 using NectarineData.Models;
@@ -26,7 +28,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
             user = new ApplicationUser
             {
                 Id = Guid.NewGuid().ToString(),
-                StripeCustomerId = stripeCustomerId,
+                PaymentProviderCustomerId = stripeCustomerId,
             };
 
             // IPaymentServiceMock setup
@@ -34,19 +36,24 @@ namespace NectarineTests.Controllers.PaymentControllerTests
 
             _paymentServiceMock
                 .Setup(x => x.AddCardPaymentMethod(
-                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),
-                    It.IsAny<string>()));
+                    It.IsAny<string>()))
+                .Returns(true);
 
             _paymentServiceMock
                 .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
-                .Returns(new PaymentMethod
-                {
-                    CustomerId = stripeCustomerId,
-                });
+                .Returns(new SensitivePaymentMethod("pm_something", stripeCustomerId, 12, 2025, "1234"));
 
+            _paymentServiceMock
+                .Setup(x => x.GetCardsForUser(It.IsAny<string>()))
+                .Returns(new List<InsensitivePaymentMethod>
+                {
+                    new (12, 25, "121")
+                });
+            
             // UserManager setup
             _userManager = MockHelpers.MockUserManager<ApplicationUser>();
 
@@ -59,7 +66,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                     VerificationCode = 123123,
                     VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
                     PhoneNumberConfirmed = false,
-                    StripeCustomerId = stripeCustomerId,
+                    PaymentProviderCustomerId = stripeCustomerId,
                 });
 
             // DbContext setup

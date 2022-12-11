@@ -59,12 +59,12 @@ public partial class PaymentControllerTests
             // Arrange
             _paymentServiceMock
                 .Setup(x => x.AddCardPaymentMethod(
-                    It.IsAny<ApplicationUser>(),
+                    It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<string>()))
-                .Returns(new StripeException());
+                .Returns(false);
 
             var addPaymentMethodDto = new AddPaymentMethodDTO
             {
