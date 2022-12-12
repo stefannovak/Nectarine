@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using NectarineAPI.Models.Customers;
 using NectarineData.Models;
-using Stripe;
 
 namespace NectarineAPI.Services
 {
@@ -38,7 +37,7 @@ namespace NectarineAPI.Services
         public UserCustomerDetails? UpdateCustomerPhoneNumber(string paymentProviderCustomerId, string phoneNumber);
 
         /// <summary>
-        /// Sets the users <see cref="Customer"/> Deleted property to true.
+        /// Sets a user to deleted. Does not delete the user object.
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
