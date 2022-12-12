@@ -7,13 +7,11 @@ namespace NectarineAPI.Services
     public interface IUserCustomerService
     {
         /// <summary>
-        /// Attaches a StripeCustomerId to the user and creates a <see cref="Customer"/>
-        /// object with <see cref="CustomerCreateOptions"/>.
+        /// Attach a CustomerId to a User.
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="options"></param>
         /// <returns></returns>
-        public Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null);
+        public Task AddCustomerIdAsync(ApplicationUser user);
 
         /// <summary>
         /// Gets the users <see cref="Customer"/> object from their Customer ID.

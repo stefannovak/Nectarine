@@ -33,9 +33,8 @@ public partial class UsersControllerTest
         };
 
         _userCustomerServiceMock
-            .Setup(x => x.AddStripeCustomerIdAsync(
-                It.IsAny<ApplicationUser>(),
-                It.IsAny<CustomerCreateOptions?>()))
+            .Setup(x => x.AddCustomerIdAsync(
+                It.IsAny<ApplicationUser>()))
             .Returns(Task.CompletedTask);
 
         _userManager.Setup(manager => manager

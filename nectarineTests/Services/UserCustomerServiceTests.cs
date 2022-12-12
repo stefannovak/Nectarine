@@ -80,14 +80,8 @@ namespace NectarineTests.Services
         [Fact(DisplayName = "AddStripeCustomerIdAsync should save a StripeId to the User")]
         public async Task Test_AddStripeCustomerIdAsync()
         {
-            // Arrange
-            var customerCreateOptions = new CustomerCreateOptions
-            {
-                Email = "test@test.com",
-            };
-
             // Act
-            await _userCustomerService.AddStripeCustomerIdAsync(user, customerCreateOptions);
+            await _userCustomerService.AddCustomerIdAsync(user);
 
             // Assert
             Assert.False(string.IsNullOrEmpty(user.PaymentProviderCustomerId));

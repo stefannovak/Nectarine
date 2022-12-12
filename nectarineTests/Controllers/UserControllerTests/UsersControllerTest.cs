@@ -61,9 +61,8 @@ public partial class UsersControllerTest
         _userCustomerServiceMock = new Mock<IUserCustomerService>();
 
         _userCustomerServiceMock
-            .Setup(x => x.AddStripeCustomerIdAsync(
-                It.IsAny<ApplicationUser>(),
-                new CustomerCreateOptions()))
+            .Setup(x => x.AddCustomerIdAsync(
+                It.IsAny<ApplicationUser>()))
             .Returns(Task.CompletedTask);
 
         _userCustomerServiceMock

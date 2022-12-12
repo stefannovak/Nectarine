@@ -183,7 +183,7 @@ namespace NectarineAPI.Controllers
                 UserName = createUserDto.Email,
             };
 
-            await _userCustomerService.AddStripeCustomerIdAsync(identityUser);
+            await _userCustomerService.AddCustomerIdAsync(identityUser);
             var result = await _userManager.CreateAsync(identityUser, createUserDto.Password);
 
             if (!result.Succeeded)
@@ -234,7 +234,7 @@ namespace NectarineAPI.Controllers
                 return Problem($"{externalUser.Platform} user creation failed. Possible user email duplication.");
             }
 
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            await _userCustomerService.AddCustomerIdAsync(user);
             await _context.SaveChangesAsync();
             await _emailService.SendWelcomeEmail(user.Email!);
 
