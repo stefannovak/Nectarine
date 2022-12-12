@@ -31,39 +31,40 @@ namespace NectarineAPI.Services
             var customer = CustomerService.Get(paymentProviderCustomerId);
             return customer == null
                 ? null
-                : new UserCustomerDetails(
-                    customer.Id,
-                    customer.DefaultSourceId,
-                    customer.Email,
-                    customer.Name,
-                    customer.Balance,
-                    new UserAddress(
-                        customer.Address.Line1,
-                        customer.Address.Line2,
-                        customer.Address.City,
-                        customer.Address.PostalCode,
-                        customer.Address.Country,
-                        true));
+                : MapCustomer(customer);
         }
 
-        public UserCustomerDetails UpdateCustomerAddress(string paymentProviderCustomerId)
+        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddress address)
         {
-            var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions());
-            return new UserCustomerDetails(
-                customer.Id,
-                customer.DefaultSourceId,
-                customer.Email,
-                customer.Name,
-                customer.Balance,
-                new UserAddress(
-                    customer.Address.Line1,
-                    customer.Address.Line2,
-                    customer.Address.City,
-                    customer.Address.PostalCode,
-                    customer.Address.Country,
-                    true));
+            var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions
+            {
+                Address = new AddressOptions
+                {
+                    Line1 = address.Line1,
+                    Line2 = address.Line2,
+                    City = address.City,
+                    PostalCode = address.Postcode,
+                    Country = address.Country
+                }
+            });
+
+            return customer == null
+                ? null
+                : MapCustomer(customer);
         }
-        
+
+        public UserCustomerDetails? UpdateCustomerPhoneNumber(string paymentProviderCustomerId, string phoneNumber)
+        {
+            var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions
+            {
+                Phone = phoneNumber
+            });
+
+            return customer == null
+                ? null
+                : MapCustomer(customer);
+        }
+
         public bool DeleteCustomer(ApplicationUser user)
         {
             try
@@ -77,5 +78,20 @@ namespace NectarineAPI.Services
                 return false;
             }
         }
+
+        private static UserCustomerDetails MapCustomer(Customer customer) => new(
+            customer.Id,
+            customer.DefaultSourceId,
+            customer.Email,
+            customer.Phone,
+            customer.Name,
+            customer.Balance,
+            new UserAddress(
+                customer.Address.Line1,
+                customer.Address.Line2,
+                customer.Address.City,
+                customer.Address.PostalCode,
+                customer.Address.Country,
+                true));
     }
 }

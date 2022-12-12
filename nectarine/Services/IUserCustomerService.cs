@@ -22,11 +22,20 @@ namespace NectarineAPI.Services
         public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId);
 
         /// <summary>
-        /// Updates the users customer details..
+        /// Updates the users address.
         /// </summary>
         /// <param name="paymentProviderCustomerId"></param>
+        /// <param name="address"></param>
         /// <returns></returns>
-        public UserCustomerDetails UpdateCustomerAddress(string paymentProviderCustomerId);
+        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddress address);
+
+        /// <summary>
+        /// Updates the users phone number.
+        /// </summary>
+        /// <param name="paymentProviderCustomerId"></param>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
+        public UserCustomerDetails? UpdateCustomerPhoneNumber(string paymentProviderCustomerId, string phoneNumber);
 
         /// <summary>
         /// Sets the users <see cref="Customer"/> Deleted property to true.

@@ -36,6 +36,7 @@ public partial class UsersControllerTest
         "cus_123",
         "pay_123",
         "test@me.com",
+        "123123123123",
         "me",
         123,
         new UserAddress
@@ -88,7 +89,7 @@ public partial class UsersControllerTest
 
         _userCustomerServiceMock
             .Setup(x => x.UpdateCustomerAddress(
-                It.IsAny<string>()))
+                It.IsAny<string>(), It.IsAny<UserAddress>()))
             .Returns(It.IsAny<UserCustomerDetails>());
 
         _userCustomerServiceMock

@@ -125,23 +125,6 @@ namespace NectarineTests.Services
         
         #endregion
 
-        [Fact(DisplayName = "UpdateCustomer should update the user's Customer object.")]
-        public void Test_UpdateCustomer()
-        {
-            // Arrange
-            var customerBeforeUpdate = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
-            var updateOptions = new CustomerUpdateOptions
-            {
-                Balance = 100,
-            };
-
-            // Act
-            var customerAfterUpdate = _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId);
-
-            // Assert
-            Assert.NotEqual(customerBeforeUpdate?.Balance, customerAfterUpdate.Balance);
-        }
-
         [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
         public void Test_DeleteCustomer()
         {

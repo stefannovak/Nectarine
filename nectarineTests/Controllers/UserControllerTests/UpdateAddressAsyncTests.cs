@@ -43,7 +43,15 @@ public partial class UsersControllerTest
             .Returns(_userCustomerDetails);
 
         _userCustomerServiceMock
-            .Setup(x => x.UpdateCustomerAddress(appUser.PaymentProviderCustomerId))
+            .Setup(x => x.UpdateCustomerAddress(appUser.PaymentProviderCustomerId, new UserAddress
+            (
+                "21 BoolProp Lane",
+                null,
+                "Big City",
+                "11111",
+                "UK",
+                true
+            )))
             .Returns(_userCustomerDetails);
 
         // Act

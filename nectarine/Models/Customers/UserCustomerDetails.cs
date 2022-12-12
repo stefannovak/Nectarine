@@ -6,6 +6,7 @@ public class UserCustomerDetails
         string customerId,
         string defaultPaymentSourceId,
         string email,
+        string phoneNumber,
         string name,
         long balance,
         UserAddress address)
@@ -13,6 +14,7 @@ public class UserCustomerDetails
         CustomerId = customerId;
         DefaultPaymentSourceId = defaultPaymentSourceId;
         Email = email;
+        PhoneNumber = phoneNumber;
         Name = name;
         Balance = balance;
         Address = address;
@@ -23,6 +25,8 @@ public class UserCustomerDetails
     public string DefaultPaymentSourceId { get; set; }
 
     public string Email { get; set; }
+
+    public string PhoneNumber { get; set; }
 
     public string Name { get; set; }
 

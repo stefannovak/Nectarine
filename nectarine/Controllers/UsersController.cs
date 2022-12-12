@@ -93,11 +93,10 @@ namespace NectarineAPI.Controllers
         /// <summary>
         /// Update the user's address.
         /// </summary>
-        /// <param name="updateAddressDto"></param>
+        /// <param name="updateAddress"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("Update")]
-        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "They can be null")]
+        [Route("Update/Address")]
         public async Task<IActionResult> UpdateAddressAsync([FromBody] UserAddress updateAddress)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -111,26 +110,13 @@ namespace NectarineAPI.Controllers
             {
                 return BadRequest(new ApiError("Could not get a customer from the user"));
             }
-
-            var addressId = Guid.NewGuid();
-            // _context.Add(new UserAddress
-            // {
-            //     Id = addressId,
-            //     User = user,
-            //     Line1 = updateAddressDto.Line1,
-            //     Line2 = updateAddressDto.Line2,
-            //     City = updateAddressDto.City,
-            //     Postcode = updateAddressDto.Postcode,
-            // });
-
-            if (updateAddress.IsPrimaryAddress)
+            
+            var updatedCustomer = _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId, updateAddress);
+            if (updatedCustomer is null)
             {
-                _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId);
-                user.CurrentShippingAddressId = addressId;
+                return BadRequest(new ApiError("Failed to update user"));
             }
-
-            await _context.SaveChangesAsync();
-
+            
             return Ok();
         }
 
@@ -139,7 +125,7 @@ namespace NectarineAPI.Controllers
         /// </summary>
         /// <param name="updatePhoneNumberDto"></param>
         /// <returns></returns>
-        [HttpPost("UpdatePhoneNumber")]
+        [HttpPost("Update/PhoneNumber")]
         public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberDTO updatePhoneNumberDto)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -147,12 +133,27 @@ namespace NectarineAPI.Controllers
             {
                 return Unauthorized();
             }
+            
+            var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
+            if (customer is null)
+            {
+                return BadRequest(new ApiError("Could not get a customer from the user"));
+            }
+            
+            var updatedCustomer = _userCustomerService.UpdateCustomerPhoneNumber(
+                user.PaymentProviderCustomerId,
+                updatePhoneNumberDto.PhoneNumber);
+    
+            if (updatedCustomer is null)
+            {
+                return BadRequest(new ApiError("Failed to update user"));
+            }
 
             user.PhoneNumber = updatePhoneNumberDto.PhoneNumber;
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
-                return BadRequest(new ApiError("Failed to update phone number"));
+                return BadRequest(new ApiError("Failed to update phone number on database"));
             }
 
             return Ok();
