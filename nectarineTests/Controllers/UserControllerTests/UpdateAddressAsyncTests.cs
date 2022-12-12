@@ -2,9 +2,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models.Customers;
 using NectarineData.Models;
-using Stripe;
 using Xunit;
 
 namespace NectarineTests.Controllers.UserControllerTests;
@@ -15,17 +14,15 @@ public partial class UsersControllerTest
     public async Task Test_UpdateAddressAsync_ReturnsOk()
     {
         // Arrange
-        var updateUserDto = new UpdateAddressDTO
-        {
-            Address = new AddressOptions
-            {
-                Line1 = "21 BoolProp Lane",
-                City = "Big City",
-                Country = "England",
-                PostalCode = "11111",
-            },
-            IsPrimaryAddress = true,
-        };
+        var userAddress = new UserAddress
+        (
+            "21 BoolProp Lane",
+            null,
+            "Big City",
+           "11111",
+            "UK",
+            true
+        );
 
         var appUser = new ApplicationUser
         {
@@ -33,9 +30,8 @@ public partial class UsersControllerTest
         };
 
         _userCustomerServiceMock
-            .Setup(x => x.AddStripeCustomerIdAsync(
-                It.IsAny<ApplicationUser>(),
-                It.IsAny<CustomerCreateOptions?>()))
+            .Setup(x => x.AddCustomerIdAsync(
+                It.IsAny<ApplicationUser>()))
             .Returns(Task.CompletedTask);
 
         _userManager.Setup(manager => manager
@@ -43,20 +39,15 @@ public partial class UsersControllerTest
             .ReturnsAsync(appUser);
 
         _userCustomerServiceMock
-            .Setup(x => x.GetCustomer(appUser))
-            .Returns(new Customer());
+            .Setup(x => x.GetCustomer(appUser.PaymentProviderCustomerId))
+            .Returns(_userCustomerDetails);
 
         _userCustomerServiceMock
-            .Setup(x => x.UpdateCustomer(
-                appUser,
-                new CustomerUpdateOptions
-                {
-                    Address = updateUserDto.Address,
-                }))
-            .Returns(new Customer());
+            .Setup(x => x.UpdateCustomerAddress(appUser.PaymentProviderCustomerId, userAddress))
+            .Returns(_userCustomerDetails);
 
         // Act
-        var result = await _controller.UpdateAddressAsync(updateUserDto);
+        var result = await _controller.UpdateAddressAsync(userAddress);
 
         // Assert
         Assert.IsType<OkResult>(result);
@@ -70,7 +61,7 @@ public partial class UsersControllerTest
             .GetUserAsync(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _controller.UpdateAddressAsync(It.IsAny<UpdateAddressDTO>());
+        var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
 
         // Arrange
         Assert.IsType<BadRequestObjectResult>(result);
@@ -79,10 +70,30 @@ public partial class UsersControllerTest
     [Fact(DisplayName = "UpdateAddressAsync should return a Bad Request when a User's Customer can't be fetched.")]
     public async Task Test_UpdateAddressAsync_FailsWhen_CantGetACustomerFromUser()
     {
-        // Act
-        var result = await _controller.UpdateAddressAsync(It.IsAny<UpdateAddressDTO>());
-
         // Arrange
+        _userCustomerServiceMock
+            .Setup(x => x.GetCustomer(It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+    
+    [Fact(DisplayName = "UpdateAddressAsync should return a Bad Request when a Customer can't be updated.")]
+    public async Task Test_UpdateAddressAsync_FailsWhen_CantUpdateCustomer()
+    {
+        // Arrange
+        _userCustomerServiceMock
+            .Setup(x => x.UpdateCustomerAddress(
+                It.IsAny<string>(),
+                It.IsAny<UserAddress>()));
+
+        // Act
+        var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
+
+        // Assert
         Assert.IsType<BadRequestObjectResult>(result);
     }
 }

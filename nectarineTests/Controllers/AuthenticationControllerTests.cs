@@ -123,9 +123,8 @@ namespace NectarineTests.Controllers
             _userCustomerService = new Mock<IUserCustomerService>();
 
             _userCustomerService
-                .Setup(x => x.AddStripeCustomerIdAsync(
-                    It.IsAny<ApplicationUser>(),
-                    It.IsAny<CustomerCreateOptions?>()))
+                .Setup(x => x.AddCustomerIdAsync(
+                    It.IsAny<ApplicationUser>()))
                 .Returns(Task.CompletedTask);
 
             // IEmailService setup

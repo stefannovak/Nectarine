@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Requests.Orders;
+using NectarineAPI.Models.Customers;
 using NectarineAPI.Models.Payments;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
@@ -25,6 +26,7 @@ public partial class OrderControllerTests
     private readonly Mock<UserManager<ApplicationUser>> _userManager;
     private readonly NectarineDbContext _context;
     private readonly Mock<IPaymentService> _paymentServiceMock;
+    private readonly Mock<IUserCustomerService> _userCustomerServiceMock;
 
     private readonly Guid orderId = Guid.NewGuid();
     private readonly Guid addressId = Guid.NewGuid();
@@ -72,11 +74,6 @@ public partial class OrderControllerTests
 
         _context = new NectarineDbContext(options);
         _context.Users.Add(user);
-        _context.Addresses.Add(new UserAddress
-        {
-            Id = addressId,
-            User = user,
-        });
 
         _context.SaveChanges();
 
@@ -97,6 +94,29 @@ public partial class OrderControllerTests
         _paymentServiceMock
             .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
             .Returns(new SensitivePaymentMethod("pm_something", stripeCustomerId, 12, 2025, "1234"));
+        
+        // IUserCustomerService setup
+        _userCustomerServiceMock = new Mock<IUserCustomerService>();
+
+        _userCustomerServiceMock
+            .Setup(x => x.GetCustomer(It.IsAny<string>()))
+            .Returns(new UserCustomerDetails(
+                "cus_123",
+                "pay_123",
+                "test@me.com",
+                "123123123123",
+                "me",
+                123,
+                new UserAddress
+                (
+                    "21 BoolProp Lane",
+                    null,
+                    "Big City",
+                    "11111",
+                    "UK",
+                    true
+                ))
+            );
 
         // PaymentController setup
         _subject = new OrderController(
@@ -104,6 +124,7 @@ public partial class OrderControllerTests
             _userManager.Object,
             mapperMock.Object,
             emailServiceMock.Object,
-            _paymentServiceMock.Object);
+            _paymentServiceMock.Object,
+            _userCustomerServiceMock.Object);
     }
 }

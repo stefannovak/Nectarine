@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests.Orders;
 using NectarineAPI.Models;
+using NectarineAPI.Models.Customers;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
@@ -27,19 +28,22 @@ public class OrderController : ControllerBase
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
     private readonly IPaymentService _paymentService;
+    private readonly IUserCustomerService _userCustomerService;
 
     public OrderController(
         NectarineDbContext context,
         UserManager<ApplicationUser> userManager,
         IMapper mapper,
         IEmailService emailService,
-        IPaymentService paymentService)
+        IPaymentService paymentService,
+        IUserCustomerService userCustomerService)
     {
         _context = context;
         _userManager = userManager;
         _mapper = mapper;
         _emailService = emailService;
         _paymentService = paymentService;
+        _userCustomerService = userCustomerService;
     }
 
     /// <summary>
@@ -59,28 +63,25 @@ public class OrderController : ControllerBase
         var paymentMethod = _paymentService.GetPaymentMethod(createOrderDto.PaymentMethodId);
         if (paymentMethod is null || paymentMethod.CustomerId != user.PaymentProviderCustomerId)
         {
-            return BadRequest(new ApiError
-            {
-                Message = $"The payment method ID: {createOrderDto.PaymentMethodId} does not correspond to this user.",
-            });
+            return BadRequest(new ApiError(
+                $"The payment method ID: {createOrderDto.PaymentMethodId} does not correspond to this user."
+            ));
         }
 
-        var address = _context.Addresses.FirstOrDefault(x => x.Id == createOrderDto.AddressId);
-        if (address is null)
+        var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
+        if (customer is null)
         {
-            return BadRequest(new ApiError
-            {
-                Message = $"Could not find an address in the users record with the given id: {createOrderDto.AddressId}",
-            });
+            return BadRequest(new ApiError("Could not get the Users customer information."));
         }
 
+        var address = customer.Address;
         var order = new Order
         {
             User = user,
             ProductIds = createOrderDto.ProductIds,
             OrderTotal = createOrderDto.OrderTotal,
             PaymentMethodId = paymentMethod.Id,
-            AddressId = address.Id,
+            Postcode = address.Postcode,
         };
 
         _context.Orders.Add(order);
@@ -110,7 +111,7 @@ public class OrderController : ControllerBase
         var order = _context.Orders.FirstOrDefault(x => x.Id == orderId && x.User.Id == user.Id);
         if (order is null)
         {
-            return NotFound(new ApiError { Message = "Could not find an order with the given Id for this user." });
+            return NotFound(new ApiError("Could not find an order with the given Id for this user."));
         }
 
         return Ok(_mapper.Map<OrderDTO>(order));
@@ -132,7 +133,7 @@ public class OrderController : ControllerBase
         var orders = _context.Orders.Where(x => x.User.Id == user.Id);
         if (!orders.Any())
         {
-            return NotFound(new ApiError { Message = "Could not find any orders for this user." });
+            return NotFound(new ApiError("Could not find any orders for this user."));
         }
 
         return Ok(_mapper.Map<IList<OrderDTO>>(orders));
@@ -155,7 +156,7 @@ public class OrderController : ControllerBase
         var order = _context.Orders.FirstOrDefault(x => x.Id == Guid.Parse(orderId) && x.User.Id == user.Id);
         if (order is null)
         {
-            return NotFound(new ApiError { Message = "Could not find an order with the given Id for this user." });
+            return NotFound(new ApiError("Could not find an order with the given Id for this user."));
         }
 
         order.IsCancelled = true;

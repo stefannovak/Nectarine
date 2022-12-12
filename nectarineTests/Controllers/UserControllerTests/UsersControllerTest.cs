@@ -10,6 +10,7 @@ using Moq;
 using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models.Customers;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
@@ -30,6 +31,23 @@ public partial class UsersControllerTest
     {
         PhoneNumber = "123123123123",
     };
+
+    private readonly UserCustomerDetails _userCustomerDetails = new(
+        "cus_123",
+        "pay_123",
+        "test@me.com",
+        "123123123123",
+        "me",
+        123,
+        new UserAddress
+        (
+            "21 BoolProp Lane",
+            null,
+            "Big City",
+            "11111",
+            "UK",
+            true
+        ));
 
     private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
@@ -61,9 +79,8 @@ public partial class UsersControllerTest
         _userCustomerServiceMock = new Mock<IUserCustomerService>();
 
         _userCustomerServiceMock
-            .Setup(x => x.AddStripeCustomerIdAsync(
-                It.IsAny<ApplicationUser>(),
-                new CustomerCreateOptions()))
+            .Setup(x => x.AddCustomerIdAsync(
+                It.IsAny<ApplicationUser>()))
             .Returns(Task.CompletedTask);
 
         _userCustomerServiceMock
@@ -71,14 +88,18 @@ public partial class UsersControllerTest
             .Returns(true);
 
         _userCustomerServiceMock
-            .Setup(x => x.UpdateCustomer(
-                It.IsAny<ApplicationUser>(),
-                It.IsAny<CustomerUpdateOptions>()))
-            .Returns(It.IsAny<Customer>());
+            .Setup(x => x.UpdateCustomerAddress(
+                It.IsAny<string>(), It.IsAny<UserAddress>()))
+            .Returns(It.IsAny<UserCustomerDetails>());
+        
+        _userCustomerServiceMock
+            .Setup(x => x.UpdateCustomerPhoneNumber(
+                It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(_userCustomerDetails);
 
         _userCustomerServiceMock
-            .Setup(x => x.GetCustomer(It.IsAny<ApplicationUser>()))
-            .Returns(It.IsAny<Customer>());
+            .Setup(x => x.GetCustomer(It.IsAny<string>()))
+            .Returns(_userCustomerDetails);
 
         // IPhoneService setup
         var phoneServiceMock = new Mock<IPhoneService>();
@@ -247,6 +268,36 @@ public partial class UsersControllerTest
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
+    }
+    
+    [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when a Customer can't be found for the User.")]
+    public async Task Test_UpdatePhoneNumber_NoCustomer()
+    {
+        // Assert
+        _userCustomerServiceMock
+            .Setup(x => x.GetCustomer(It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+    
+    [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when a Customer can't be updated.")]
+    public async Task Test_UpdatePhoneNumber_NoCustomerUpdate()
+    {
+        // Assert
+        _userCustomerServiceMock
+            .Setup(x => x.UpdateCustomerPhoneNumber(
+                It.IsAny<string>(),
+                It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when the User fails to update.")]

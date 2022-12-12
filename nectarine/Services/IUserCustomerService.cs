@@ -1,37 +1,43 @@
 using System.Threading.Tasks;
+using NectarineAPI.Models.Customers;
 using NectarineData.Models;
-using Stripe;
 
 namespace NectarineAPI.Services
 {
     public interface IUserCustomerService
     {
         /// <summary>
-        /// Attaches a StripeCustomerId to the user and creates a <see cref="Customer"/>
-        /// object with <see cref="CustomerCreateOptions"/>.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        public Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null);
-
-        /// <summary>
-        /// Gets the users <see cref="Customer"/> object from their Customer ID.
+        /// Attach a CustomerId to a User.
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Customer GetCustomer(ApplicationUser user);
+        public Task AddCustomerIdAsync(ApplicationUser user);
 
         /// <summary>
-        /// Updates the users <see cref="Customer"/> object.
+        /// Gets a users customer details.
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="updateOptions"></param>
+        /// <param name="paymentProviderCustomerId"></param>
         /// <returns></returns>
-        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions);
+        public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId);
 
         /// <summary>
-        /// Sets the users <see cref="Customer"/> Deleted property to true.
+        /// Updates the users address.
+        /// </summary>
+        /// <param name="paymentProviderCustomerId"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddress address);
+
+        /// <summary>
+        /// Updates the users phone number.
+        /// </summary>
+        /// <param name="paymentProviderCustomerId"></param>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
+        public UserCustomerDetails? UpdateCustomerPhoneNumber(string paymentProviderCustomerId, string phoneNumber);
+
+        /// <summary>
+        /// Sets a user to deleted. Does not delete the user object.
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>

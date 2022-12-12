@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using NectarineAPI.Models.Customers;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 using Stripe;
@@ -18,17 +19,51 @@ namespace NectarineAPI.Services
 
         public CustomerService CustomerService { get; init; }
 
-        public async Task AddStripeCustomerIdAsync(ApplicationUser user, CustomerCreateOptions? options = null)
+        public async Task AddCustomerIdAsync(ApplicationUser user)
         {
-            var customer = await CustomerService.CreateAsync(options ?? new CustomerCreateOptions());
+            var customer = await CustomerService.CreateAsync(new CustomerCreateOptions());
             user.PaymentProviderCustomerId = customer.Id;
             await _context.SaveChangesAsync();
         }
 
-        public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.PaymentProviderCustomerId);
+        public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId)
+        {
+            var customer = CustomerService.Get(paymentProviderCustomerId);
+            return customer == null
+                ? null
+                : MapCustomer(customer);
+        }
 
-        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
-            CustomerService.Update(user.PaymentProviderCustomerId, updateOptions);
+        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddress address)
+        {
+            var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions
+            {
+                Address = new AddressOptions
+                {
+                    Line1 = address.Line1,
+                    Line2 = address.Line2,
+                    City = address.City,
+                    PostalCode = address.Postcode,
+                    Country = address.Country
+                }
+            });
+
+            return customer == null
+                ? null
+                : MapCustomer(customer);
+        }
+
+        public UserCustomerDetails? UpdateCustomerPhoneNumber(string paymentProviderCustomerId, string phoneNumber)
+        {
+            var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions
+            {
+                Phone = phoneNumber
+            });
+
+            return customer == null
+                ? null
+                : MapCustomer(customer);
+        }
 
         public bool DeleteCustomer(ApplicationUser user)
         {
@@ -43,5 +78,20 @@ namespace NectarineAPI.Services
                 return false;
             }
         }
+
+        private static UserCustomerDetails MapCustomer(Customer customer) => new(
+            customer.Id,
+            customer.DefaultSourceId,
+            customer.Email,
+            customer.Phone,
+            customer.Name,
+            customer.Balance,
+            new UserAddress(
+                customer.Address.Line1,
+                customer.Address.Line2,
+                customer.Address.City,
+                customer.Address.PostalCode,
+                customer.Address.Country,
+                true));
     }
 }

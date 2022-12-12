@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests;
 using NectarineAPI.Models;
+using NectarineAPI.Models.Customers;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
@@ -51,7 +52,7 @@ namespace NectarineAPI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
             {
-                return BadRequest(new ApiError { Message = "Could not get a user" });
+                return BadRequest(new ApiError("Could not get a user"));
             }
 
             return Ok(_mapper.Map<UserDTO>(user));
@@ -68,19 +69,19 @@ namespace NectarineAPI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
             {
-                return BadRequest(new ApiError { Message = "Could not get a user" });
+                return BadRequest(new ApiError("Could not get a user"));
             }
 
             var applicationUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
             if (applicationUser is null)
             {
-                return BadRequest(new ApiError { Message = "Could not get a user from the database" });
+                return BadRequest(new ApiError("Could not get a user from the database"));
             }
 
             var result = _userCustomerService.DeleteCustomer(applicationUser);
             if (!result)
             {
-                return BadRequest(new ApiError { Message = "This user does not have a Customer associate with it." });
+                return BadRequest(new ApiError("This user does not have a Customer associate with it."));
             }
 
             _context.Users.Remove(applicationUser);
@@ -92,47 +93,30 @@ namespace NectarineAPI.Controllers
         /// <summary>
         /// Update the user's address.
         /// </summary>
-        /// <param name="updateAddressDto"></param>
+        /// <param name="updateAddress"></param>
         /// <returns></returns>
         [HttpPut]
-        [Route("Update")]
-        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "They can be null")]
-        public async Task<IActionResult> UpdateAddressAsync([FromBody] UpdateAddressDTO updateAddressDto)
+        [Route("Update/Address")]
+        public async Task<IActionResult> UpdateAddressAsync([FromBody] UserAddress updateAddress)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
             {
-                return BadRequest(new ApiError { Message = "Could not get a user" });
+                return BadRequest(new ApiError("Could not get a user"));
             }
 
-            var customer = _userCustomerService.GetCustomer(user);
+            var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
             if (customer is null)
             {
-                return BadRequest(new ApiError { Message = "Could not get a customer from the user" });
+                return BadRequest(new ApiError("Could not get a customer from the user"));
             }
-
-            var addressId = Guid.NewGuid();
-            _context.Add(new UserAddress
+            
+            var updatedCustomer = _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId, updateAddress);
+            if (updatedCustomer is null)
             {
-                Id = addressId,
-                User = user,
-                Line1 = updateAddressDto.Address.Line1,
-                Line2 = updateAddressDto.Address.Line2,
-                City = updateAddressDto.Address.City,
-                Postcode = updateAddressDto.Address.PostalCode,
-            });
-
-            if (updateAddressDto.IsPrimaryAddress)
-            {
-                _userCustomerService.UpdateCustomer(user, new CustomerUpdateOptions
-                {
-                    Address = updateAddressDto.Address,
-                });
-                user.CurrentShippingAddressId = addressId;
+                return BadRequest(new ApiError("Failed to update user"));
             }
-
-            await _context.SaveChangesAsync();
-
+            
             return Ok();
         }
 
@@ -141,7 +125,7 @@ namespace NectarineAPI.Controllers
         /// </summary>
         /// <param name="updatePhoneNumberDto"></param>
         /// <returns></returns>
-        [HttpPost("UpdatePhoneNumber")]
+        [HttpPost("Update/PhoneNumber")]
         public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberDTO updatePhoneNumberDto)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -149,12 +133,27 @@ namespace NectarineAPI.Controllers
             {
                 return Unauthorized();
             }
+            
+            var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
+            if (customer is null)
+            {
+                return BadRequest(new ApiError("Could not get a customer from the user"));
+            }
+            
+            var updatedCustomer = _userCustomerService.UpdateCustomerPhoneNumber(
+                user.PaymentProviderCustomerId,
+                updatePhoneNumberDto.PhoneNumber);
+    
+            if (updatedCustomer is null)
+            {
+                return BadRequest(new ApiError("Failed to update user"));
+            }
 
             user.PhoneNumber = updatePhoneNumberDto.PhoneNumber;
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
-                return BadRequest(new ApiError { Message = "Failed to update phone number" });
+                return BadRequest(new ApiError("Failed to update phone number on database"));
             }
 
             return Ok();
@@ -175,7 +174,7 @@ namespace NectarineAPI.Controllers
 
             if (string.IsNullOrEmpty(user.PhoneNumber))
             {
-                return BadRequest(new ApiError { Message = "User does not have a phone number." });
+                return BadRequest(new ApiError("User does not have a phone number."));
             }
 
             var random = new Random();
@@ -209,17 +208,17 @@ namespace NectarineAPI.Controllers
             if (user.VerificationCodeExpiry is null ||
                 user.VerificationCode is null)
             {
-                return BadRequest(new ApiError { Message = "User did not get a verification code." });
+                return BadRequest(new ApiError("User did not get a verification code."));
             }
 
             if (user.VerificationCodeExpiry < DateTime.Now)
             {
-                return BadRequest(new ApiError { Message = "Verification code expired." });
+                return BadRequest(new ApiError("Verification code expired."));
             }
 
             if (user.VerificationCode != confirm2FaCodeDto.Code)
             {
-                return BadRequest(new ApiError { Message = "Invalid code." });
+                return BadRequest(new ApiError("Invalid code."));
             }
 
             user.PhoneNumberConfirmed = true;

@@ -18,8 +18,6 @@ namespace NectarineData.DataAccess
 
         public virtual DbSet<Order> Orders => Set<Order>();
 
-        public virtual DbSet<UserAddress> Addresses => Set<UserAddress>();
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

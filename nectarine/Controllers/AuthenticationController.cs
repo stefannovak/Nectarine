@@ -57,7 +57,7 @@ namespace NectarineAPI.Controllers
             var user = await _userManager.FindByEmailAsync(authenticateUserDto.Email);
             if (user is null)
             {
-                return Unauthorized(new ApiError { Message = "Authentication failed. User not found." });
+                return Unauthorized(new ApiError ("Authentication failed. User not found."));
             }
 
             var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(
@@ -66,7 +66,7 @@ namespace NectarineAPI.Controllers
                 authenticateUserDto.Password);
             if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
-                return Unauthorized(new ApiError { Message = "Authentication failed. Incorrect password." });
+                return Unauthorized(new ApiError("Authentication failed. Incorrect password."));
             }
 
             return Ok(new
@@ -89,10 +89,9 @@ namespace NectarineAPI.Controllers
                 microsoftUser.FirstName is null ||
                 microsoftUser.LastName is null)
             {
-                return NotFound(new ApiError
-                {
-                    Message = $"Could not find a Microsoft user from the given token. Token: {authenticateSocialUserDto.Token}",
-                });
+                return NotFound(new ApiError(
+                $"Could not find a Microsoft user from the given token. Token: {authenticateSocialUserDto.Token}"
+                ));
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == microsoftUser.Email &&
@@ -120,10 +119,9 @@ namespace NectarineAPI.Controllers
                 facebookUser.FirstName is null ||
                 facebookUser.LastName is null)
             {
-                return NotFound(new ApiError
-                {
-                    Message = $"Could not find a Facebook user from the given token. Token: {authenticateSocialUserDto.Token}",
-                });
+                return NotFound(new ApiError(
+                    $"Could not find a Facebook user from the given token. Token: {authenticateSocialUserDto.Token}"
+                ));
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == facebookUser.Email &&
@@ -153,9 +151,9 @@ namespace NectarineAPI.Controllers
                 googleUser.LastName is null)
             {
                 return NotFound(new ApiError
-                {
-                    Message = $"Could not find a Google user from the given token. Token: {authenticateSocialUserDto.Token}",
-                });
+                (
+                    $"Could not find a Google user from the given token. Token: {authenticateSocialUserDto.Token}"
+                ));
             }
 
             var user = _context.Users.FirstOrDefault(u => u.Email == googleUser.Email &&
@@ -183,7 +181,7 @@ namespace NectarineAPI.Controllers
                 UserName = createUserDto.Email,
             };
 
-            await _userCustomerService.AddStripeCustomerIdAsync(identityUser);
+            await _userCustomerService.AddCustomerIdAsync(identityUser);
             var result = await _userManager.CreateAsync(identityUser, createUserDto.Password);
 
             if (!result.Succeeded)
@@ -194,7 +192,7 @@ namespace NectarineAPI.Controllers
                     dictionary.Add(error.Code, error.Description);
                 }
 
-                return new BadRequestObjectResult(new ApiError { Message = "User creation failed.", Errors = dictionary });
+                return new BadRequestObjectResult(new ApiError ("User creation failed.", dictionary));
             }
 
             var user = await _userManager.FindByEmailAsync(identityUser.Email);
@@ -202,7 +200,7 @@ namespace NectarineAPI.Controllers
             {
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new ApiError() { Message = "Failed to retrieve new user" });
+                    new ApiError("Failed to retrieve new user"));
             }
 
             await _emailService.SendWelcomeEmail(user.Email);
@@ -234,7 +232,7 @@ namespace NectarineAPI.Controllers
                 return Problem($"{externalUser.Platform} user creation failed. Possible user email duplication.");
             }
 
-            await _userCustomerService.AddStripeCustomerIdAsync(user);
+            await _userCustomerService.AddCustomerIdAsync(user);
             await _context.SaveChangesAsync();
             await _emailService.SendWelcomeEmail(user.Email!);
 
