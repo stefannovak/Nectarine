@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using NectarineAPI.Models.Customers;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 using Stripe;
@@ -25,8 +26,19 @@ namespace NectarineAPI.Services
             await _context.SaveChangesAsync();
         }
 
-        public Customer GetCustomer(ApplicationUser user) => CustomerService.Get(user.PaymentProviderCustomerId);
-
+        public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId)
+        {
+            var customer = CustomerService.Get(paymentProviderCustomerId);
+            return customer == null
+                ? null
+                : new UserCustomerDetails(
+                    customer.Id,
+                    customer.DefaultSourceId,
+                    customer.Email,
+                    customer.Name,
+                    customer.Balance);
+        }
+        
         public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
             CustomerService.Update(user.PaymentProviderCustomerId, updateOptions);
 

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using NectarineAPI.Models.Customers;
 using NectarineData.Models;
 using Stripe;
 
@@ -16,9 +17,9 @@ namespace NectarineAPI.Services
         /// <summary>
         /// Gets the users <see cref="Customer"/> object from their Customer ID.
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="paymentProviderCustomerId"></param>
         /// <returns></returns>
-        public Customer GetCustomer(ApplicationUser user);
+        public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId);
 
         /// <summary>
         /// Updates the users <see cref="Customer"/> object.

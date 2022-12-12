@@ -10,6 +10,7 @@ using Moq;
 using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models.Customers;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
@@ -76,8 +77,13 @@ public partial class UsersControllerTest
             .Returns(It.IsAny<Customer>());
 
         _userCustomerServiceMock
-            .Setup(x => x.GetCustomer(It.IsAny<ApplicationUser>()))
-            .Returns(It.IsAny<Customer>());
+            .Setup(x => x.GetCustomer(It.IsAny<string>()))
+            .Returns(new UserCustomerDetails(
+                "cus_123",
+                "pay_123",
+                "test@me.com",
+                "me",
+                123));
 
         // IPhoneService setup
         var phoneServiceMock = new Mock<IPhoneService>();

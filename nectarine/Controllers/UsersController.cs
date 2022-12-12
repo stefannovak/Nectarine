@@ -105,7 +105,7 @@ namespace NectarineAPI.Controllers
                 return BadRequest(new ApiError { Message = "Could not get a user" });
             }
 
-            var customer = _userCustomerService.GetCustomer(user);
+            var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
             if (customer is null)
             {
                 return BadRequest(new ApiError { Message = "Could not get a customer from the user" });

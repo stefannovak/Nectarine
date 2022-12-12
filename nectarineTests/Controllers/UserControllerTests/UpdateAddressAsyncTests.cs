@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NectarineAPI.DTOs.Requests;
+using NectarineAPI.Models.Customers;
 using NectarineData.Models;
 using Stripe;
 using Xunit;
@@ -42,8 +43,13 @@ public partial class UsersControllerTest
             .ReturnsAsync(appUser);
 
         _userCustomerServiceMock
-            .Setup(x => x.GetCustomer(appUser))
-            .Returns(new Customer());
+            .Setup(x => x.GetCustomer(appUser.PaymentProviderCustomerId))
+            .Returns(new UserCustomerDetails(
+                "cus_123",
+                "pay_123",
+                "test@me.com",
+                "me",
+                123));
 
         _userCustomerServiceMock
             .Setup(x => x.UpdateCustomer(

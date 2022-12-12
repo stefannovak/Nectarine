@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using NectarineAPI.Models.Customers;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
 using NectarineData.Models;
@@ -39,7 +40,7 @@ namespace NectarineTests.Services
 
             _mockCustomerService
                 .Setup(x => x.Get(
-                    It.IsAny<string>(),
+                    user.PaymentProviderCustomerId,
                     It.IsAny<CustomerGetOptions>(),
                     It.IsAny<RequestOptions>()))
                 .Returns(returnedCustomer);
@@ -86,22 +87,38 @@ namespace NectarineTests.Services
             // Assert
             Assert.False(string.IsNullOrEmpty(user.PaymentProviderCustomerId));
         }
+        
+        #endregion
 
-        [Fact(DisplayName = "GetCustomer should fetch a customer object, filled with customer information.")]
+        #region GetCustomer
+
+        [Fact(DisplayName = "GetCustomer should fetch a UserCustomerDetails object.")]
         public void Test_GetCustomer()
         {
             // Act
-            var result = _userCustomerService.GetCustomer(user);
+            var result = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
 
             // Arrange
-            Assert.NotNull(result);
+            Assert.IsType<UserCustomerDetails>(result);
         }
+
+        [Fact(DisplayName = "GetCustomer should return null when a users customer information is not found.")]
+        public void Test_GetCustomer_ReturnsNull()
+        {
+            // Act
+            var result = _userCustomerService.GetCustomer("DoesntExist");
+
+            // Arrange
+            Assert.Null(result);
+        }
+        
+        #endregion
 
         [Fact(DisplayName = "UpdateCustomer should update the user's Customer object.")]
         public void Test_UpdateCustomer()
         {
             // Arrange
-            var customerBeforeUpdate = _userCustomerService.GetCustomer(user);
+            var customerBeforeUpdate = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
             var updateOptions = new CustomerUpdateOptions
             {
                 Balance = 100,
@@ -111,7 +128,7 @@ namespace NectarineTests.Services
             var customerAfterUpdate = _userCustomerService.UpdateCustomer(user, updateOptions);
 
             // Assert
-            Assert.NotEqual(customerBeforeUpdate.Balance, customerAfterUpdate.Balance);
+            Assert.NotEqual(customerBeforeUpdate?.Balance, customerAfterUpdate.Balance);
         }
 
         [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
@@ -140,7 +157,5 @@ namespace NectarineTests.Services
             // Assert
             Assert.False(result);
         }
-
-        #endregion
     }
 }
