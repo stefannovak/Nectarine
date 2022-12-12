@@ -91,6 +91,11 @@ public partial class UsersControllerTest
             .Setup(x => x.UpdateCustomerAddress(
                 It.IsAny<string>(), It.IsAny<UserAddress>()))
             .Returns(It.IsAny<UserCustomerDetails>());
+        
+        _userCustomerServiceMock
+            .Setup(x => x.UpdateCustomerPhoneNumber(
+                It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(_userCustomerDetails);
 
         _userCustomerServiceMock
             .Setup(x => x.GetCustomer(It.IsAny<string>()))
@@ -263,6 +268,36 @@ public partial class UsersControllerTest
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
+    }
+    
+    [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when a Customer can't be found for the User.")]
+    public async Task Test_UpdatePhoneNumber_NoCustomer()
+    {
+        // Assert
+        _userCustomerServiceMock
+            .Setup(x => x.GetCustomer(It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+    
+    [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when a Customer can't be updated.")]
+    public async Task Test_UpdatePhoneNumber_NoCustomerUpdate()
+    {
+        // Assert
+        _userCustomerServiceMock
+            .Setup(x => x.UpdateCustomerPhoneNumber(
+                It.IsAny<string>(),
+                It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdatePhoneNumber(updatePhoneNumberDTO);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when the User fails to update.")]

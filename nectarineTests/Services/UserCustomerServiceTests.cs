@@ -65,6 +65,10 @@ namespace NectarineTests.Services
                 {
                     Id = user.PaymentProviderCustomerId,
                     Balance = 100,
+                    Address = new Address
+                    {
+                        Line1 = "21 BoolProp Lane",
+                    }
                 });
 
             _mockCustomerService
@@ -124,6 +128,8 @@ namespace NectarineTests.Services
         }
         
         #endregion
+        
+        #region DeleteCustomer
 
         [Fact(DisplayName = "DeleteCustomer should delete the users Customer object.")]
         public void Test_DeleteCustomer()
@@ -151,5 +157,97 @@ namespace NectarineTests.Services
             // Assert
             Assert.False(result);
         }
+        
+        [Fact(DisplayName = "DeleteCustomer should throw an exception.")]
+        public void Test_DeleteCustomer_ThrowsException()
+        {
+            // Arrange
+            _mockCustomerService
+                .Setup(x => x.Delete(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerDeleteOptions>(),
+                    It.IsAny<RequestOptions>()))
+                .Throws<StripeException>();
+
+            // Act
+            var result = _userCustomerService.DeleteCustomer(user);
+
+            // Assert
+            Assert.False(result);
+        }
+        
+        #endregion
+
+        #region UpdateCustomerAddress
+
+        [Fact(DisplayName = "UpdateCustomerAddress should update a user address.")]
+        public void Test_UpdateCustomerAddress()
+        {
+            // Act
+            var result = _userCustomerService.UpdateCustomerAddress(
+                user.PaymentProviderCustomerId,
+                new UserAddress
+                (
+                    "21 BoolProp Lane",
+                    null,
+                    "Big City",
+                    "11111",
+                    "UK",
+                    true
+                ));
+
+            // Arrange
+            Assert.IsType<UserCustomerDetails>(result);
+        }
+
+        [Fact(DisplayName = "UpdateCustomerAddress should return null")]
+        public void Test_UpdateCustomerAddress_ReturnsNull()
+        {
+            // Act
+            var result = _userCustomerService.UpdateCustomerAddress(
+                user.PaymentProviderCustomerId,
+                new UserAddress
+                (
+                    "21 BoolProp Lane",
+                    null,
+                    "Big City",
+                    "11111",
+                    "UK",
+                    true
+                ));
+
+            // Arrange
+            Assert.Null(result);
+        }
+
+        #endregion
+        
+        #region UpdateCustomerPhoneNumber
+
+        [Fact(DisplayName = "UpdateCustomerPhoneNumber should update a user address.")]
+        public void Test_UpdateCustomerPhoneNumber()
+        {
+            // Act
+            var result = _userCustomerService.UpdateCustomerPhoneNumber(
+                user.PaymentProviderCustomerId,
+                "07123123123");
+
+            // Arrange
+            Assert.IsType<UserCustomerDetails>(result);
+        }
+
+        [Fact(DisplayName = "UpdateCustomerAddress should return null")]
+        public void Test_UpdateCustomerPhoneNumber_ReturnsNull()
+        {
+            // Act
+            var result = _userCustomerService.UpdateCustomerPhoneNumber(
+                user.PaymentProviderCustomerId,
+                "07123123123");
+
+            // Arrange
+            Assert.Null(result);
+        }
+
+        #endregion
     }
 }

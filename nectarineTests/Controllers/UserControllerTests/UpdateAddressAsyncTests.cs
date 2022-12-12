@@ -14,7 +14,7 @@ public partial class UsersControllerTest
     public async Task Test_UpdateAddressAsync_ReturnsOk()
     {
         // Arrange
-        var updateUserDto = new UserAddress
+        var userAddress = new UserAddress
         (
             "21 BoolProp Lane",
             null,
@@ -43,19 +43,11 @@ public partial class UsersControllerTest
             .Returns(_userCustomerDetails);
 
         _userCustomerServiceMock
-            .Setup(x => x.UpdateCustomerAddress(appUser.PaymentProviderCustomerId, new UserAddress
-            (
-                "21 BoolProp Lane",
-                null,
-                "Big City",
-                "11111",
-                "UK",
-                true
-            )))
+            .Setup(x => x.UpdateCustomerAddress(appUser.PaymentProviderCustomerId, userAddress))
             .Returns(_userCustomerDetails);
 
         // Act
-        var result = await _controller.UpdateAddressAsync(updateUserDto);
+        var result = await _controller.UpdateAddressAsync(userAddress);
 
         // Assert
         Assert.IsType<OkResult>(result);
@@ -81,6 +73,22 @@ public partial class UsersControllerTest
         // Arrange
         _userCustomerServiceMock
             .Setup(x => x.GetCustomer(It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+    
+    [Fact(DisplayName = "UpdateAddressAsync should return a Bad Request when a Customer can't be updated.")]
+    public async Task Test_UpdateAddressAsync_FailsWhen_CantUpdateCustomer()
+    {
+        // Arrange
+        _userCustomerServiceMock
+            .Setup(x => x.UpdateCustomerAddress(
+                It.IsAny<string>(),
+                It.IsAny<UserAddress>()));
 
         // Act
         var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
