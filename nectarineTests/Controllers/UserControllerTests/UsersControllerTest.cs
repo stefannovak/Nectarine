@@ -32,6 +32,22 @@ public partial class UsersControllerTest
         PhoneNumber = "123123123123",
     };
 
+    private readonly UserCustomerDetails _userCustomerDetails = new(
+        "cus_123",
+        "pay_123",
+        "test@me.com",
+        "me",
+        123,
+        new UserAddress
+        (
+            "21 BoolProp Lane",
+            null,
+            "Big City",
+            "11111",
+            "UK",
+            true
+        ));
+
     private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
     public UsersControllerTest()
@@ -71,19 +87,13 @@ public partial class UsersControllerTest
             .Returns(true);
 
         _userCustomerServiceMock
-            .Setup(x => x.UpdateCustomer(
-                It.IsAny<ApplicationUser>(),
-                It.IsAny<CustomerUpdateOptions>()))
-            .Returns(It.IsAny<Customer>());
+            .Setup(x => x.UpdateCustomerAddress(
+                It.IsAny<string>()))
+            .Returns(It.IsAny<UserCustomerDetails>());
 
         _userCustomerServiceMock
             .Setup(x => x.GetCustomer(It.IsAny<string>()))
-            .Returns(new UserCustomerDetails(
-                "cus_123",
-                "pay_123",
-                "test@me.com",
-                "me",
-                123));
+            .Returns(_userCustomerDetails);
 
         // IPhoneService setup
         var phoneServiceMock = new Mock<IPhoneService>();

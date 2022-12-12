@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Castle.Core.Internal;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Models.Customers;
@@ -29,6 +28,18 @@ namespace NectarineTests.Services
             var returnedCustomer = new Customer
             {
                 Id = "StripeCustomerId",
+                DefaultSourceId = "pm",
+                Email = "test@test.com",
+                Name = "name",
+                Balance = 123,
+                Address = new Address
+                {
+                    Line1 = "21 BoolProp Lane",
+                    Line2 = "test",
+                    City = "Big City",
+                    PostalCode = "N1111",
+                    Country = "UK"
+                }
             };
 
             _mockCustomerService
@@ -125,7 +136,7 @@ namespace NectarineTests.Services
             };
 
             // Act
-            var customerAfterUpdate = _userCustomerService.UpdateCustomer(user, updateOptions);
+            var customerAfterUpdate = _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId);
 
             // Assert
             Assert.NotEqual(customerBeforeUpdate?.Balance, customerAfterUpdate.Balance);

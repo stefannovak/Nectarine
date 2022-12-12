@@ -2,10 +2,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NectarineAPI.DTOs.Requests;
 using NectarineAPI.Models.Customers;
 using NectarineData.Models;
-using Stripe;
 using Xunit;
 
 namespace NectarineTests.Controllers.UserControllerTests;
@@ -16,17 +14,15 @@ public partial class UsersControllerTest
     public async Task Test_UpdateAddressAsync_ReturnsOk()
     {
         // Arrange
-        var updateUserDto = new UpdateAddressDTO
-        {
-            Address = new AddressOptions
-            {
-                Line1 = "21 BoolProp Lane",
-                City = "Big City",
-                Country = "England",
-                PostalCode = "11111",
-            },
-            IsPrimaryAddress = true,
-        };
+        var updateUserDto = new UserAddress
+        (
+            "21 BoolProp Lane",
+            null,
+            "Big City",
+           "11111",
+            "UK",
+            true
+        );
 
         var appUser = new ApplicationUser
         {
@@ -44,21 +40,11 @@ public partial class UsersControllerTest
 
         _userCustomerServiceMock
             .Setup(x => x.GetCustomer(appUser.PaymentProviderCustomerId))
-            .Returns(new UserCustomerDetails(
-                "cus_123",
-                "pay_123",
-                "test@me.com",
-                "me",
-                123));
+            .Returns(_userCustomerDetails);
 
         _userCustomerServiceMock
-            .Setup(x => x.UpdateCustomer(
-                appUser,
-                new CustomerUpdateOptions
-                {
-                    Address = updateUserDto.Address,
-                }))
-            .Returns(new Customer());
+            .Setup(x => x.UpdateCustomerAddress(appUser.PaymentProviderCustomerId))
+            .Returns(_userCustomerDetails);
 
         // Act
         var result = await _controller.UpdateAddressAsync(updateUserDto);
@@ -75,7 +61,7 @@ public partial class UsersControllerTest
             .GetUserAsync(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _controller.UpdateAddressAsync(It.IsAny<UpdateAddressDTO>());
+        var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
 
         // Arrange
         Assert.IsType<BadRequestObjectResult>(result);
@@ -84,10 +70,14 @@ public partial class UsersControllerTest
     [Fact(DisplayName = "UpdateAddressAsync should return a Bad Request when a User's Customer can't be fetched.")]
     public async Task Test_UpdateAddressAsync_FailsWhen_CantGetACustomerFromUser()
     {
-        // Act
-        var result = await _controller.UpdateAddressAsync(It.IsAny<UpdateAddressDTO>());
-
         // Arrange
+        _userCustomerServiceMock
+            .Setup(x => x.GetCustomer(It.IsAny<string>()));
+
+        // Act
+        var result = await _controller.UpdateAddressAsync(It.IsAny<UserAddress>());
+
+        // Assert
         Assert.IsType<BadRequestObjectResult>(result);
     }
 }

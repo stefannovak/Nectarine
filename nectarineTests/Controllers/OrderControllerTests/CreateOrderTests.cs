@@ -52,8 +52,11 @@ public partial class OrderControllerTests
 
     [Fact(DisplayName = "CreateOrderTests should return BadRequest when the given AddressId does not correspond to the users addresses")]
     public async Task Test_CreateOrder_FailsWhen_WrongAddressId()
-    {
+    {        
         // Arrange
+        _userCustomerServiceMock
+            .Setup(x => x.GetCustomer(It.IsAny<string>()));
+        
         createOrderDto = new CreateOrderDTO
         {
             ProductIds = new List<string>

@@ -29,5 +29,5 @@ public class Order
     public string OrderTotal { get; set; } = string.Empty;
 
     [Required]
-    public Guid AddressId { get; set; }
+    public string Postcode { get; set; } = string.Empty;
 }

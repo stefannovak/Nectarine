@@ -15,19 +15,18 @@ namespace NectarineAPI.Services
         public Task AddCustomerIdAsync(ApplicationUser user);
 
         /// <summary>
-        /// Gets the users <see cref="Customer"/> object from their Customer ID.
+        /// Gets a users customer details.
         /// </summary>
         /// <param name="paymentProviderCustomerId"></param>
         /// <returns></returns>
         public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId);
 
         /// <summary>
-        /// Updates the users <see cref="Customer"/> object.
+        /// Updates the users customer details..
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="updateOptions"></param>
+        /// <param name="paymentProviderCustomerId"></param>
         /// <returns></returns>
-        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions);
+        public UserCustomerDetails UpdateCustomerAddress(string paymentProviderCustomerId);
 
         /// <summary>
         /// Sets the users <see cref="Customer"/> Deleted property to true.

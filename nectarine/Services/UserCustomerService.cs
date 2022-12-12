@@ -36,12 +36,34 @@ namespace NectarineAPI.Services
                     customer.DefaultSourceId,
                     customer.Email,
                     customer.Name,
-                    customer.Balance);
+                    customer.Balance,
+                    new UserAddress(
+                        customer.Address.Line1,
+                        customer.Address.Line2,
+                        customer.Address.City,
+                        customer.Address.PostalCode,
+                        customer.Address.Country,
+                        true));
+        }
+
+        public UserCustomerDetails UpdateCustomerAddress(string paymentProviderCustomerId)
+        {
+            var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions());
+            return new UserCustomerDetails(
+                customer.Id,
+                customer.DefaultSourceId,
+                customer.Email,
+                customer.Name,
+                customer.Balance,
+                new UserAddress(
+                    customer.Address.Line1,
+                    customer.Address.Line2,
+                    customer.Address.City,
+                    customer.Address.PostalCode,
+                    customer.Address.Country,
+                    true));
         }
         
-        public Customer UpdateCustomer(ApplicationUser user, CustomerUpdateOptions updateOptions) =>
-            CustomerService.Update(user.PaymentProviderCustomerId, updateOptions);
-
         public bool DeleteCustomer(ApplicationUser user)
         {
             try

@@ -54,10 +54,7 @@ namespace NectarineAPI.Controllers
 
             return success
                 ? Ok()
-                : BadRequest(new ApiError
-                {
-                    Message = "Could not create the payment method.",
-                });
+                : BadRequest(new ApiError("Could not create the payment method."));
         }
 
         /// <summary>
@@ -77,7 +74,7 @@ namespace NectarineAPI.Controllers
             var paymentMethod = _paymentService.GetPaymentMethod(paymentMethodId);
             if (paymentMethod is null || user.PaymentProviderCustomerId != paymentMethod.CustomerId)
             {
-                return NotFound(new ApiError { Message = "Could not find a Payment Method with the given Id for this user." });
+                return NotFound(new ApiError("Could not find a Payment Method with the given Id for this user."));
             }
 
             return Ok(new { PaymentMethod = paymentMethod });
@@ -100,7 +97,7 @@ namespace NectarineAPI.Controllers
             var paymentMethods = _paymentService.GetCardsForUser(user.PaymentProviderCustomerId);
             if (!paymentMethods.Any())
             {
-                return NotFound(new ApiError { Message = "Could not find any payment methods for this user." });
+                return NotFound(new ApiError("Could not find any payment methods for this user."));
             }
 
             return Ok(paymentMethods);
