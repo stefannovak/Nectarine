@@ -86,7 +86,8 @@ public partial class OrderControllerTests
         emailServiceMock
             .Setup(x => x.SendEmail(
                 It.IsAny<string>(),
-                It.IsAny<SendGridMessage>()));
+                It.IsAny<string>(),
+                It.IsAny<string>()));
 
         // IPaymentService setup
         _paymentServiceMock = new Mock<IPaymentService>();

@@ -44,14 +44,7 @@ public class EmailServiceTests
     [Fact(DisplayName = "SendEmail should send an email")]
     public async Task Test_SendEmail()
     {
-        // Arrange
-        var message = new SendGridMessage
-        {
-            PlainTextContent = "Test email",
-            Subject = "test subject",
-        };
-
         // Act
-        await _subject.SendEmail("a", message);
+        await _subject.SendEmail("a", "Test email", "test subject");
     }
 }
