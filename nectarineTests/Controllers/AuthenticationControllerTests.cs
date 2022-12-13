@@ -131,7 +131,10 @@ namespace NectarineTests.Controllers
             _emailServiceMock = new Mock<IEmailService>();
 
             _emailServiceMock
-                .Setup(x => x.SendEmail(It.IsAny<string>(), It.IsAny<SendGridMessage>()));
+                .Setup(x => x.SendEmail(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()));
 
             _emailServiceMock
                 .Setup(x => x.SendWelcomeEmail(It.IsAny<string>()));

@@ -170,18 +170,18 @@ public class OrderController : ControllerBase
         string lastFourCardNumber,
         UserAddress address)
     {
-        await _emailService.SendEmail(destinationEmail, new SendGridMessage
-        {
-            Subject = "Your Nectarine order receipt",
-            PlainTextContent =
-                $"Thanks for your order {destinationEmail}!\n" +
-                "Your order has been created and will be dispatched soon.\n" +
-                $"Order Confirmation Number: {order.Id.ToString()}\n\n" +
-                $"Your order will be sent to {address.Line1} {address.Postcode}.\n" +
-                $"Order Total: {order.OrderTotal}\n" +
-                $"Payment method ending in: {lastFourCardNumber}\n\n" +
-                "We hope to see you again soon.\n" +
-                "Nectarine",
-        });
+        var textContent = $"Thanks for your order {destinationEmail}!\n" +
+                          "Your order has been created and will be dispatched soon.\n" +
+                          $"Order Confirmation Number: {order.Id.ToString()}\n\n" +
+                          $"Your order will be sent to {address.Line1} {address.Postcode}.\n" +
+                          $"Order Total: {order.OrderTotal}\n" +
+                          $"Payment method ending in: {lastFourCardNumber}\n\n" +
+                          "We hope to see you again soon.\n" +
+                          "Nectarine";
+
+        await _emailService.SendEmail(
+            destinationEmail,
+            "Your Nectarine order receipt",
+            textContent);
     }
 }

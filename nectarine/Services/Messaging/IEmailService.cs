@@ -7,5 +7,5 @@ public interface IEmailService
 {
     public Task SendWelcomeEmail(string destinationAddress);
 
-    public Task SendEmail(string destinationAddress, SendGridMessage message);
+    public Task SendEmail(string destinationAddress, string subject, string plaintextMessageContent);
 }

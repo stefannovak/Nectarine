@@ -47,10 +47,13 @@ public class SendGridEmailService : IEmailService
         await TrySendEmail(message);
     }
 
-    public async Task SendEmail(string destinationAddress, SendGridMessage message)
+    public async Task SendEmail(string destinationAddress, string subject, string plaintextMessageContent)
     {
+        var message = new SendGridMessage();
         message.From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak");
         message.AddTo(destinationAddress);
+        message.Subject = subject;
+        message.PlainTextContent = plaintextMessageContent;
         await TrySendEmail(message);
     }
 
