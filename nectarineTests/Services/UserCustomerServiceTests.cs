@@ -203,6 +203,13 @@ namespace NectarineTests.Services
         [Fact(DisplayName = "UpdateCustomerAddress should return null")]
         public void Test_UpdateCustomerAddress_ReturnsNull()
         {
+            // Arrange
+            _mockCustomerService
+                .Setup(x => x.Update(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerUpdateOptions>(),
+                    It.IsAny<RequestOptions>()));
+            
             // Act
             var result = _userCustomerService.UpdateCustomerAddress(
                 user.PaymentProviderCustomerId,
@@ -236,9 +243,16 @@ namespace NectarineTests.Services
             Assert.IsType<UserCustomerDetails>(result);
         }
 
-        [Fact(DisplayName = "UpdateCustomerAddress should return null")]
+        [Fact(DisplayName = "UpdateCustomerPhoneNumber should return null")]
         public void Test_UpdateCustomerPhoneNumber_ReturnsNull()
         {
+            // Arrange
+            _mockCustomerService
+                .Setup(x => x.Update(
+                    It.IsAny<string>(),
+                    It.IsAny<CustomerUpdateOptions>(),
+                    It.IsAny<RequestOptions>()));
+            
             // Act
             var result = _userCustomerService.UpdateCustomerPhoneNumber(
                 user.PaymentProviderCustomerId,
