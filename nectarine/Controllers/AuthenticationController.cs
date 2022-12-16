@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NectarineAPI.DTOs.Requests;
@@ -227,7 +224,7 @@ namespace NectarineAPI.Controllers
             var result = await _userManager.CreateAsync(user);
             if (!result.Succeeded)
             {
-                return BadRequest(new ApiError($"{externalUser.Platform} user creation failed. Possible user email duplication."));
+                return BadRequest(new ApiError($"{externalUser.Platform} user creation failed."));
             }
 
             await _userCustomerService.AddCustomerIdAsync(user);
