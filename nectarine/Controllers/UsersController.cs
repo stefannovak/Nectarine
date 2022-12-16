@@ -110,13 +110,13 @@ namespace NectarineAPI.Controllers
             {
                 return BadRequest(new ApiError("Could not get a customer from the user"));
             }
-            
+
             var updatedCustomer = _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId, updateAddress);
             if (updatedCustomer is null)
             {
                 return BadRequest(new ApiError("Failed to update user"));
             }
-            
+
             return Ok();
         }
 
@@ -133,17 +133,17 @@ namespace NectarineAPI.Controllers
             {
                 return Unauthorized();
             }
-            
+
             var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
             if (customer is null)
             {
                 return BadRequest(new ApiError("Could not get a customer from the user"));
             }
-            
+
             var updatedCustomer = _userCustomerService.UpdateCustomerPhoneNumber(
                 user.PaymentProviderCustomerId,
                 updatePhoneNumberDto.PhoneNumber);
-    
+
             if (updatedCustomer is null)
             {
                 return BadRequest(new ApiError("Failed to update user"));

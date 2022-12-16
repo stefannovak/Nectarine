@@ -162,7 +162,7 @@ namespace NectarineAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a user with an email and password, and attaches a Stripe ID to the user.
+        /// Creates a user with an email and password.
         /// </summary>
         /// <param name="createUserDto"></param>
         /// <returns></returns>

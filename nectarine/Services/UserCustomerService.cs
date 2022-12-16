@@ -44,8 +44,8 @@ namespace NectarineAPI.Services
                     Line2 = address.Line2,
                     City = address.City,
                     PostalCode = address.Postcode,
-                    Country = address.Country
-                }
+                    Country = address.Country,
+                },
             });
 
             return customer == null
@@ -57,7 +57,7 @@ namespace NectarineAPI.Services
         {
             var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions
             {
-                Phone = phoneNumber
+                Phone = phoneNumber,
             });
 
             return customer == null
@@ -79,19 +79,31 @@ namespace NectarineAPI.Services
             }
         }
 
-        private static UserCustomerDetails MapCustomer(Customer customer) => new(
-            customer.Id,
-            customer.DefaultSourceId,
-            customer.Email,
-            customer.Phone,
-            customer.Name,
-            customer.Balance,
-            new UserAddress(
-                customer.Address.Line1,
-                customer.Address.Line2,
-                customer.Address.City,
-                customer.Address.PostalCode,
-                customer.Address.Country,
-                true));
+        private static UserCustomerDetails MapCustomer(Customer customer)
+        {
+            var hasAddress = customer.Address?.Line1 != null &&
+                             customer.Address?.Line2 != null &&
+                             customer.Address?.City != null &&
+                             customer.Address?.PostalCode != null &&
+                             customer.Address?.Country != null;
+
+            return new UserCustomerDetails(
+                customer.Id,
+                customer.DefaultSourceId,
+                customer.Email,
+                customer.Phone,
+                customer.Name,
+                customer.Balance,
+                !hasAddress
+                    ? null
+                    : new UserAddress(
+                        customer.Address.Line1,
+                        customer.Address.Line2,
+                        customer.Address.City,
+                        customer.Address.PostalCode,
+                        customer.Address.Country,
+                        // This is super wrong.
+                        true));
+        }
     }
 }
