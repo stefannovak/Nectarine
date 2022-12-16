@@ -460,7 +460,7 @@ namespace NectarineTests.Controllers
             var result = await _subject.AuthenticateGoogleUser(_authenticateSocialUserDto);
 
             // Arrange
-            Assert.True((result as ObjectResult)?.StatusCode == 500);
+            Assert.IsType<BadRequestObjectResult>(result);
         }
 
         #endregion
