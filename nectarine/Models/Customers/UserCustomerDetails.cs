@@ -4,12 +4,12 @@ public class UserCustomerDetails
 {
     public UserCustomerDetails(
         string customerId,
-        string defaultPaymentSourceId,
-        string email,
-        string phoneNumber,
-        string name,
+        string? defaultPaymentSourceId,
+        string? email,
+        string? phoneNumber,
+        string? name,
         long balance,
-        UserAddress address)
+        UserAddress? address)
     {
         CustomerId = customerId;
         DefaultPaymentSourceId = defaultPaymentSourceId;
@@ -22,15 +22,15 @@ public class UserCustomerDetails
 
     public string CustomerId { get; set; }
 
-    public string DefaultPaymentSourceId { get; set; }
+    public string? DefaultPaymentSourceId { get; set; }
 
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public long Balance { get; set; }
 
-    public UserAddress Address { get; set; }
+    public UserAddress? Address { get; set; }
 }
