@@ -10,19 +10,17 @@ namespace NectarineAPI.Services.Auth;
 public class FacebookAuthService<T> : IExternalAuthService<FacebookUser>
     where T : FacebookUser, new()
 {
-    public FacebookAuthService()
-    {
-        Client = new HttpClient
-        {
-            BaseAddress = new Uri("https://graph.facebook.com/v12.0/"),
-        };
-    }
+    private readonly HttpClient _client;
 
-    private HttpClient Client { get; }
+    public FacebookAuthService(HttpClient client)
+    {
+        _client = client;
+        _client.BaseAddress = new Uri("https://graph.facebook.com/v12.0/");
+    }
 
     public async Task<FacebookUser?> GetUserFromTokenAsync(string token)
     {
-        var response = await Client.GetAsync($"me?fields=id,name,email,first_name,last_name&access_token={token}");
+        var response = await _client.GetAsync($"me?fields=id,name,email,first_name,last_name&access_token={token}");
         if (!response.IsSuccessStatusCode)
         {
             return null;

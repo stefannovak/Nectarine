@@ -10,20 +10,18 @@ namespace NectarineAPI.Services.Auth
     public class GoogleAuthService<T> : IExternalAuthService<GoogleUser>
         where T : GoogleUser, new()
     {
-        public GoogleAuthService()
-        {
-            Client = new HttpClient
-            {
-                BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/"),
-            };
-            Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        }
+        private readonly HttpClient _httpClient;
 
-        private HttpClient Client { get; }
+        public GoogleAuthService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+            _httpClient.BaseAddress = new Uri("https://www.googleapis.com/oauth2/v2/");
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
 
         public async Task<GoogleUser?> GetUserFromTokenAsync(string token)
         {
-            var response = await Client.GetAsync($"userinfo?access_token={token}");
+            var response = await _httpClient.GetAsync($"userinfo?access_token={token}");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
