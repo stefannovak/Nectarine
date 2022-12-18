@@ -53,7 +53,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                 {
                     new (12, 25, "121")
                 });
-            
+
             // UserManager setup
             _userManager = MockHelpers.MockUserManager<ApplicationUser>();
 
@@ -64,7 +64,6 @@ namespace NectarineTests.Controllers.PaymentControllerTests
                 {
                     PhoneNumber = "123123123123",
                     VerificationCode = 123123,
-                    VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
                     PhoneNumberConfirmed = false,
                     PaymentProviderCustomerId = stripeCustomerId,
                 });

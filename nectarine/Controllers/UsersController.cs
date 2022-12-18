@@ -1,8 +1,8 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NectarineAPI.DTOs.Generic;
@@ -13,7 +13,6 @@ using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
-using Stripe;
 
 namespace NectarineAPI.Controllers
 {
@@ -26,19 +25,22 @@ namespace NectarineAPI.Controllers
         private readonly IUserCustomerService _userCustomerService;
         private readonly NectarineDbContext _context;
         private readonly IPhoneService _phoneService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
         public UsersController(
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
             IUserCustomerService userCustomerService,
             NectarineDbContext context,
-            IPhoneService phoneService)
+            IPhoneService phoneService,
+            IBackgroundJobClient backgroundJobClient)
         {
             _userManager = userManager;
             _mapper = mapper;
             _userCustomerService = userCustomerService;
             _context = context;
             _phoneService = phoneService;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         /// <summary>
@@ -185,8 +187,8 @@ namespace NectarineAPI.Controllers
                 user.PhoneNumber);
 
             user.VerificationCode = verificationCode;
-            user.VerificationCodeExpiry = DateTime.Now.AddMinutes(2);
             await _userManager.UpdateAsync(user);
+            _backgroundJobClient.Schedule(() => DeleteVerificationCodeForUser(user.Id), TimeSpan.FromMinutes(2));
 
             return Ok();
         }
@@ -205,15 +207,9 @@ namespace NectarineAPI.Controllers
                 return Unauthorized();
             }
 
-            if (user.VerificationCodeExpiry is null ||
-                user.VerificationCode is null)
+            if (user.VerificationCode is null)
             {
-                return BadRequest(new ApiError("User did not get a verification code."));
-            }
-
-            if (user.VerificationCodeExpiry < DateTime.Now)
-            {
-                return BadRequest(new ApiError("Verification code expired."));
+                return BadRequest(new ApiError("User does not have a valid verification code."));
             }
 
             if (user.VerificationCode != confirm2FaCodeDto.Code)
@@ -224,6 +220,22 @@ namespace NectarineAPI.Controllers
             user.PhoneNumberConfirmed = true;
             await _userManager.UpdateAsync(user);
             return Ok();
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Global - Hangfire requires public
+        [NonAction]
+        public async Task DeleteVerificationCodeForUser(string userId)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+            if (user is null)
+            {
+                // TODO: - Set up Serilog
+                Console.WriteLine($"Failed to find user with id {userId}");
+                return;
+            }
+
+            user.VerificationCode = null;
+            await _context.SaveChangesAsync();
         }
     }
 }
