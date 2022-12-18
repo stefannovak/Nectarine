@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,6 @@ using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
-using Stripe;
 using Xunit;
 
 namespace NectarineTests.Controllers.UserControllerTests;
@@ -32,22 +32,20 @@ public partial class UsersControllerTest
         PhoneNumber = "123123123123",
     };
 
-    private readonly UserCustomerDetails _userCustomerDetails = new(
+    private readonly UserCustomerDetails _userCustomerDetails = new (
         "cus_123",
         "pay_123",
         "test@me.com",
         "123123123123",
         "me",
         123,
-        new UserAddress
-        (
+        new UserAddress(
             "21 BoolProp Lane",
             null,
             "Big City",
             "11111",
             "UK",
-            true
-        ));
+            true));
 
     private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
@@ -63,7 +61,6 @@ public partial class UsersControllerTest
             {
                 PhoneNumber = "123123123123",
                 VerificationCode = 123123,
-                VerificationCodeExpiry = DateTime.Now.AddMinutes(2),
                 PhoneNumberConfirmed = false,
             });
 
@@ -91,7 +88,7 @@ public partial class UsersControllerTest
             .Setup(x => x.UpdateCustomerAddress(
                 It.IsAny<string>(), It.IsAny<UserAddress>()))
             .Returns(It.IsAny<UserCustomerDetails>());
-        
+
         _userCustomerServiceMock
             .Setup(x => x.UpdateCustomerPhoneNumber(
                 It.IsAny<string>(), It.IsAny<string>()))
@@ -115,6 +112,9 @@ public partial class UsersControllerTest
                 Email = source.Email,
             });
 
+        // IBackgroundJobs setup
+        var backgroundJobsMock = new Mock<IBackgroundJobClient>();
+
         // Database setup
         var options = new DbContextOptionsBuilder<NectarineDbContext>()
             .UseInMemoryDatabase("TestDb")
@@ -127,7 +127,8 @@ public partial class UsersControllerTest
             _mockMapper.Object,
             _userCustomerServiceMock.Object,
             _mockContext,
-            phoneServiceMock.Object);
+            phoneServiceMock.Object,
+            backgroundJobsMock.Object);
     }
 
     #region GetCurrentAsync
@@ -269,7 +270,7 @@ public partial class UsersControllerTest
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
     }
-    
+
     [Fact(DisplayName = "UpdatePhoneNumber should return BadRequest when a Customer can't be found for the User.")]
     public async Task Test_UpdatePhoneNumber_NoCustomer()
     {
@@ -386,7 +387,7 @@ public partial class UsersControllerTest
         Assert.IsType<UnauthorizedResult>(result);
     }
 
-    [Fact(DisplayName = "Confirm2FACode should return BadRequest when the code or expiry is null")]
+    [Fact(DisplayName = "Confirm2FACode should return BadRequest when the code is null")]
     public async Task Test_Confirm2FACode_ReturnsBadRequestWhen_CodeOrExpiryIsNull()
     {
         // Assert
@@ -395,26 +396,6 @@ public partial class UsersControllerTest
             .ReturnsAsync(new ApplicationUser
             {
                 VerificationCode = null,
-                VerificationCodeExpiry = null,
-            });
-
-        // Act
-        var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
-
-        // Assert
-        Assert.IsType<BadRequestObjectResult>(result);
-    }
-
-    [Fact(DisplayName = "Confirm2FACode should return BadRequest when the code has expired")]
-    public async Task Test_Confirm2FACode_ReturnsBadRequestWhen_CodeExpired()
-    {
-        // Assert
-        _userManager
-            .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(new ApplicationUser
-            {
-                VerificationCode = 123123,
-                VerificationCodeExpiry = DateTime.Now.Subtract(TimeSpan.FromHours(1)),
             });
 
         // Act

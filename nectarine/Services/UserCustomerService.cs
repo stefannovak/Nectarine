@@ -87,6 +87,17 @@ namespace NectarineAPI.Services
                              customer.Address?.PostalCode != null &&
                              customer.Address?.Country != null;
 
+            // Primary is super wrong
+            var address = hasAddress
+                ? new UserAddress(
+                    customer.Address!.Line1,
+                    customer.Address.Line2,
+                    customer.Address.City,
+                    customer.Address.PostalCode,
+                    customer.Address.Country,
+                    true)
+                : null;
+
             return new UserCustomerDetails(
                 customer.Id,
                 customer.DefaultSourceId,
@@ -94,16 +105,7 @@ namespace NectarineAPI.Services
                 customer.Phone,
                 customer.Name,
                 customer.Balance,
-                !hasAddress
-                    ? null
-                    : new UserAddress(
-                        customer.Address.Line1,
-                        customer.Address.Line2,
-                        customer.Address.City,
-                        customer.Address.PostalCode,
-                        customer.Address.Country,
-                        // This is super wrong.
-                        true));
+                hasAddress ? address : null);
         }
     }
 }

@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +21,7 @@ using NectarineAPI.Services.Auth;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
+using Newtonsoft.Json;
 using Stripe;
 using TokenOptions = NectarineAPI.Configurations.TokenOptions;
 using TokenService = NectarineAPI.Services.TokenService;
@@ -52,6 +55,7 @@ namespace NectarineAPI
 
             ConfigureJWTAuthentication(services);
             ConfigureApplicationServices(services);
+            ConfigureHangfire(services);
 
             services.AddControllers();
 
@@ -112,9 +116,11 @@ namespace NectarineAPI
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseHangfireDashboard();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHangfireDashboard();
             });
         }
 
@@ -161,6 +167,29 @@ namespace NectarineAPI
                         ClockSkew = TimeSpan.FromMinutes(1),
                     };
                 });
+        }
+
+        private void ConfigureHangfire(IServiceCollection services)
+        {
+            services.AddHangfire(options => options
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseColouredConsoleLogProvider()
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+                .UseSqlServerStorage(
+                    Configuration.GetConnectionString("DefaultConnection") ?? string.Empty,
+                    new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.FromSeconds(5),
+                    UseRecommendedIsolationLevel = true,
+                    UsePageLocksOnDequeue = true,
+                    DisableGlobalLocks = true,
+                }));
+
+            services.AddHangfireServer();
         }
     }
 }
