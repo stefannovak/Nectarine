@@ -49,6 +49,13 @@ public partial class UsersControllerTest
 
     private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
+    private readonly ApplicationUser _user = new ()
+    {
+        PhoneNumber = "123123123123",
+        VerificationCode = 123123,
+        PhoneNumberConfirmed = false,
+    };
+
     public UsersControllerTest()
     {
         // UserManager setup
@@ -57,12 +64,7 @@ public partial class UsersControllerTest
         _userManager
             .Setup(manager => manager
                 .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(new ApplicationUser
-            {
-                PhoneNumber = "123123123123",
-                VerificationCode = 123123,
-                PhoneNumberConfirmed = false,
-            });
+            .ReturnsAsync(_user);
 
         _userManager
             .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))

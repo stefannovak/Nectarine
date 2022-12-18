@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NectarineAPI.Models.Customers;
 using NectarineData.DataAccess;
 using NectarineData.Models;
+using Serilog;
 using Stripe;
 
 namespace NectarineAPI.Services
@@ -74,7 +75,7 @@ namespace NectarineAPI.Services
             }
             catch (StripeException e)
             {
-                Console.WriteLine(e);
+                Log.Error(e, "Error deleting Customer");
                 return false;
             }
         }
