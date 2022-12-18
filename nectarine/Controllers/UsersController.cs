@@ -13,6 +13,7 @@ using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
+using Serilog;
 
 namespace NectarineAPI.Controllers
 {
@@ -229,8 +230,7 @@ namespace NectarineAPI.Controllers
             var user = _context.Users.FirstOrDefault(x => x.Id == userId);
             if (user is null)
             {
-                // TODO: - Set up Serilog
-                Console.WriteLine($"Failed to find user with id {userId}");
+                Log.Debug($"Failed to find user with id {userId}");
                 return;
             }
 
