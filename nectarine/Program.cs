@@ -61,7 +61,8 @@ void ConfigureServices(IServiceCollection services)
     services.AddHttpContextAccessor();
 
     services.AddDbContext<NectarineDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty));
+        // options.UseSqlServer("Server=tcp:nectarine.database.windows.net,1433;Initial Catalog=uks-nectarine-sqldb;Persist Security Info=False;User ID=stefannovak96@gmail.com@nectarine;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+        options.UseSqlServer("Server=tcp:127.0.0.1,1433;User Id=sa;Password=<Password123>;Database=nectarine;MultipleActiveResultSets=true;TrustServerCertificate=true"));
 
     services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
@@ -190,7 +191,7 @@ void ConfigureHangfire(IServiceCollection services)
         .UseRecommendedSerializerSettings()
         .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
         .UseSqlServerStorage(
-            builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty,
+            "Server=tcp:nectarine.database.windows.net,1433;Initial Catalog=uks-nectarine-sqldb;Persist Security Info=False;User ID=stefannovak96@gmail.com@nectarine;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
             new SqlServerStorageOptions
         {
             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),

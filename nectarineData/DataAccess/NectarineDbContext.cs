@@ -18,6 +18,8 @@ namespace NectarineData.DataAccess
 
         public virtual DbSet<Order> Orders => Set<Order>();
 
+        public virtual DbSet<Product> Products => Set<Product>();
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
