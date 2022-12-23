@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,6 +21,7 @@ using NectarineAPI.Services.Auth;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
+using NectarineData.Products;
 using Newtonsoft.Json;
 using Serilog;
 using Stripe;
@@ -42,7 +44,7 @@ try
         b.AddAzureAppConfiguration(builder.Configuration["ConnectionStrings:AppConfig"]))
         .UseSerilog();
 
-    ConfigureServices(builder.Services);
+    await ConfigureServices(builder.Services);
     Configure();
 }
 catch (Exception ex)
@@ -54,7 +56,7 @@ finally
     Log.CloseAndFlush();
 }
 
-void ConfigureServices(IServiceCollection services)
+async Task ConfigureServices(IServiceCollection services)
 {
     services.AddHttpClient();
 
@@ -113,6 +115,8 @@ void ConfigureServices(IServiceCollection services)
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         c.IncludeXmlComments(xmlPath);
     });
+
+    await new ProductGenerator().GenerateAndSeedProducts("Server=tcp:127.0.0.1,1433;User Id=sa;Password=<Password123>;Database=nectarine;MultipleActiveResultSets=true;TrustServerCertificate=true");
 }
 
 void Configure()
@@ -191,7 +195,8 @@ void ConfigureHangfire(IServiceCollection services)
         .UseRecommendedSerializerSettings()
         .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
         .UseSqlServerStorage(
-            "Server=tcp:nectarine.database.windows.net,1433;Initial Catalog=uks-nectarine-sqldb;Persist Security Info=False;User ID=stefannovak96@gmail.com@nectarine;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+            // "Server=tcp:nectarine.database.windows.net,1433;Initial Catalog=uks-nectarine-sqldb;Persist Security Info=False;User ID=stefannovak96@gmail.com@nectarine;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+            "Server=tcp:127.0.0.1,1433;User Id=sa;Password=<Password123>;Database=nectarine;MultipleActiveResultSets=true;TrustServerCertificate=true",
             new SqlServerStorageOptions
         {
             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),

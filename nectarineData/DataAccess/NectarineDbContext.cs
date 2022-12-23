@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NectarineData.Models;
+using NectarineData.Products;
 using Newtonsoft.Json;
 
 namespace NectarineData.DataAccess
