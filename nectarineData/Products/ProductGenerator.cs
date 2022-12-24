@@ -75,6 +75,13 @@ public class ProductGenerator
         "Satin",
     };
 
+    private readonly IList<string> _supportedSexs = new List<string>
+    {
+        "M",
+        "F",
+        "X",
+    };
+
     public async Task GenerateAndSeedProducts(string connectionString)
     {
         var optionBuilder = new DbContextOptionsBuilder<NectarineDbContext>();
@@ -88,42 +95,46 @@ public class ProductGenerator
 
         await context.Database.EnsureCreatedAsync();
 
-        var products = GenerateBras();
+        var products = GenerateProducts();
 
         await context.Products.AddRangeAsync(products);
         await context.SaveChangesAsync();
     }
 
-    private IList<Product> GenerateBras()
+    private IEnumerable<Product> GenerateProducts()
     {
-        var bras = new List<Product>();
+        var products = new List<Product>();
 
-        for (var i = 0; i < _random.NextInt64(50, 100); i++)
+        foreach (var category in _supportedCategories)
         {
-            var colour = GetRandomSupportedAttribue(_supportedColours);
-            var size = GetRandomSupportedAttribue(_supportedSizes);
-            var price = _random.NextInt64(10000);
-            var material = GetRandomSupportedAttribue(_supportedMaterials);
-            // TODO: - This should reflect the colour string
-            var hex = GetRandomHexNumber();
-
-            for (var j = 0; j <= _random.NextInt64(10); j++)
+            for (var i = 0; i < _random.NextInt64(50, 100); i++)
             {
-                bras.Add(new Product(
-                    name: $"{colour} Bra",
-                    description: $"What an amazing {size} {colour} bra. Buy it.",
-                    primaryColorHex: hex,
-                    primaryColorName: colour,
-                    size: size,
-                    price: price,
-                    material: material,
-                    sex: "F",
-                    category: "bra",
-                    image: "https://img01.ztat.net/article/spp-media-p1/9ba2989a99c74d7b948839374beec9ca/93bdf0a695a344e8a822b7018f692c43.jpg?imwidth=1800&filter=packshot"));
+                var colour = GetRandomSupportedAttribue(_supportedColours);
+                var size = GetRandomSupportedAttribue(_supportedSizes);
+                var price = _random.NextInt64(10000);
+                var material = GetRandomSupportedAttribue(_supportedMaterials);
+                // TODO: - This should reflect the colour string
+                var hex = GetRandomHexNumber();
+
+                for (var j = 0; j <= _random.NextInt64(10); j++)
+                {
+                    products.Add(new Product(
+                        name: $"{colour} {category}",
+                        description: $"What an amazing {size} {colour} {category}. Buy it.",
+                        primaryColorHex: hex,
+                        primaryColorName: colour,
+                        size: size,
+                        price: price,
+                        material: material,
+                        sex: category == "bra" ? "F" : GetRandomSupportedAttribue(_supportedSexs),
+                        category: category,
+                        // Probably host a bunch of images at a url that looks like nectarineImages/{category}/{sizes}
+                        image: "https://www.uniqlo.com/jp/ja/contents/feature/masterpiece/common_22ss/img/products/contentsArea_itemimg_16.jpg"));
+                }
             }
         }
 
-        return bras;
+        return products;
     }
 
     private string GetRandomSupportedAttribue(IList<string> supportedAttribute)
