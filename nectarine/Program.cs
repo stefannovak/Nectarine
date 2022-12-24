@@ -63,8 +63,7 @@ async Task ConfigureServices(IServiceCollection services)
     services.AddHttpContextAccessor();
 
     services.AddDbContext<NectarineDbContext>(options =>
-        // options.UseSqlServer("Server=tcp:nectarine.database.windows.net,1433;Initial Catalog=uks-nectarine-sqldb;Persist Security Info=False;User ID=stefannovak96@gmail.com@nectarine;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-        options.UseSqlServer("Server=tcp:127.0.0.1,1433;User Id=sa;Password=<Password123>;Database=nectarine;MultipleActiveResultSets=true;TrustServerCertificate=true"));
+        options.UseSqlServer(ß));
 
     services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
@@ -116,7 +115,7 @@ async Task ConfigureServices(IServiceCollection services)
         c.IncludeXmlComments(xmlPath);
     });
 
-    await new ProductGenerator().GenerateAndSeedProducts("Server=tcp:127.0.0.1,1433;User Id=sa;Password=<Password123>;Database=nectarine;MultipleActiveResultSets=true;TrustServerCertificate=true");
+    await new ProductGenerator().GenerateAndSeedProducts(builder.Configuration["ConnectionStrings:DefaultConnection"] ?? string.Empty);
 }
 
 void Configure()
@@ -195,8 +194,7 @@ void ConfigureHangfire(IServiceCollection services)
         .UseRecommendedSerializerSettings()
         .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
         .UseSqlServerStorage(
-            // "Server=tcp:nectarine.database.windows.net,1433;Initial Catalog=uks-nectarine-sqldb;Persist Security Info=False;User ID=stefannovak96@gmail.com@nectarine;Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
-            "Server=tcp:127.0.0.1,1433;User Id=sa;Password=<Password123>;Database=nectarine;MultipleActiveResultSets=true;TrustServerCertificate=true",
+            builder.Configuration["ConnectionStrings:DefaultConnection"],
             new SqlServerStorageOptions
         {
             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
