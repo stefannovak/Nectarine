@@ -1,9 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using NectarineData.DataAccess;
 using NectarineData.Models;
 
 namespace NectarineData.Products;
@@ -82,26 +78,7 @@ public class ProductGenerator
         "X",
     };
 
-    public async Task GenerateAndSeedProducts(string connectionString)
-    {
-        var optionBuilder = new DbContextOptionsBuilder<NectarineDbContext>();
-        optionBuilder.UseSqlServer(connectionString);
-        var context = new NectarineDbContext(optionBuilder.Options);
-
-        if (context.Products.Any())
-        {
-            return;
-        }
-
-        await context.Database.EnsureCreatedAsync();
-
-        var products = GenerateProducts();
-
-        await context.Products.AddRangeAsync(products);
-        await context.SaveChangesAsync();
-    }
-
-    private IEnumerable<Product> GenerateProducts()
+    public IEnumerable<Product> GenerateProducts()
     {
         var products = new List<Product>();
 
