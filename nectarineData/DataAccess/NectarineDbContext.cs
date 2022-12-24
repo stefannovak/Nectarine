@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NectarineData.Models;
+using NectarineData.Products;
 using Newtonsoft.Json;
 
 namespace NectarineData.DataAccess
@@ -17,6 +18,8 @@ namespace NectarineData.DataAccess
         }
 
         public virtual DbSet<Order> Orders => Set<Order>();
+
+        public virtual DbSet<Product> Products => Set<Product>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
