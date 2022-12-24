@@ -63,7 +63,7 @@ async Task ConfigureServices(IServiceCollection services)
     services.AddHttpContextAccessor();
 
     services.AddDbContext<NectarineDbContext>(options =>
-        options.UseSqlServer(ß));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty));
 
     services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
@@ -115,7 +115,7 @@ async Task ConfigureServices(IServiceCollection services)
         c.IncludeXmlComments(xmlPath);
     });
 
-    await new ProductGenerator().GenerateAndSeedProducts(builder.Configuration["ConnectionStrings:DefaultConnection"] ?? string.Empty);
+    await new ProductGenerator().GenerateAndSeedProducts(builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty);
 }
 
 void Configure()
@@ -194,7 +194,7 @@ void ConfigureHangfire(IServiceCollection services)
         .UseRecommendedSerializerSettings()
         .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
         .UseSqlServerStorage(
-            builder.Configuration["ConnectionStrings:DefaultConnection"],
+            builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty,
             new SqlServerStorageOptions
         {
             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
