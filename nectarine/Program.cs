@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddAzureAppConfiguration(builder.Configuration["ConnectionStrings:AppConfig"]);
 
+var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
@@ -44,8 +47,8 @@ try
         b.AddAzureAppConfiguration(builder.Configuration["ConnectionStrings:AppConfig"]))
         .UseSerilog();
 
-    await ConfigureServices(builder.Services);
-    Configure();
+    ConfigureServices(builder.Services);
+    await Configure();
 }
 catch (Exception ex)
 {
@@ -56,14 +59,13 @@ finally
     Log.CloseAndFlush();
 }
 
-async Task ConfigureServices(IServiceCollection services)
+void ConfigureServices(IServiceCollection services)
 {
     services.AddHttpClient();
 
     services.AddHttpContextAccessor();
 
-    services.AddDbContext<NectarineDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty));
+    services.AddDbContext<NectarineDbContext>(options => options.UseSqlServer(sqlConnectionString));
 
     services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
@@ -114,11 +116,9 @@ async Task ConfigureServices(IServiceCollection services)
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         c.IncludeXmlComments(xmlPath);
     });
-
-    await new ProductGenerator().GenerateAndSeedProducts(builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty);
 }
 
-void Configure()
+async Task Configure()
 {
     var app = builder.Build();
 
@@ -136,6 +136,8 @@ void Configure()
     app.UseHangfireDashboard();
     app.MapControllers();
     app.MapHangfireDashboard();
+
+    await GenerateAndSeedProducts();
 
     app.Run();
 }
@@ -194,7 +196,7 @@ void ConfigureHangfire(IServiceCollection services)
         .UseRecommendedSerializerSettings()
         .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
         .UseSqlServerStorage(
-            builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty,
+            sqlConnectionString,
             new SqlServerStorageOptions
         {
             CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
@@ -206,4 +208,26 @@ void ConfigureHangfire(IServiceCollection services)
         }));
 
     services.AddHangfireServer();
+}
+
+async Task GenerateAndSeedProducts()
+{
+    var optionBuilder = new DbContextOptionsBuilder<NectarineDbContext>();
+    optionBuilder.UseSqlServer(sqlConnectionString);
+    var context = new NectarineDbContext(optionBuilder.Options);
+
+    // Maybe cache this so that a Context doesnt have the be created on startup every time.
+    if (context.Products.Any())
+    {
+        return;
+    }
+
+    await context.Database.EnsureCreatedAsync();
+
+    var products = new ProductGenerator().GenerateProducts();
+
+    var timeBeforeSaved = DateTime.Now;
+    await context.Products.AddRangeAsync(products);
+    await context.SaveChangesAsync();
+    Log.Information($"products saved in {(DateTime.Now - timeBeforeSaved).Seconds}");
 }
