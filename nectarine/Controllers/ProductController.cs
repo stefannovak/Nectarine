@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using NectarineAPI.DTOs.Generic;
 using NectarineAPI.Models;
 using NectarineAPI.Models.Products;
 using NectarineData.DataAccess;
@@ -16,10 +16,12 @@ namespace NectarineAPI.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly NectarineDbContext _context;
+    private readonly IMapper _mapper;
 
-    public ProductController(NectarineDbContext context)
+    public ProductController(NectarineDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     [HttpGet("{category}")]
@@ -66,6 +68,8 @@ public class ProductController : ControllerBase
         var totalCount = ((int)Math.Ceiling((double)productsForCategory.Count() / pageSize)) - 1;
         var hasMore = pageNumber < totalCount;
 
-        return Ok(new GetProductsResponse(products, new Pagination(hasMore, pageNumber, pageSize, totalCount)));
+        return Ok(new GetProductsResponse(
+            _mapper.Map<IList<ProductDTO>>(products),
+            new Pagination(hasMore, pageNumber, pageSize, totalCount)));
     }
 }
