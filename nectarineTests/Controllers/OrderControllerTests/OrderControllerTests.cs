@@ -13,8 +13,6 @@ using NectarineAPI.Services;
 using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
-using SendGrid.Helpers.Mail;
-using Stripe;
 
 namespace NectarineTests.Controllers.OrderControllerTests;
 
@@ -95,7 +93,7 @@ public partial class OrderControllerTests
         _paymentServiceMock
             .Setup(x => x.GetPaymentMethod(It.IsAny<string>()))
             .Returns(new SensitivePaymentMethod("pm_something", stripeCustomerId, 12, 2025, "1234"));
-        
+
         // IUserCustomerService setup
         _userCustomerServiceMock = new Mock<IUserCustomerService>();
 
@@ -108,16 +106,13 @@ public partial class OrderControllerTests
                 "123123123123",
                 "me",
                 123,
-                new UserAddress
-                (
+                new UserAddress(
                     "21 BoolProp Lane",
                     null,
                     "Big City",
                     "11111",
                     "UK",
-                    true
-                ))
-            );
+                    true)));
 
         // PaymentController setup
         _subject = new OrderController(

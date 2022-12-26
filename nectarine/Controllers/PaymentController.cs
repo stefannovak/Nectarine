@@ -31,8 +31,8 @@ namespace NectarineAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a <see cref="PaymentMethod"/> and attaches it the user's <see cref="Customer"/> object.
-        /// 4242424242424242 is the test stripe card number.
+        /// Creates a payment method for a user.
+        /// 4242424242424242 is the test card number.
         /// </summary>
         /// <param name="addPaymentMethodDto">A customers card details.</param>
         /// <returns></returns>
