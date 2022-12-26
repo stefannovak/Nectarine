@@ -24,6 +24,15 @@ public class ProductController : ControllerBase
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Get a paginated list of product per category.
+    /// </summary>
+    /// <param name="category">See supported categories.</param>
+    /// <param name="descending"></param>
+    /// <param name="orderBy">A property of a product.</param>
+    /// <param name="pageSize">How many items you want to retrieve.</param>
+    /// <param name="pageNumber">Calculated by total count of product for category / page size.</param>
+    /// <returns>A list of Products, alongside a Pagination object.</returns>
     [HttpGet("{category}")]
     public IActionResult GetProductsByCategory(
         string category,

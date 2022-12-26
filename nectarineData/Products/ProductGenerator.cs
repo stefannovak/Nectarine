@@ -15,7 +15,7 @@ public class ProductGenerator
         "yellow",
         "green",
         "blue",
-        "indigo",    
+        "indigo",
         "violet",
         "purple",
         "pink",
