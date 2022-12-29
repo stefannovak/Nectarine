@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -150,15 +147,7 @@ namespace NectarineTests.Controllers
             _mockContext = new NectarineDbContext(options);
 
             // Telemetry Client setup
-            TelemetryClient telemetryClient;
-            List<ITelemetry> sendItems;
-            var configuration = new TelemetryConfiguration();
-            sendItems = new List<ITelemetry>();
-            configuration.TelemetryChannel = new InMemoryChannel();
-            // new StubTelemetryChannel { OnSend = item => this.sendItems.Add(item) };
-            configuration.InstrumentationKey = Guid.NewGuid().ToString();
-            configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-            _telemetryClient = new TelemetryClient(configuration);
+            _telemetryClient = MockHelpers.TestTelemetryClient();
 
             // AuthenticationController setup
             _subject = new AuthenticationController(
