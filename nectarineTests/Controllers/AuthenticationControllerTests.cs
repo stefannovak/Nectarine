@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,8 +15,6 @@ using NectarineAPI.Services.Messaging;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 using NectarineData.Models.Enums;
-using SendGrid.Helpers.Mail;
-using Stripe;
 using Xunit;
 
 namespace NectarineTests.Controllers
@@ -29,6 +28,7 @@ namespace NectarineTests.Controllers
         private readonly Mock<IExternalAuthService<FacebookUser>> _mockFacebookService;
         private readonly Mock<IUserCustomerService> _userCustomerService;
         private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly TelemetryClient _telemetryClient;
 
         private readonly string googleUserId = Guid.NewGuid().ToString();
         private readonly string microsoftUserId = Guid.NewGuid().ToString();
@@ -146,6 +146,9 @@ namespace NectarineTests.Controllers
 
             _mockContext = new NectarineDbContext(options);
 
+            // Telemetry Client setup
+            _telemetryClient = MockHelpers.TestTelemetryClient();
+
             // AuthenticationController setup
             _subject = new AuthenticationController(
                 _userManager.Object,
@@ -155,7 +158,8 @@ namespace NectarineTests.Controllers
                 _mockFacebookService.Object,
                 _userCustomerService.Object,
                 _emailServiceMock.Object,
-                _mockContext);
+                _mockContext,
+                _telemetryClient);
         }
 
         #region AuthenticateUser
@@ -225,7 +229,8 @@ namespace NectarineTests.Controllers
                 _mockFacebookService.Object,
                 _userCustomerService.Object,
                 _emailServiceMock.Object,
-                _mockContext);
+                _mockContext,
+                _telemetryClient);
 
             var createUserDto = new AuthenticateUserDTO
             {

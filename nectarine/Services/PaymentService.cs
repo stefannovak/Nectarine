@@ -4,20 +4,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using NectarineAPI.Models.Payments;
 using NectarineData.Models;
+using Serilog;
 using Stripe;
 
 namespace NectarineAPI.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly ILogger<PaymentService> _logger;
-
-        public PaymentService(
-            ILogger<PaymentService> logger)
+        public PaymentService()
         {
             PaymentMethodService = new PaymentMethodService();
             PaymentIntentService = new PaymentIntentService();
-            _logger = logger;
         }
 
         public PaymentMethodService PaymentMethodService { get; init; }
@@ -50,7 +47,7 @@ namespace NectarineAPI.Services
             }
             catch (StripeException e)
             {
-                _logger.LogError($"Failed to create a payment method for the user: {e}");
+                Log.Error($"Failed to create a payment method for the user: {e}");
                 return false;
             }
 

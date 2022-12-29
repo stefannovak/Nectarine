@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hangfire;
 using Hangfire.SqlServer;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -64,6 +65,11 @@ void ConfigureServices(IServiceCollection services)
     services.AddHttpClient();
 
     services.AddHttpContextAccessor();
+
+    services.AddApplicationInsightsTelemetry(options: new ApplicationInsightsServiceOptions
+    {
+        ConnectionString = builder.Configuration.GetSection("ApplicationInsights:ConnectionString").Value,
+    });
 
     services.AddDbContext<NectarineDbContext>(options => options.UseSqlServer(sqlConnectionString));
 
