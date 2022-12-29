@@ -88,11 +88,8 @@ namespace NectarineTests.Services
                     Status = "succeeded",
                 });
 
-            // Logger setup
-            var loggerMock = new Mock<ILogger<PaymentService>>();
-
             // PaymentService setup
-            _subject = new PaymentService(loggerMock.Object)
+            _subject = new PaymentService()
             {
                 PaymentIntentService = _paymentIntentServiceMock.Object,
                 PaymentMethodService = _paymentMethodServiceMock.Object,

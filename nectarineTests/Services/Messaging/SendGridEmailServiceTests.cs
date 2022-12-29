@@ -28,10 +28,7 @@ public class EmailServiceTests
             .Setup(x => x.Value)
             .Returns(options);
 
-        // ILogger setup
-        var loggerMock = new Mock<ILogger<SendGridEmailService>>();
-
-        _subject = new SendGridEmailService(mockSendGridOptions.Object, loggerMock.Object);
+        _subject = new SendGridEmailService(mockSendGridOptions.Object);
     }
 
     [Fact(DisplayName = "SendWelcomeEmail should send an email")]

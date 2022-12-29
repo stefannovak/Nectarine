@@ -5,20 +5,17 @@ using Microsoft.Extensions.Options;
 using NectarineAPI.Configurations;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Serilog;
 
 namespace NectarineAPI.Services.Messaging;
 
 public class SendGridEmailService : IEmailService
 {
     private readonly IOptions<SendGridOptions> _sendGridOptions;
-    private readonly ILogger<SendGridEmailService> _logger;
 
-    public SendGridEmailService(
-        IOptions<SendGridOptions> sendGridOptions,
-        ILogger<SendGridEmailService> logger)
+    public SendGridEmailService(IOptions<SendGridOptions> sendGridOptions)
     {
         _sendGridOptions = sendGridOptions;
-        _logger = logger;
 
         Client = new SendGridClient(new SendGridClientOptions
         {
@@ -49,8 +46,10 @@ public class SendGridEmailService : IEmailService
 
     public async Task SendEmail(string destinationAddress, string subject, string plaintextMessageContent)
     {
-        var message = new SendGridMessage();
-        message.From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak");
+        var message = new SendGridMessage
+        {
+            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak"),
+        };
         message.AddTo(destinationAddress);
         message.Subject = subject;
         message.PlainTextContent = plaintextMessageContent;
@@ -61,11 +60,16 @@ public class SendGridEmailService : IEmailService
     {
         try
         {
-            await Client.SendEmailAsync(message).ConfigureAwait(false);
+            var response = await Client.SendEmailAsync(message);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Body.ReadAsStringAsync();
+                Log.Error($"Error sending SendGrid email: {body}");
+            }
         }
         catch (Exception e)
         {
-            _logger.LogError($"Failed to send email. Error: {e}");
+            Log.Error($"Failed to send email. Error: {e}");
         }
     }
 }
