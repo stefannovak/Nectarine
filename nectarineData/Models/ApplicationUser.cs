@@ -26,5 +26,12 @@ namespace NectarineData.Models
 
         [MaxLength(100)]
         public Guid? CurrentShippingAddressId { get; set; }
+
+        /// <summary>
+        /// Overriden from <see cref="IdentityUser"/> as Email is the basis for creating users. It must not be null.
+        /// </summary>
+        [Required]
+        [EmailAddress]
+        public override string Email { get; set; } = string.Empty;
     }
 }
