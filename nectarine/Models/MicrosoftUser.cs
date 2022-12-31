@@ -4,17 +4,30 @@ namespace NectarineAPI.Models
 {
     public class MicrosoftUser : IExternalAuthUser
     {
-        public string? Id { get; set; }
+        public MicrosoftUser()
+        {
+        }
 
-        public string? Platform { get; set; }
+        public MicrosoftUser(string id, string firstName, string lastName, string email)
+        {
+            Id = id;
+            Platform = "microsoft";
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+        }
+
+        public string Id { get; set; }
+
+        public string Platform { get; set; }
 
         [JsonPropertyName("givenName")]
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; }
 
         [JsonPropertyName("surname")]
-        public string? LastName { get; set; }
+        public string LastName { get; set; }
 
         [JsonPropertyName("userPrincipalName")]
-        public string? Email { get; set; }
+        public string Email { get; set; }
     }
 }

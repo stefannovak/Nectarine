@@ -90,9 +90,7 @@ namespace NectarineAPI.Controllers
         public async Task<IActionResult> AuthenticateMicrosoftUser([FromBody] AuthenticateSocialUserDTO authenticateSocialUserDto)
         {
             var microsoftUser = await _microsoftService.GetUserFromTokenAsync(authenticateSocialUserDto.Token);
-            if (microsoftUser?.Id is null ||
-                microsoftUser.FirstName is null ||
-                microsoftUser.LastName is null)
+            if (microsoftUser is null)
             {
                 return NotFound(new ApiError(
                 $"Could not find a Microsoft user from the given token. Token: {authenticateSocialUserDto.Token}"));
@@ -105,16 +103,14 @@ namespace NectarineAPI.Controllers
 
             return user == null
                 ? await CreateExternalAuthUser(
-                    microsoftUser.Id,
-                    microsoftUser.Email,
-                    microsoftUser.FirstName,
-                    microsoftUser.LastName,
+                    microsoftUser,
                     ExternalAuthPlatform.Microsoft)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
         /// <summary>
         /// Authenticate a user after they have signed in with Facebook.
+        /// Required scopes: id, name
         /// Playground at https://developers.facebook.com/tools/explorer/.
         /// </summary>
         /// <param name="authenticateSocialUserDto"></param>
@@ -124,9 +120,7 @@ namespace NectarineAPI.Controllers
         public async Task<IActionResult> AuthenticateFacebookUser([FromBody] AuthenticateSocialUserDTO authenticateSocialUserDto)
         {
             var facebookUser = await _facebookService.GetUserFromTokenAsync(authenticateSocialUserDto.Token);
-            if (facebookUser?.Id is null ||
-                facebookUser.FirstName is null ||
-                facebookUser.LastName is null)
+            if (facebookUser is null)
             {
                 return NotFound(new ApiError(
                     $"Could not find a Facebook user from the given token. Token: {authenticateSocialUserDto.Token}"));
@@ -140,14 +134,13 @@ namespace NectarineAPI.Controllers
             return user == null
                 ? await CreateExternalAuthUser(
                     facebookUser,
-                    facebookUser.FirstName,
-                    facebookUser.LastName,
                     ExternalAuthPlatform.Facebook)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
         /// <summary>
         /// Authenticate a user after they have signed in with Google.
+        /// Required scopes: https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email
         /// Playground at: https://developers.google.com/oauthplayground.
         /// </summary>
         /// <param name="authenticateSocialUserDto"></param>
@@ -157,10 +150,7 @@ namespace NectarineAPI.Controllers
         public async Task<IActionResult> AuthenticateGoogleUser([FromBody] AuthenticateSocialUserDTO authenticateSocialUserDto)
         {
             var googleUser = await _googleService.GetUserFromTokenAsync(authenticateSocialUserDto.Token);
-            if (googleUser?.Id is null ||
-                googleUser.Email is null ||
-                googleUser.FirstName is null ||
-                googleUser.LastName is null)
+            if (googleUser is null)
             {
                 return NotFound(new ApiError(
                     $"Could not find a Google user from the given token. Token: {authenticateSocialUserDto.Token}"));
@@ -174,8 +164,6 @@ namespace NectarineAPI.Controllers
             return user == null
                 ? await CreateExternalAuthUser(
                     googleUser,
-                    googleUser.FirstName,
-                    googleUser.LastName,
                     ExternalAuthPlatform.Google)
                 : Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
@@ -212,11 +200,11 @@ namespace NectarineAPI.Controllers
             }
             catch (Exception e)
             {
-                Log.Error($"Error during user creation: Exception: {e}");
+                Log.Error($"Error during user creation: Exception: {e.Message}");
                 await _userManager.DeleteAsync(identityUser);
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new ApiError($"Something went wrong during user creation: Exception: {e}"));
+                    new ApiError($"Something went wrong during user creation: Exception: {e.Message}"));
             }
 
             await _emailService.SendWelcomeEmail(user.Email);
@@ -226,10 +214,7 @@ namespace NectarineAPI.Controllers
         }
 
         private async Task<IActionResult> CreateExternalAuthUser(
-            string id,
-            string email,
-            string firstName,
-            string lastName,
+            IExternalAuthUser externalAuthUser,
             ExternalAuthPlatform platform)
         {
             var identityUser = new ApplicationUser
@@ -238,14 +223,14 @@ namespace NectarineAPI.Controllers
                 {
                     new ()
                     {
-                        PlatformId = id,
+                        PlatformId = externalAuthUser.Id,
                         Platform = platform,
                     },
                 },
-                Email = email,
-                UserName = email,
-                FirstName = firstName,
-                LastName = lastName,
+                Email = externalAuthUser.Email,
+                UserName = externalAuthUser.Email,
+                FirstName = externalAuthUser.FirstName,
+                LastName = externalAuthUser.LastName,
             };
 
             ApplicationUser user;
@@ -265,15 +250,13 @@ namespace NectarineAPI.Controllers
             }
             catch (Exception e)
             {
-                Log.Error($"Error during user creation: Exception: {e}");
+                Log.Error($"Error during user creation: Exception: {e.Message}");
                 await _userManager.DeleteAsync(identityUser);
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    new ApiError($"Something went wrong during user creation: Exception: {e}"));
+                    new ApiError($"Something went wrong during user creation: Exception: {e.Message}"));
             }
 
-            // Do i need this?
-            // await _context.SaveChangesAsync();
             await _emailService.SendWelcomeEmail(user.Email!);
             _telemetryClient.TrackEvent($"New account created with {platform}");
 
