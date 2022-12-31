@@ -67,7 +67,7 @@ namespace NectarineAPI.Controllers
 
             var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(
                 user,
-                user.PasswordHash,
+                user.PasswordHash ?? string.Empty,
                 authenticateUserDto.Password);
             if (passwordVerificationResult == PasswordVerificationResult.Failed)
             {
@@ -257,7 +257,7 @@ namespace NectarineAPI.Controllers
                     new ApiError($"Something went wrong during user creation: Exception: {e.Message}"));
             }
 
-            await _emailService.SendWelcomeEmail(user.Email!);
+            await _emailService.SendWelcomeEmail(user.Email);
             _telemetryClient.TrackEvent($"New account created with {platform}");
 
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
