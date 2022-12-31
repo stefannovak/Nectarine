@@ -47,7 +47,7 @@ namespace NectarineAPI.Services
             }
             catch (StripeException e)
             {
-                Log.Error($"Failed to create a payment method for the user: {e}");
+                Log.Error($"Failed to create a payment method for the user: {e.Message}");
                 return false;
             }
 

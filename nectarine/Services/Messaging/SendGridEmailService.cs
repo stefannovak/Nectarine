@@ -69,7 +69,7 @@ public class SendGridEmailService : IEmailService
         }
         catch (Exception e)
         {
-            Log.Error($"Failed to send email. Error: {e}");
+            Log.Error($"Failed to send email. Error: {e.Message}");
         }
     }
 }
