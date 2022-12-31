@@ -33,5 +33,7 @@ namespace NectarineData.Models
         [Required]
         [EmailAddress]
         public override string Email { get; set; } = string.Empty;
+
+        public virtual IList<UserAddress> Addresses { get; set; } = new List<UserAddress>();
     }
 }

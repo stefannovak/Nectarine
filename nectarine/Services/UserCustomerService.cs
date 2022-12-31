@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using NectarineAPI.DTOs.Generic;
 using NectarineAPI.Models.Customers;
 using NectarineData.DataAccess;
 using NectarineData.Models;
@@ -35,7 +36,7 @@ namespace NectarineAPI.Services
                 : MapCustomer(customer);
         }
 
-        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddress address)
+        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddressDTO address)
         {
             var customer = CustomerService.Update(paymentProviderCustomerId, new CustomerUpdateOptions
             {

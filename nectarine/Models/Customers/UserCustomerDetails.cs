@@ -1,3 +1,6 @@
+using NectarineAPI.DTOs.Generic;
+using NectarineData.Models;
+
 namespace NectarineAPI.Models.Customers;
 
 public class UserCustomerDetails

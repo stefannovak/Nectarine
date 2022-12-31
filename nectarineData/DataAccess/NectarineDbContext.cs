@@ -20,6 +20,8 @@ namespace NectarineData.DataAccess
 
         public virtual DbSet<Product> Products => Set<Product>();
 
+        public virtual DbSet<UserAddress> UserAddresses => Set<UserAddress>();
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

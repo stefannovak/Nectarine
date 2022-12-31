@@ -94,36 +94,6 @@ namespace NectarineAPI.Controllers
         }
 
         /// <summary>
-        /// Update the user's address.
-        /// </summary>
-        /// <param name="updateAddress"></param>
-        /// <returns></returns>
-        [HttpPut]
-        [Route("Update/Address")]
-        public async Task<IActionResult> UpdateAddressAsync([FromBody] UserAddress updateAddress)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return BadRequest(new ApiError("Could not get a user"));
-            }
-
-            var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
-            if (customer is null)
-            {
-                return BadRequest(new ApiError("Could not get a customer from the user"));
-            }
-
-            var updatedCustomer = _userCustomerService.UpdateCustomerAddress(user.PaymentProviderCustomerId, updateAddress);
-            if (updatedCustomer is null)
-            {
-                return BadRequest(new ApiError("Failed to update user"));
-            }
-
-            return Ok();
-        }
-
-        /// <summary>
         /// Update the users phone number.
         /// </summary>
         /// <param name="updatePhoneNumberDto"></param>
@@ -135,21 +105,6 @@ namespace NectarineAPI.Controllers
             if (user is null)
             {
                 return Unauthorized();
-            }
-
-            var customer = _userCustomerService.GetCustomer(user.PaymentProviderCustomerId);
-            if (customer is null)
-            {
-                return BadRequest(new ApiError("Could not get a customer from the user"));
-            }
-
-            var updatedCustomer = _userCustomerService.UpdateCustomerPhoneNumber(
-                user.PaymentProviderCustomerId,
-                updatePhoneNumberDto.PhoneNumber);
-
-            if (updatedCustomer is null)
-            {
-                return BadRequest(new ApiError("Failed to update user"));
             }
 
             user.PhoneNumber = updatePhoneNumberDto.PhoneNumber;

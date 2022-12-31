@@ -1,16 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using Stripe;
+using System;
+using NectarineAPI.DTOs.Generic;
 
-namespace NectarineAPI.DTOs.Requests
+namespace NectarineAPI.DTOs.Requests;
+
+public class UpdateAddressDTO
 {
-    public class UpdateAddressDTO
+    public UpdateAddressDTO(UserAddressDTO address, Guid previousAddressId)
     {
-        /// <summary>
-        /// Uses the <see cref="Address"/> provided by Stripe.
-        /// </summary>
-        [Required]
-        public AddressOptions Address { get; set; } = null!;
-
-        public bool IsPrimaryAddress { get; set; }
+        Address = address;
+        PreviousAddressId = previousAddressId;
     }
+
+    public Guid PreviousAddressId { get; set; }
+
+    public UserAddressDTO Address { get; set; }
 }
