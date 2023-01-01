@@ -20,20 +20,34 @@ namespace NectarineData.DataAccess
 
         public virtual DbSet<Product> Products => Set<Product>();
 
-        public virtual DbSet<UserAddress> UserAddresses => Set<UserAddress>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<ApplicationUser>()
+                .HasMany(u => u.UserAddresses)
+                .WithOne(a => a.User)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<Order>()
                 .Property(x => x.ProductIds)
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v),
-                    v => JsonConvert.DeserializeObject<List<string>>(v))
+                    v => JsonConvert.DeserializeObject<List<string>>(v) ?? new List<string>())
                 .Metadata.SetValueComparer(new ValueComparer<ICollection<string>>(
                     (c1, c2) => c1.SequenceEqual(c2),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode()))));
+
+            // builder.Entity<ApplicationUser>()
+            //     .Property(x => x.UserAddresses)
+            //     .HasConversion(
+            //         v => JsonConvert.SerializeObject(v),
+            //         v => JsonConvert.DeserializeObject<List<UserAddress>>(v) ?? new List<UserAddress>())
+            //     .Metadata.SetValueComparer(new ValueComparer<IList<UserAddress>>(
+            //         (c1, c2) => c1.SequenceEqual(c2),
+            //         c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode()))));
         }
     }
 }

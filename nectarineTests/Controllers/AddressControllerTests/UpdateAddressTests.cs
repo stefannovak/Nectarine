@@ -30,7 +30,7 @@ public partial class AddressControllerTests
             "12312",
             "UK");
 
-        _user.Addresses.Add(previousAddress);
+        _user.UserAddresses.Add(previousAddress);
         await _mockContext.SaveChangesAsync();
 
         // Act

@@ -24,9 +24,6 @@ namespace NectarineData.Models
         [Required]
         public virtual IList<ExternalAuthLink> SocialLinks { get; set; } = new List<ExternalAuthLink>();
 
-        [MaxLength(100)]
-        public Guid? CurrentShippingAddressId { get; set; }
-
         /// <summary>
         /// Overriden from <see cref="IdentityUser"/> as Email is the basis for creating users. It must not be null.
         /// </summary>
@@ -34,6 +31,6 @@ namespace NectarineData.Models
         [EmailAddress]
         public override string Email { get; set; } = string.Empty;
 
-        public virtual IList<UserAddress> Addresses { get; set; } = new List<UserAddress>();
+        public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
     }
 }

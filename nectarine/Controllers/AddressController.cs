@@ -1,8 +1,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests;
 using NectarineAPI.Models;
 using NectarineData.DataAccess;
@@ -10,6 +13,7 @@ using NectarineData.Models;
 
 namespace NectarineAPI.Controllers;
 
+[Authorize]
 [Route("[controller]")]
 [ApiController]
 public class AddressController : ControllerBase
@@ -28,13 +32,41 @@ public class AddressController : ControllerBase
         _context = context;
     }
 
+    [HttpPost("Create")]
+    public async Task<IActionResult> CreateAddress([FromBody] UserAddressDTO request)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized(new ApiError("Could not get a user"));
+        }
+
+        // var mappedAddress = _mapper.Map<UserAddress>(request);
+        // mappedAddress.User = user;
+
+        var mappedAddress = new UserAddress
+        {
+            Line1 = request.Line1,
+            Line2 = request.Line2,
+            City = request.City,
+            Country = request.Country,
+            Postcode = request.Postcode,
+            IsPrimaryAddress = request.IsPrimaryAddress,
+            User = user,
+        };
+
+        user.UserAddresses.Add(mappedAddress);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     /// <summary>
     /// Update the user's address.
     /// </summary>
     /// <param name="request">User Address information.</param>
     /// <returns></returns>
-    [HttpPut]
-    [Route("Update")]
+    [HttpPut("Update")]
     public async Task<IActionResult> UpdateAddressAsync([FromBody] UpdateAddressDTO request)
     {
         var user = await _userManager.GetUserAsync(User);
@@ -43,7 +75,7 @@ public class AddressController : ControllerBase
             return Unauthorized(new ApiError("Could not get a user"));
         }
 
-        var previousAddress = user.Addresses.FirstOrDefault(x => x.Id == request.PreviousAddressId);
+        var previousAddress = user.UserAddresses.FirstOrDefault(x => x.Id == request.PreviousAddressId);
         if (previousAddress is null)
         {
             return BadRequest(new ApiError(

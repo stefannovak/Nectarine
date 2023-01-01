@@ -31,8 +31,7 @@ public class UserAddress
     [Key]
     public Guid Id { get; set; }
 
-    [Required]
-    public virtual ApplicationUser User { get; set; } = null!;
+    public virtual ApplicationUser User { get; set; }
 
     [Required]
     [MaxLength(100)]
