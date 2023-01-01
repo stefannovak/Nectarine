@@ -28,40 +28,40 @@ namespace NectarineData.Migrations
                 oldNullable: true);
 
             migrationBuilder.CreateTable(
-                name: "UserAddress",
+                name: "UserAddresses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Line1 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Line2 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Postcode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Country = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    IsPrimaryAddress = table.Column<bool>(type: "bit", nullable: false)
+                    IsPrimaryAddress = table.Column<bool>(type: "bit", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAddress", x => x.Id);
+                    table.PrimaryKey("PK_UserAddresses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserAddress_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_UserAddresses_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAddress_UserId",
-                table: "UserAddress",
-                column: "UserId");
+                name: "IX_UserAddresses_ApplicationUserId",
+                table: "UserAddresses",
+                column: "ApplicationUserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserAddress");
+                name: "UserAddresses");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Email",

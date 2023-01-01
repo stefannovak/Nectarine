@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -32,6 +34,23 @@ public class AddressController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("All")]
+    public IActionResult GetAll()
+    {
+        var userId = _userManager.GetUserId(User);
+        var user = _context.Users
+            .Include(e => e.UserAddresses)
+            .FirstOrDefault(x => x.Id == userId);
+
+        if (user is null)
+        {
+            return Unauthorized(new ApiError("Could not get a user"));
+        }
+
+        return Ok(_mapper.Map<IList<UserAddressDTO>>(user.UserAddresses));
+    }
+
+
     [HttpPost("Create")]
     public async Task<IActionResult> CreateAddress([FromBody] UserAddressDTO request)
     {
@@ -41,9 +60,6 @@ public class AddressController : ControllerBase
             return Unauthorized(new ApiError("Could not get a user"));
         }
 
-        // var mappedAddress = _mapper.Map<UserAddress>(request);
-        // mappedAddress.User = user;
-
         var mappedAddress = new UserAddress
         {
             Line1 = request.Line1,
@@ -52,13 +68,15 @@ public class AddressController : ControllerBase
             Country = request.Country,
             Postcode = request.Postcode,
             IsPrimaryAddress = request.IsPrimaryAddress,
-            User = user,
+            ApplicationUser = user,
+            ApplicationUserId = user.Id,
         };
 
         user.UserAddresses.Add(mappedAddress);
+        await _context.UserAddresses.AddAsync(mappedAddress);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return Ok();
     }
 
     /// <summary>

@@ -39,6 +39,5 @@ public class UserAddressDTO
     [MaxLength(2)]
     public string Country { get; set; }
 
-    [Required]
     public bool IsPrimaryAddress { get; set; }
 }

@@ -31,8 +31,6 @@ public class UserAddress
     [Key]
     public Guid Id { get; set; }
 
-    public virtual ApplicationUser User { get; set; }
-
     [Required]
     [MaxLength(100)]
     public string Line1 { get; set; }
@@ -57,4 +55,8 @@ public class UserAddress
 
     [Required]
     public bool IsPrimaryAddress { get; set; }
+
+    public string ApplicationUserId { get; set; }
+
+    public virtual ApplicationUser ApplicationUser { get; set; } = null!;
 }
