@@ -33,6 +33,10 @@ public class AddressController : ControllerBase
         _context = context;
     }
 
+    /// <summary>
+    /// Get all addresses for the user.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("All")]
     public IActionResult GetAll()
     {
@@ -50,10 +54,19 @@ public class AddressController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Create an address for the user.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("Create")]
     public async Task<IActionResult> CreateAddress([FromBody] UserAddressDTO request)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var userId = _userManager.GetUserId(User);
+        var user = _context.Users
+            .Include(e => e.UserAddresses)
+            .FirstOrDefault(x => x.Id == userId); 
+        
         if (user is null)
         {
             return Unauthorized(new ApiError("Could not get a user"));
@@ -69,9 +82,22 @@ public class AddressController : ControllerBase
             IsPrimaryAddress = request.IsPrimaryAddress
         };
 
+        if (!request.IsPrimaryAddress)
+        {
+            user.UserAddresses.Add(mappedAddress);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        
+        var primaryAddresses = user.UserAddresses.Where(x => x.IsPrimaryAddress);
+        primaryAddresses.ToList().ForEach(x =>
+        {
+            x.IsPrimaryAddress = false;
+        });
+        
         user.UserAddresses.Add(mappedAddress);
         await _context.SaveChangesAsync();
-
         return Ok();
     }
 
@@ -83,7 +109,11 @@ public class AddressController : ControllerBase
     [HttpPut("Update")]
     public async Task<IActionResult> UpdateAddressAsync([FromBody] UpdateAddressDTO request)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var userId = _userManager.GetUserId(User);
+        var user = _context.Users
+            .Include(e => e.UserAddresses)
+            .FirstOrDefault(x => x.Id == userId); 
+        
         if (user is null)
         {
             return Unauthorized(new ApiError("Could not get a user"));
