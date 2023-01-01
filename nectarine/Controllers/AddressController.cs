@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,13 +66,10 @@ public class AddressController : ControllerBase
             City = request.City,
             Country = request.Country,
             Postcode = request.Postcode,
-            IsPrimaryAddress = request.IsPrimaryAddress,
-            ApplicationUser = user,
-            ApplicationUserId = user.Id,
+            IsPrimaryAddress = request.IsPrimaryAddress
         };
 
         user.UserAddresses.Add(mappedAddress);
-        await _context.UserAddresses.AddAsync(mappedAddress);
         await _context.SaveChangesAsync();
 
         return Ok();

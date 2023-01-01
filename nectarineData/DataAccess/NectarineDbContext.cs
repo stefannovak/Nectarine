@@ -20,18 +20,9 @@ namespace NectarineData.DataAccess
 
         public virtual DbSet<Product> Products => Set<Product>();
 
-        public DbSet<UserAddress> UserAddresses { get; set; }
-
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            // builder.Entity<ApplicationUser>()
-            //     .HasMany(u => u.UserAddresses)
-            //     .WithOne(a => a.User)
-            //     .IsRequired()
-            //     .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Order>()
                 .Property(x => x.ProductIds)

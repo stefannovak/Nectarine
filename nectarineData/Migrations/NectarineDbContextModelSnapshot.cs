@@ -404,7 +404,7 @@ namespace NectarineData.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("UserAddresses");
+                    b.ToTable("UserAddress");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

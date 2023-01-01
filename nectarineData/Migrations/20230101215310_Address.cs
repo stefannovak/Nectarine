@@ -28,7 +28,7 @@ namespace NectarineData.Migrations
                 oldNullable: true);
 
             migrationBuilder.CreateTable(
-                name: "UserAddresses",
+                name: "UserAddress",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -42,9 +42,9 @@ namespace NectarineData.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAddresses", x => x.Id);
+                    table.PrimaryKey("PK_UserAddress", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserAddresses_AspNetUsers_ApplicationUserId",
+                        name: "FK_UserAddress_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -52,8 +52,8 @@ namespace NectarineData.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAddresses_ApplicationUserId",
-                table: "UserAddresses",
+                name: "IX_UserAddress_ApplicationUserId",
+                table: "UserAddress",
                 column: "ApplicationUserId");
         }
 
@@ -61,7 +61,7 @@ namespace NectarineData.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserAddresses");
+                name: "UserAddress");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Email",

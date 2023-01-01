@@ -12,7 +12,7 @@ using NectarineData.DataAccess;
 namespace NectarineData.Migrations
 {
     [DbContext(typeof(NectarineDbContext))]
-    [Migration("20230101161725_Address")]
+    [Migration("20230101215310_Address")]
     partial class Address
     {
         /// <inheritdoc />
@@ -407,7 +407,7 @@ namespace NectarineData.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("UserAddresses");
+                    b.ToTable("UserAddress");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

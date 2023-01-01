@@ -56,7 +56,5 @@ public class UserAddress
     [Required]
     public bool IsPrimaryAddress { get; set; }
 
-    public string ApplicationUserId { get; set; }
-
     public virtual ApplicationUser ApplicationUser { get; set; } = null!;
 }
