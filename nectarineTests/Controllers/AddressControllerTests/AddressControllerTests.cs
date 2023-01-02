@@ -19,6 +19,7 @@ public partial class AddressControllerTests
     private readonly Mock<IMapper> _mockMapper = new ();
     private readonly Mock<UserManager<ApplicationUser>> _userManager;
     private readonly NectarineDbContext _mockContext;
+    private readonly MockHelpers _mockHelpers = new ();
 
     private readonly ApplicationUser _user = new ()
     {
@@ -32,7 +33,10 @@ public partial class AddressControllerTests
         },
     };
 
-    public AddressControllerTests()
+    private readonly UserAddressDTO _testDto =
+        new("Test", null, "London", "12312", "UK", true);
+
+    public AddressControllerTests() 
     {
         // UserManager setup
         _userManager = MockHelpers.MockUserManager<ApplicationUser>();
@@ -50,7 +54,7 @@ public partial class AddressControllerTests
         _mockMapper.Setup(x => x.Map<IList<UserAddressDTO>>(It.IsAny<ICollection<UserAddress>>()))
             .Returns((ICollection<UserAddress> source) => new List<UserAddressDTO>
             {
-                new ("Test", null, "London", "12312", "UK", true),
+                _testDto,
             });
 
         // Database setup

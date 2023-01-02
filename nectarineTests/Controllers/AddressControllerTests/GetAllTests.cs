@@ -23,11 +23,9 @@ public partial class AddressControllerTests
     public async Task Test_GetAll_ReturnsUnauthorized()
     {
         // Arrange
-        _userManager
-            .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
-            .Returns(Guid.NewGuid().ToString);
-        
-        // Act
+        _mockHelpers.UserManager_ReturnsRandomId(_userManager);
+
+                // Act
         var result = _subject.GetAll();
         
         // Assert
