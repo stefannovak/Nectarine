@@ -6,6 +6,9 @@ namespace NectarineData.Models;
 
 public class UserAddress
 {
+    /// <summary>
+    /// Not to be used.
+    /// </summary>
     public UserAddress()
     {
     }

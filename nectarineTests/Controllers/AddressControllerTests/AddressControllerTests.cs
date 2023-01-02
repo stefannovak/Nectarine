@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -20,9 +22,14 @@ public partial class AddressControllerTests
 
     private readonly ApplicationUser _user = new ()
     {
+        Id = Guid.NewGuid().ToString(),
         PhoneNumber = "123123123123",
         VerificationCode = 123123,
         PhoneNumberConfirmed = false,
+        UserAddresses = new List<UserAddress>
+        {
+            new ("Test", null, "London", "12312", "UK", true),
+        },
     };
 
     public AddressControllerTests()
@@ -36,19 +43,14 @@ public partial class AddressControllerTests
             .ReturnsAsync(_user);
 
         _userManager
-            .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
-            .Returns<string>((email) => Task.FromResult(new ApplicationUser { Email = email }));
-
-        _userManager
-            .Setup(x => x.UpdateAsync(It.IsAny<ApplicationUser>()))
-            .ReturnsAsync(IdentityResult.Success);
+            .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(_user.Id);
 
         // AutoMapper setup
-        _mockMapper.Setup(x => x.Map<UserDTO>(It.IsAny<ApplicationUser>()))
-            .Returns((ApplicationUser source) => new UserDTO
+        _mockMapper.Setup(x => x.Map<IList<UserAddressDTO>>(It.IsAny<ICollection<UserAddress>>()))
+            .Returns((ICollection<UserAddress> source) => new List<UserAddressDTO>
             {
-                Id = source.Id,
-                Email = source.Email,
+                new ("Test", null, "London", "12312", "UK", true),
             });
 
         // Database setup
@@ -57,6 +59,8 @@ public partial class AddressControllerTests
             .Options;
 
         _mockContext = new NectarineDbContext(options);
+        _mockContext.Users.Add(_user);
+        _mockContext.SaveChanges();
 
         _subject = new AddressController(
             _userManager.Object,
