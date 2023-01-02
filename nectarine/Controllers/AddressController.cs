@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,6 +32,28 @@ public class AddressController : ControllerBase
         _userManager = userManager;
         _mapper = mapper;
         _context = context;
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult GetById([FromQuery] Guid id)
+    {
+        var userId = _userManager.GetUserId(User);
+        var user = _context.Users
+            .Include(e => e.UserAddresses)
+            .FirstOrDefault(x => x.Id == userId);
+
+        if (user is null)
+        {
+            return Unauthorized(new ApiError("Could not get a user"));
+        }
+
+        var address = user.UserAddresses.FirstOrDefault(x => x.Id == id);
+        if (address is null)
+        {
+            return NotFound(new ApiError($"Could not find an address for the user with the ID {id}"));
+        }
+
+        return Ok(_mapper.Map<UserAddressDTO>(address));
     }
 
     /// <summary>

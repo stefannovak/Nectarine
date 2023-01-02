@@ -56,6 +56,10 @@ public partial class AddressControllerTests
             {
                 _testDto,
             });
+        
+        _mockMapper.Setup(x => x.Map<UserAddress>(It.IsAny<UserAddressDTO>()))
+            .Returns((UserAddressDTO source) =>
+                new UserAddress(source.Line1, source.Line2, source.City, source.Country, source.Postcode));
 
         // Database setup
         var options = new DbContextOptionsBuilder<NectarineDbContext>()
