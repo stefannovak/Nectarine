@@ -13,30 +13,30 @@ public partial class AddressControllerTests
     {
         // Act
         var result = _subject.GetById(_user.UserAddresses.First().Id);
-        
+
         // Assert
         Assert.IsType<OkObjectResult>(result);
     }
-    
+
     [Fact(DisplayName = "GetById should return Unauthorized")]
     public async Task Test_GetById_ReturnsUnauthorized()
     {
         // Arrange
         _mockHelpers.UserManager_ReturnsRandomId(_userManager);
-        
+
         // Act
         var result = _subject.GetById(_user.UserAddresses.First().Id);
-        
+
         // Assert
         Assert.IsType<UnauthorizedObjectResult>(result);
     }
-    
+
     [Fact(DisplayName = "GetById should return NotFound")]
     public async Task Test_GetById_ReturnsNotFound()
     {
         // Act
         var result = _subject.GetById(Guid.NewGuid());
-        
+
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
     }

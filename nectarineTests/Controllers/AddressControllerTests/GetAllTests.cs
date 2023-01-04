@@ -14,20 +14,20 @@ public partial class AddressControllerTests
     {
         // Act
         var result = _subject.GetAll();
-        
+
         // Assert
         Assert.IsType<OkObjectResult>(result);
     }
-    
+
     [Fact(DisplayName = "GetAll should return Unauthorized")]
     public async Task Test_GetAll_ReturnsUnauthorized()
     {
         // Arrange
         _mockHelpers.UserManager_ReturnsRandomId(_userManager);
 
-                // Act
+        // Act
         var result = _subject.GetAll();
-        
+
         // Assert
         Assert.IsType<UnauthorizedObjectResult>(result);
     }

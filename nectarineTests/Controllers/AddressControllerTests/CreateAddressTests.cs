@@ -10,7 +10,7 @@ public partial class AddressControllerTests
     public async Task Test_CreateAddress_ReturnsOk()
     {
         // Act
-        var result = await _subject.CreateAddress(_testDto);
+        var result = await _subject.CreateAddress(_createAddressDto);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -23,20 +23,20 @@ public partial class AddressControllerTests
         _mockHelpers.UserManager_ReturnsRandomId(_userManager);
 
         // Act
-        var result = await _subject.CreateAddress(_testDto);
+        var result = await _subject.CreateAddress(_createAddressDto);
 
         // Assert
         Assert.IsType<UnauthorizedObjectResult>(result);
     }
 
     [Fact(DisplayName = "CreateAddress should return NoContentResult when Is Not Primary Address")]
-    public async Task Test_CreateAddress_ReturnsOk_WhenIsNotPrimaryAddress()
+    public async Task Test_CreateAddress_ReturnsNoContent_WhenIsNotPrimaryAddress()
     {
         // Arrange
         _testDto.IsPrimaryAddress = false;
 
         // Act
-        var result = await _subject.CreateAddress(_testDto);
+        var result = await _subject.CreateAddress(_createAddressDto);
 
         // Assert
         Assert.IsType<NoContentResult>(result);

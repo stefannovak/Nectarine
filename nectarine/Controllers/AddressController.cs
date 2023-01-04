@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NectarineAPI.DTOs.Generic;
-using NectarineAPI.DTOs.Requests;
+using NectarineAPI.DTOs.Requests.Address;
 using NectarineAPI.Models;
 using NectarineData.DataAccess;
 using NectarineData.Models;
@@ -83,7 +83,6 @@ public class AddressController : ControllerBase
         return Ok(_mapper.Map<IList<UserAddressDTO>>(user.UserAddresses));
     }
 
-
     /// <summary>
     /// Create an address for the user.
     /// </summary>
@@ -92,7 +91,7 @@ public class AddressController : ControllerBase
     [HttpPost("Create")]
     [ProducesResponseType(typeof(UnauthorizedObjectResult), 401)]
     [ProducesResponseType(typeof(NoContentResult), 204)]
-    public async Task<IActionResult> CreateAddress([FromBody] UserAddressDTO request)
+    public async Task<IActionResult> CreateAddress([FromBody] CreateAddressDTO request)
     {
         var userId = _userManager.GetUserId(User);
         var user = _context.Users

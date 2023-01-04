@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NectarineAPI.Controllers;
 using NectarineAPI.DTOs.Generic;
+using NectarineAPI.DTOs.Requests.Address;
 using NectarineData.DataAccess;
 using NectarineData.Models;
 
@@ -35,6 +36,8 @@ public partial class AddressControllerTests
 
     private readonly UserAddressDTO _testDto =
         new (Guid.NewGuid(), "Test", null, "London", "12312", "UK", true);
+
+    private readonly CreateAddressDTO _createAddressDto;
 
     public AddressControllerTests()
     {
@@ -69,6 +72,8 @@ public partial class AddressControllerTests
         _mockContext = new NectarineDbContext(options);
         _mockContext.Users.Add(_user);
         _mockContext.SaveChanges();
+
+        _createAddressDto = new CreateAddressDTO(_testDto.Line1, _testDto.Line2, _testDto.City, _testDto.Postcode, _testDto.Country);
 
         _subject = new AddressController(
             _userManager.Object,
