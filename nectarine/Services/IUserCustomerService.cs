@@ -1,9 +1,13 @@
 using System.Threading.Tasks;
+using NectarineAPI.DTOs.Generic;
 using NectarineAPI.Models.Customers;
 using NectarineData.Models;
 
 namespace NectarineAPI.Services
 {
+    /// <summary>
+    /// An interface that defines functions related to the User's CUSTOMER object, not the User itself.
+    /// </summary>
     public interface IUserCustomerService
     {
         /// <summary>
@@ -19,22 +23,6 @@ namespace NectarineAPI.Services
         /// <param name="paymentProviderCustomerId"></param>
         /// <returns></returns>
         public UserCustomerDetails? GetCustomer(string paymentProviderCustomerId);
-
-        /// <summary>
-        /// Updates the users address.
-        /// </summary>
-        /// <param name="paymentProviderCustomerId"></param>
-        /// <param name="address"></param>
-        /// <returns></returns>
-        public UserCustomerDetails? UpdateCustomerAddress(string paymentProviderCustomerId, UserAddress address);
-
-        /// <summary>
-        /// Updates the users phone number.
-        /// </summary>
-        /// <param name="paymentProviderCustomerId"></param>
-        /// <param name="phoneNumber"></param>
-        /// <returns></returns>
-        public UserCustomerDetails? UpdateCustomerPhoneNumber(string paymentProviderCustomerId, string phoneNumber);
 
         /// <summary>
         /// Sets a user to deleted. Does not delete the user object.

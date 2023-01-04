@@ -28,7 +28,7 @@ namespace NectarineData.DataAccess
                 .Property(x => x.ProductIds)
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v),
-                    v => JsonConvert.DeserializeObject<List<string>>(v))
+                    v => JsonConvert.DeserializeObject<List<string>>(v) ?? new List<string>())
                 .Metadata.SetValueComparer(new ValueComparer<ICollection<string>>(
                     (c1, c2) => c1.SequenceEqual(c2),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode()))));

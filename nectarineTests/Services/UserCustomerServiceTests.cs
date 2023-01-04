@@ -1,7 +1,9 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using NectarineAPI.DTOs.Generic;
 using NectarineAPI.Models.Customers;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
@@ -38,8 +40,8 @@ namespace NectarineTests.Services
                     Line2 = "test",
                     City = "Big City",
                     PostalCode = "N1111",
-                    Country = "UK"
-                }
+                    Country = "UK",
+                },
             };
 
             _mockCustomerService
@@ -68,7 +70,7 @@ namespace NectarineTests.Services
                     Address = new Address
                     {
                         Line1 = "21 BoolProp Lane",
-                    }
+                    },
                 });
 
             _mockCustomerService
@@ -186,8 +188,9 @@ namespace NectarineTests.Services
             // Act
             var result = _userCustomerService.UpdateCustomerAddress(
                 user.PaymentProviderCustomerId,
-                new UserAddress
+                new UserAddressDTO
                 (
+                    Guid.NewGuid(),
                     "21 BoolProp Lane",
                     null,
                     "Big City",
@@ -209,12 +212,13 @@ namespace NectarineTests.Services
                     It.IsAny<string>(),
                     It.IsAny<CustomerUpdateOptions>(),
                     It.IsAny<RequestOptions>()));
-            
+
             // Act
             var result = _userCustomerService.UpdateCustomerAddress(
                 user.PaymentProviderCustomerId,
-                new UserAddress
+                new UserAddressDTO
                 (
+                    Guid.NewGuid(),
                     "21 BoolProp Lane",
                     null,
                     "Big City",
