@@ -7,6 +7,7 @@ namespace NectarineData.Models;
 public class UserAddress
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="UserAddress"/> class.
     /// Not to be used.
     /// </summary>
     public UserAddress()

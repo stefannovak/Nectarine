@@ -6,40 +6,39 @@ namespace NectarineTests.Controllers.AddressControllerTests;
 
 public partial class AddressControllerTests
 {
-    [Fact(DisplayName = "CreateAddress should return Ok")]
+    [Fact(DisplayName = "CreateAddress should return NoContentResult")]
     public async Task Test_CreateAddress_ReturnsOk()
     {
         // Act
         var result = await _subject.CreateAddress(_testDto);
-        
+
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<NoContentResult>(result);
     }
-    
+
     [Fact(DisplayName = "CreateAddress should return Unauthorized")]
     public async Task Test_CreateAddress_ReturnsUnauthorized()
     {
         // Arrange
         _mockHelpers.UserManager_ReturnsRandomId(_userManager);
-        
+
         // Act
         var result = await _subject.CreateAddress(_testDto);
-        
+
         // Assert
         Assert.IsType<UnauthorizedObjectResult>(result);
     }
-    
-    [Fact(DisplayName = "CreateAddress should return WhenIsNotPrimaryAddress")]
+
+    [Fact(DisplayName = "CreateAddress should return NoContentResult when Is Not Primary Address")]
     public async Task Test_CreateAddress_ReturnsOk_WhenIsNotPrimaryAddress()
     {
         // Arrange
-        var testDto = _testDto;
-        testDto.IsPrimaryAddress = false;
-        
+        _testDto.IsPrimaryAddress = false;
+
         // Act
-        var result = await _subject.CreateAddress(testDto);
-        
+        var result = await _subject.CreateAddress(_testDto);
+
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<NoContentResult>(result);
     }
 }

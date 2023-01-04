@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -189,6 +190,7 @@ namespace NectarineTests.Services
                 user.PaymentProviderCustomerId,
                 new UserAddressDTO
                 (
+                    Guid.NewGuid(),
                     "21 BoolProp Lane",
                     null,
                     "Big City",
@@ -216,6 +218,7 @@ namespace NectarineTests.Services
                 user.PaymentProviderCustomerId,
                 new UserAddressDTO
                 (
+                    Guid.NewGuid(),
                     "21 BoolProp Lane",
                     null,
                     "Big City",

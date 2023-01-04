@@ -34,8 +34,13 @@ public class AddressController : ControllerBase
         _context = context;
     }
 
+    /// <summary>
+    /// Get an address by Id.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
-    public IActionResult GetById([FromQuery] Guid id)
+    public IActionResult GetById(Guid id)
     {
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
@@ -61,6 +66,8 @@ public class AddressController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("All")]
+    [ProducesResponseType(typeof(UnauthorizedObjectResult), 401)]
+    [ProducesResponseType(typeof(OkObjectResult), 200)]
     public IActionResult GetAll()
     {
         var userId = _userManager.GetUserId(User);
@@ -83,13 +90,15 @@ public class AddressController : ControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("Create")]
+    [ProducesResponseType(typeof(UnauthorizedObjectResult), 401)]
+    [ProducesResponseType(typeof(NoContentResult), 204)]
     public async Task<IActionResult> CreateAddress([FromBody] UserAddressDTO request)
     {
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId); 
-        
+            .FirstOrDefault(x => x.Id == userId);
+
         if (user is null)
         {
             return Unauthorized(new ApiError("Could not get a user"));
@@ -102,7 +111,7 @@ public class AddressController : ControllerBase
             City = request.City,
             Country = request.Country,
             Postcode = request.Postcode,
-            IsPrimaryAddress = request.IsPrimaryAddress
+            IsPrimaryAddress = request.IsPrimaryAddress,
         };
 
         if (!request.IsPrimaryAddress)
@@ -110,18 +119,18 @@ public class AddressController : ControllerBase
             user.UserAddresses.Add(mappedAddress);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return NoContent();
         }
-        
+
         var primaryAddresses = user.UserAddresses.Where(x => x.IsPrimaryAddress);
         primaryAddresses.ToList().ForEach(x =>
         {
             x.IsPrimaryAddress = false;
         });
-        
+
         user.UserAddresses.Add(mappedAddress);
         await _context.SaveChangesAsync();
-        return Ok();
+        return NoContent();
     }
 
     /// <summary>
@@ -130,33 +139,82 @@ public class AddressController : ControllerBase
     /// <param name="request">User Address information.</param>
     /// <returns></returns>
     [HttpPut("Update")]
-    public async Task<IActionResult> UpdateAddressAsync([FromBody] UpdateAddressDTO request)
+    [ProducesResponseType(typeof(UnauthorizedObjectResult), 401)]
+    [ProducesResponseType(typeof(NotFoundObjectResult), 404)]
+    [ProducesResponseType(typeof(NoContentResult), 204)]
+    public async Task<IActionResult> UpdateAddressAsync([FromBody] UserAddressDTO request)
     {
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId); 
-        
+            .FirstOrDefault(x => x.Id == userId);
+
         if (user is null)
         {
             return Unauthorized(new ApiError("Could not get a user"));
         }
 
-        var previousAddress = user.UserAddresses.FirstOrDefault(x => x.Id == request.PreviousAddressId);
+        var previousAddress = user.UserAddresses.FirstOrDefault(x => x.Id == request.Id);
         if (previousAddress is null)
         {
             return BadRequest(new ApiError(
-                $"Could not find an address belonging to the user with the id: {request.PreviousAddressId}"));
+                $"Could not find an address belonging to the user with the id: {request.Id}"));
         }
 
-        previousAddress.Line1 = request.Address.Line1;
-        previousAddress.Line2 = request.Address.Line2;
-        previousAddress.City = request.Address.City;
-        previousAddress.Postcode = request.Address.Postcode;
-        previousAddress.Country = request.Address.Country;
-        previousAddress.IsPrimaryAddress = request.Address.IsPrimaryAddress;
+        previousAddress.Line1 = request.Line1;
+        previousAddress.Line2 = request.Line2;
+        previousAddress.City = request.City;
+        previousAddress.Postcode = request.Postcode;
+        previousAddress.Country = request.Country;
+        previousAddress.IsPrimaryAddress = request.IsPrimaryAddress;
+
+        if (!request.IsPrimaryAddress)
+        {
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        var primaryAddresses = user.UserAddresses
+            .Where(x => x.IsPrimaryAddress && x.Id != previousAddress.Id);
+        primaryAddresses.ToList().ForEach(x =>
+        {
+            x.IsPrimaryAddress = false;
+        });
+
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Delete an address for the user by ID.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [ProducesResponseType(typeof(UnauthorizedObjectResult), 401)]
+    [ProducesResponseType(typeof(NotFoundObjectResult), 404)]
+    [ProducesResponseType(typeof(NoContentResult), 204)]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteById(Guid id)
+    {
+        var userId = _userManager.GetUserId(User);
+        var user = _context.Users
+            .Include(e => e.UserAddresses)
+            .FirstOrDefault(x => x.Id == userId);
+
+        if (user is null)
+        {
+            return Unauthorized(new ApiError("Could not get a user"));
+        }
+
+        var address = user.UserAddresses.FirstOrDefault(x => x.Id == id);
+        if (address is null)
+        {
+            return NotFound(new ApiError($"Could not find an address for the user with the ID {id}"));
+        }
+
+        user.UserAddresses.Remove(address);
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return NoContent();
     }
 }

@@ -6,6 +6,7 @@ namespace NectarineAPI.DTOs.Generic;
 public class UserAddressDTO
 {
     public UserAddressDTO(
+        Guid id,
         string line1,
         string? line2,
         string city,
@@ -13,6 +14,7 @@ public class UserAddressDTO
         string country,
         bool isPrimaryAddress = false)
     {
+        Id = id;
         Line1 = line1;
         Line2 = line2;
         City = city;
@@ -20,6 +22,8 @@ public class UserAddressDTO
         Country = country;
         IsPrimaryAddress = isPrimaryAddress;
     }
+
+    public Guid Id { get; set; }
 
     [MaxLength(100)]
     public string Line1 { get; set; }

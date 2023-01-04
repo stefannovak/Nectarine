@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +26,7 @@ public partial class AddressControllerTests
         PhoneNumber = "123123123123",
         VerificationCode = 123123,
         PhoneNumberConfirmed = false,
+        Email = "testdadadadad@gmail.com",
         UserAddresses = new List<UserAddress>
         {
             new ("Test", null, "London", "12312", "UK", true),
@@ -34,9 +34,9 @@ public partial class AddressControllerTests
     };
 
     private readonly UserAddressDTO _testDto =
-        new("Test", null, "London", "12312", "UK", true);
+        new (Guid.NewGuid(), "Test", null, "London", "12312", "UK", true);
 
-    public AddressControllerTests() 
+    public AddressControllerTests()
     {
         // UserManager setup
         _userManager = MockHelpers.MockUserManager<ApplicationUser>();
@@ -52,11 +52,11 @@ public partial class AddressControllerTests
 
         // AutoMapper setup
         _mockMapper.Setup(x => x.Map<IList<UserAddressDTO>>(It.IsAny<ICollection<UserAddress>>()))
-            .Returns((ICollection<UserAddress> source) => new List<UserAddressDTO>
+            .Returns((ICollection<UserAddress> _) => new List<UserAddressDTO>
             {
                 _testDto,
             });
-        
+
         _mockMapper.Setup(x => x.Map<UserAddress>(It.IsAny<UserAddressDTO>()))
             .Returns((UserAddressDTO source) =>
                 new UserAddress(source.Line1, source.Line2, source.City, source.Country, source.Postcode));
