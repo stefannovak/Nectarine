@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +15,6 @@ namespace NectarineTests.Controllers.RatingsControllerTests;
 public partial class RatingsControllerTests
 {
     private readonly RatingController _subject;
-    private readonly Mock<IMapper> _mockMapper = new ();
     private readonly Mock<UserManager<ApplicationUser>> _userManager;
     private readonly NectarineDbContext _mockContext;
     private readonly MockHelpers _mockHelpers = new ();
@@ -23,6 +23,10 @@ public partial class RatingsControllerTests
     {
         Id = Guid.NewGuid().ToString(),
         Email = "test@gmail.com",
+        SubmittedRatings = new List<Rating>
+        {
+            new (5, "wow", Guid.NewGuid()),
+        },
     };
 
     private readonly RatingDTO _testRatingDto;
@@ -54,10 +58,6 @@ public partial class RatingsControllerTests
             .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
             .Returns(_user.Id);
 
-        // AutoMapper setup
-        _mockMapper.Setup(x => x.Map<Rating>(It.IsAny<RatingDTO>()))
-            .Returns((RatingDTO source) => new Rating(source.Stars, source.Review, source.ProductId));
-
         // Database setup
         var options = new DbContextOptionsBuilder<NectarineDbContext>()
             .UseInMemoryDatabase("TestDb")
@@ -69,7 +69,6 @@ public partial class RatingsControllerTests
 
         _subject = new RatingController(
             _mockContext,
-            _mockMapper.Object,
             _userManager.Object);
     }
 }
