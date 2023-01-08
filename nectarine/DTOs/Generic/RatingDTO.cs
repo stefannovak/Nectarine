@@ -15,6 +15,8 @@ public class RatingDTO
         ProductId = productId;
     }
 
+    public Guid Id { get; set; }
+
     [Range(1, 5)]
     public uint Stars { get; set; }
 

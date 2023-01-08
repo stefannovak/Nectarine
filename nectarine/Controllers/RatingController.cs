@@ -68,7 +68,7 @@ public class RatingController : ControllerBase
     {
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
-            .Include(e => e.UserAddresses)
+            .Include(e => e.SubmittedRatings)
             .FirstOrDefault(x => x.Id == userId);
 
         if (user is null)
