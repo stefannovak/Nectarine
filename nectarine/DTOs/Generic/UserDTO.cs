@@ -12,5 +12,7 @@ namespace NectarineAPI.DTOs.Generic
         public string? Email { get; set; }
 
         public ICollection<RatingDTO> SubmittedRatings { get; set; } = new List<RatingDTO>();
+
+        public ICollection<UserAddressDTO> UserAddresses { get; set; } = new List<UserAddressDTO>();
     }
 }
