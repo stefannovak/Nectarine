@@ -5,6 +5,7 @@ using AutoMapper;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.DTOs.Requests;
 using NectarineAPI.Models;
@@ -50,9 +51,14 @@ namespace NectarineAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetCurrent")]
-        public async Task<IActionResult> GetCurrentAsync()
+        public IActionResult GetCurrentAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = _userManager.GetUserId(User);
+            var user = _context.Users
+                .Include(x => x.SubmittedRatings)
+                .Include(x => x.UserAddresses)
+                .FirstOrDefault(x => x.Id == userId);
+
             if (user is null)
             {
                 return BadRequest(new ApiError("Could not get a user"));
@@ -69,28 +75,18 @@ namespace NectarineAPI.Controllers
         [Route("Delete")]
         public async Task<IActionResult> DeleteAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = _userManager.GetUserId(User);
+            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
             if (user is null)
             {
-                return BadRequest(new ApiError("Could not get a user"));
+                return Unauthorized();
             }
 
-            var applicationUser = _context.Users.FirstOrDefault(x => x.Id == user.Id);
-            if (applicationUser is null)
-            {
-                return BadRequest(new ApiError("Could not get a user from the database"));
-            }
-
-            var result = _userCustomerService.DeleteCustomer(applicationUser);
-            if (!result)
-            {
-                return BadRequest(new ApiError("This user does not have a Customer associate with it."));
-            }
-
-            _context.Users.Remove(applicationUser);
+            _userCustomerService.DeleteCustomer(user);
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -114,7 +110,7 @@ namespace NectarineAPI.Controllers
                 return BadRequest(new ApiError("Failed to update phone number on database"));
             }
 
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -146,7 +142,7 @@ namespace NectarineAPI.Controllers
             await _userManager.UpdateAsync(user);
             _backgroundJobClient.Schedule(() => DeleteVerificationCodeForUser(user.Id), TimeSpan.FromMinutes(2));
 
-            return Ok();
+            return NoContent();
         }
 
         /// <summary>
@@ -175,7 +171,7 @@ namespace NectarineAPI.Controllers
 
             user.PhoneNumberConfirmed = true;
             await _userManager.UpdateAsync(user);
-            return Ok();
+            return NoContent();
         }
 
         // ReSharper disable once MemberCanBePrivate.Global - Hangfire requires public

@@ -33,6 +33,8 @@ namespace NectarineData.Models
 
         public virtual ICollection<UserAddress> UserAddresses { get; set; }
 
+        public virtual ICollection<Rating> SubmittedRatings { get; set; } = new List<Rating>();
+
         public ApplicationUser()
         {
             UserAddresses = new List<UserAddress>();

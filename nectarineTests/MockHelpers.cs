@@ -86,11 +86,17 @@ public class MockHelpers
         configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
         return new TelemetryClient(configuration);
     }
-    
+
     public void UserManager_ReturnsRandomId(Mock<UserManager<ApplicationUser>> userManager)
     {
         userManager
             .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
             .Returns(Guid.NewGuid().ToString);
+    }
+
+    public void UserManager_GetUserAsync_ReturnsNothing(Mock<UserManager<ApplicationUser>> userManager)
+    {
+        userManager
+            .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()));
     }
 }

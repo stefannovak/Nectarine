@@ -19,7 +19,6 @@ public partial class ProductControllerTests
         new Product(
             name: "Black shirt",
             description: "What an amazing shirt",
-            primaryColorHex: "#121122",
             primaryColorName: "pink",
             size: "L",
             price: 1000,
@@ -30,7 +29,6 @@ public partial class ProductControllerTests
         new Product(
             name: "Black shirt",
             description: "What an amazing shirt",
-            primaryColorHex: "#121122",
             primaryColorName: "pink",
             size: "L",
             price: 5000,
@@ -41,7 +39,6 @@ public partial class ProductControllerTests
         new Product(
             name: "Black shirt",
             description: "What an amazing shirt",
-            primaryColorHex: "#121122",
             primaryColorName: "pink",
             size: "L",
             price: 10000,

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NectarineAPI.DTOs.Generic;
 using NectarineAPI.Models;
 using NectarineAPI.Models.Products;
@@ -55,7 +56,8 @@ public class ProductController : ControllerBase
         }
 
         var productsForCategory = _context.Products
-            .Where(p => string.Equals(p.Category, category));
+            .Where(p => string.Equals(p.Category, category))
+            .Include(x => x.Ratings);
 
         var products = productsForCategory
             .AsEnumerable()

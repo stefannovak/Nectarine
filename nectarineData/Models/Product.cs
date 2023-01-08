@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,7 +14,6 @@ public class Product
     public Product(
         string name,
         string description,
-        string primaryColorHex,
         string primaryColorName,
         string size,
         double price,
@@ -25,7 +25,6 @@ public class Product
         Id = Guid.NewGuid();
         Name = name;
         Description = description;
-        PrimaryColorHex = primaryColorHex;
         PrimaryColorName = primaryColorName;
         Size = size;
         Price = price;
@@ -46,13 +45,6 @@ public class Product
     [Required]
     [MaxLength(2000)]
     public string Description { get; set; } = string.Empty;
-
-    /// <summary>
-    /// #121212.
-    /// </summary>
-    [Required]
-    [MaxLength(7)]
-    public string PrimaryColorHex { get; set; } = string.Empty;
 
     /// <summary>
     /// red, orange, yellow, green, blue, indigo, violet, purple, pink, silver, gold, beige, brown, gray, black, white.
@@ -95,4 +87,6 @@ public class Product
     [Required]
     [MaxLength(1000)]
     public string Image { get; set; } = string.Empty;
+
+    public virtual ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 }

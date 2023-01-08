@@ -20,9 +20,21 @@ namespace NectarineData.DataAccess
 
         public virtual DbSet<Product> Products => Set<Product>();
 
+        public virtual DbSet<Rating> Ratings => Set<Rating>();
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Rating>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.SubmittedRatings)
+                .HasForeignKey(r => r.UserId);
+
+            builder.Entity<Rating>()
+                .HasOne(r => r.Product)
+                .WithMany(p => p.Ratings)
+                .HasForeignKey(r => r.ProductId);
 
             builder.Entity<Order>()
                 .Property(x => x.ProductIds)
