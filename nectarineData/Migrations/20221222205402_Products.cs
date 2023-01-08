@@ -18,7 +18,6 @@ namespace NectarineData.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    PrimaryColorHex = table.Column<string>(type: "nvarchar(7)", maxLength: 7, nullable: false),
                     PrimaryColorName = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Size = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),

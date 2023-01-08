@@ -43,14 +43,15 @@ public partial class UsersControllerTest
             "UK",
             true));
 
-    private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
-
     private readonly ApplicationUser _user = new ()
     {
+        Id = Guid.NewGuid().ToString(),
         PhoneNumber = "123123123123",
         VerificationCode = 123123,
         PhoneNumberConfirmed = false,
     };
+
+    private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
     public UsersControllerTest()
     {
@@ -61,6 +62,11 @@ public partial class UsersControllerTest
             .Setup(manager => manager
                 .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
             .ReturnsAsync(_user);
+
+        _userManager
+            .Setup(manager => manager
+                .GetUserId(It.IsAny<ClaimsPrincipal>()))
+            .Returns(_user.Id);
 
         _userManager
             .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
@@ -109,6 +115,8 @@ public partial class UsersControllerTest
             .Options;
 
         _mockContext = new NectarineDbContext(options);
+        _mockContext.Users.Add(_user);
+        _mockContext.SaveChangesAsync();
 
         _controller = new UsersController(
             _userManager.Object,
@@ -122,24 +130,24 @@ public partial class UsersControllerTest
     #region GetCurrentAsync
 
     [Fact(DisplayName = "GetCurrentAsync should get the current user and return an Ok")]
-    public async Task Test_GetCurrentAsyncTest()
+    public void Test_GetCurrentAsyncTest()
     {
         // Act
-        var result = await _controller.GetCurrentAsync();
+        var result = _controller.GetCurrentAsync();
 
         // Assert
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact(DisplayName = "GetCurrentAsync should fail to get the current user and return a BadRequest")]
-    public async Task Test_GetCurrentAsyncTest_ReturnsBadRequestWhen_FailsToGetAUser()
+    public void Test_GetCurrentAsyncTest_ReturnsBadRequestWhen_FailsToGetAUser()
     {
         // Arrange
         _userManager.Setup(manager => manager
-            .GetUserAsync(It.IsAny<ClaimsPrincipal>()));
+            .GetUserId(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _controller.GetCurrentAsync();
+        var result = _controller.GetCurrentAsync();
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result);
@@ -149,100 +157,53 @@ public partial class UsersControllerTest
 
     #region DeleteUserAsync
 
-    [Fact(DisplayName = "DeleteAsync should delete the current user and return an Ok")]
-    public async Task Test_DeleteAsync()
+    [Fact(DisplayName = "DeleteAsync should delete the current user and return NoContent")]
+    public async Task Test_DeleteAsync_ReturnsNoContent()
     {
-        // Arrange
-        var appUser = new ApplicationUser
-        {
-            Email = "test@test.com",
-        };
-
-        await _userManager.Object.CreateAsync(appUser);
-
-        var user = await _userManager.Object.FindByEmailAsync(appUser.Email);
-
-        _mockContext.Users.Add(user);
-        await _mockContext.SaveChangesAsync();
-
-        _userManager.Setup(manager => manager
-                .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(user);
-
         // Act
         var result = await _controller.DeleteAsync();
-        var deletedUser = _mockContext.Users.FirstOrDefault(x => x.Id == user.Id);
 
         // Arrange
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<NoContentResult>(result);
+    }
+
+    [Fact(DisplayName = "DeleteAsync should delete the current user from the context")]
+    public async Task Test_DeleteAsync_DeletesUser()
+    {
+        // Act
+        await _controller.DeleteAsync();
+        var deletedUser = _mockContext.Users.FirstOrDefault(x => x.Id == _user.Id);
+
+        // Arrange
         Assert.Null(deletedUser);
     }
 
-    [Fact(DisplayName = "DeleteAsync should return a Bad Request when UserManager fails to get the user")]
-    public async Task Test_DeleteAsync_ReturnsBadRequestWhen_CantFetchAUser()
+    [Fact(DisplayName = "DeleteAsync should return unauthorized when a user can't be found")]
+    public async Task Test_DeleteAsync_ReturnsUnauthorized()
     {
         // Arrange
         _userManager.Setup(manager => manager
-            .GetUserAsync(It.IsAny<ClaimsPrincipal>()));
+            .GetUserId(It.IsAny<ClaimsPrincipal>()));
 
         // Act
         var result = await _controller.DeleteAsync();
 
         // Arrange
-        Assert.IsType<BadRequestObjectResult>(result);
-    }
-
-    [Fact(DisplayName = "DeleteAsync should return a Bad Request when UserManager fails to get the user from the database")]
-    public async Task Test_DeleteAsync_ReturnsBadRequestWhen_CantFetchAUserFromTheDatabase()
-    {
-        // Act
-        var result = await _controller.DeleteAsync();
-
-        // Arrange
-        Assert.IsType<BadRequestObjectResult>(result);
-    }
-
-    [Fact(DisplayName = "DeleteAsync should return a Bad Request when Stripe is unable to delete a customer")]
-    public async Task Test_DeleteAsync_ReturnsBadRequestWhen_UserHasNoCustomerObject()
-    {
-        // Arrange
-        var appUser = new ApplicationUser
-        {
-            Email = "test@test.com",
-        };
-
-        await _userManager.Object.CreateAsync(appUser);
-        var user = await _userManager.Object.FindByEmailAsync(appUser.Email);
-        _mockContext.Users.Add(user);
-        await _mockContext.SaveChangesAsync();
-
-        _userManager.Setup(manager => manager
-                .GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-            .ReturnsAsync(user);
-
-        _userCustomerServiceMock
-            .Setup(x => x.DeleteCustomer(It.IsAny<ApplicationUser>()))
-            .Returns(false);
-
-        // Act
-        var result = await _controller.DeleteAsync();
-
-        // Arrange
-        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.IsType<UnauthorizedResult>(result);
     }
 
     #endregion
 
     #region SendVerificationCode
 
-    [Fact(DisplayName = "SendVerificationCode should return OK.")]
-    public async Task Test_SendVerificationCode_ReturnsOk()
+    [Fact(DisplayName = "SendVerificationCode should return NoContentResult.")]
+    public async Task Test_SendVerificationCode_ReturnsNoContentResult()
     {
         // Act
         var result = await _controller.GetVerificationCode();
 
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<NoContentResult>(result);
     }
 
     [Fact(DisplayName = "SendVerificationCode should return Unauthorized when a user can't be found.")]
@@ -278,14 +239,14 @@ public partial class UsersControllerTest
 
     #region Confirm2FACode
 
-    [Fact(DisplayName = "Confirm2FACode should return Ok")]
-    public async Task Test_Confirm2FACode_ReturnsOk()
+    [Fact(DisplayName = "Confirm2FACode should return NoContentResult")]
+    public async Task Test_Confirm2FACode_ReturnsNoContentResult()
     {
         // Act
         var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
 
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<NoContentResult>(result);
     }
 
     [Fact(DisplayName = "Confirm2FACode should return Unauthorized")]

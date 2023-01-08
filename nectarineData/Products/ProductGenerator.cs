@@ -90,15 +90,12 @@ public class ProductGenerator
                 var size = GetRandomSupportedAttribue(_supportedSizes);
                 var price = _random.NextInt64(10000);
                 var material = GetRandomSupportedAttribue(_supportedMaterials);
-                // TODO: - This should reflect the colour string
-                var hex = GetRandomHexNumber();
 
                 for (var j = 0; j <= _random.NextInt64(10); j++)
                 {
                     products.Add(new Product(
                         name: $"{colour} {category}",
                         description: $"What an amazing {size} {colour} {category}. Buy it.",
-                        primaryColorHex: hex,
                         primaryColorName: colour,
                         size: size,
                         price: price,

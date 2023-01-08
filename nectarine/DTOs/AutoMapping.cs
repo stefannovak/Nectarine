@@ -12,6 +12,7 @@ namespace NectarineAPI.DTOs
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<Product, ProductDTO>().ReverseMap();
             CreateMap<UserAddress, UserAddressDTO>().ReverseMap();
+            CreateMap<Rating, RatingDTO>().ReverseMap();
         }
     }
 }
