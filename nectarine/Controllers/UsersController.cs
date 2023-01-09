@@ -1,8 +1,12 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +22,7 @@ using Serilog;
 
 namespace NectarineAPI.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -51,6 +56,8 @@ namespace NectarineAPI.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetCurrent")]
+        [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(OkObjectResult), StatusCodes.Status200OK)]
         public IActionResult GetCurrentAsync()
         {
             var userId = _userManager.GetUserId(User);
@@ -61,7 +68,7 @@ namespace NectarineAPI.Controllers
 
             if (user is null)
             {
-                return BadRequest(new ApiError("Could not get a user"));
+                return Unauthorized();
             }
 
             return Ok(_mapper.Map<UserDTO>(user));
@@ -73,6 +80,8 @@ namespace NectarineAPI.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("Delete")]
+        [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(NoContentResult), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> DeleteAsync()
         {
             var userId = _userManager.GetUserId(User);
@@ -92,10 +101,13 @@ namespace NectarineAPI.Controllers
         /// <summary>
         /// Update the users phone number.
         /// </summary>
-        /// <param name="updatePhoneNumberDto"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("Update/PhoneNumber")]
-        public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberDTO updatePhoneNumberDto)
+        [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoContentResult), StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdatePhoneNumberDTO request)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
@@ -103,7 +115,7 @@ namespace NectarineAPI.Controllers
                 return Unauthorized();
             }
 
-            user.PhoneNumber = updatePhoneNumberDto.PhoneNumber;
+            user.PhoneNumber = request.PhoneNumber;
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
@@ -118,6 +130,9 @@ namespace NectarineAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("VerificationCode")]
+        [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoContentResult), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetVerificationCode()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -151,6 +166,9 @@ namespace NectarineAPI.Controllers
         /// <param name="confirm2FaCodeDto"></param>
         /// <returns></returns>
         [HttpPost("Confirm2FACode")]
+        [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(NoContentResult), StatusCodes.Status204NoContent)]
         public async Task<IActionResult> Confirm2FACode(Confirm2FACodeDTO confirm2FaCodeDto)
         {
             var user = await _userManager.GetUserAsync(User);

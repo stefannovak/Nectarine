@@ -11,7 +11,7 @@ public partial class UsersControllerTest
     public async Task Test_DeleteVerificaitonCodeForUser_Completes()
     {
         // Act
-        await _controller.DeleteVerificationCodeForUser(_user.Id);
+        await _subject.DeleteVerificationCodeForUser(_user.Id);
 
         // Assert
         Assert.Null(_user.VerificationCode);
@@ -21,7 +21,7 @@ public partial class UsersControllerTest
     public async Task Test_DeleteVerificaitonCodeForUser_ReturnsWhen_UserNotFound()
     {
         // Act
-        await _controller.DeleteVerificationCodeForUser(Guid.NewGuid().ToString());
+        await _subject.DeleteVerificationCodeForUser(Guid.NewGuid().ToString());
 
         // Assert
         Assert.NotNull(_user.VerificationCode);

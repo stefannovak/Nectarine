@@ -22,7 +22,7 @@ namespace NectarineTests.Controllers.UserControllerTests;
 
 public partial class UsersControllerTest
 {
-    private readonly UsersController _controller;
+    private readonly UsersController _subject;
     private readonly Mock<IMapper> _mockMapper = new ();
     private readonly Mock<UserManager<ApplicationUser>> _userManager;
     private readonly NectarineDbContext _mockContext;
@@ -50,6 +50,8 @@ public partial class UsersControllerTest
         VerificationCode = 123123,
         PhoneNumberConfirmed = false,
     };
+
+    private readonly UpdatePhoneNumberDTO _updatePhoneNumberDto = new ("07777777777");
 
     private Confirm2FACodeDTO confirm2FACodeDTO = new () { Code = 123123 };
 
@@ -118,7 +120,7 @@ public partial class UsersControllerTest
         _mockContext.Users.Add(_user);
         _mockContext.SaveChangesAsync();
 
-        _controller = new UsersController(
+        _subject = new UsersController(
             _userManager.Object,
             _mockMapper.Object,
             _userCustomerServiceMock.Object,
@@ -133,13 +135,13 @@ public partial class UsersControllerTest
     public void Test_GetCurrentAsyncTest()
     {
         // Act
-        var result = _controller.GetCurrentAsync();
+        var result = _subject.GetCurrentAsync();
 
         // Assert
         Assert.IsType<OkObjectResult>(result);
     }
 
-    [Fact(DisplayName = "GetCurrentAsync should fail to get the current user and return a BadRequest")]
+    [Fact(DisplayName = "GetCurrentAsync should fail to get the current user and return a UnauthorizedResult")]
     public void Test_GetCurrentAsyncTest_ReturnsBadRequestWhen_FailsToGetAUser()
     {
         // Arrange
@@ -147,10 +149,10 @@ public partial class UsersControllerTest
             .GetUserId(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = _controller.GetCurrentAsync();
+        var result = _subject.GetCurrentAsync();
 
         // Assert
-        Assert.IsType<BadRequestObjectResult>(result);
+        Assert.IsType<UnauthorizedResult>(result);
     }
 
     #endregion
@@ -161,7 +163,7 @@ public partial class UsersControllerTest
     public async Task Test_DeleteAsync_ReturnsNoContent()
     {
         // Act
-        var result = await _controller.DeleteAsync();
+        var result = await _subject.DeleteAsync();
 
         // Arrange
         Assert.IsType<NoContentResult>(result);
@@ -171,7 +173,7 @@ public partial class UsersControllerTest
     public async Task Test_DeleteAsync_DeletesUser()
     {
         // Act
-        await _controller.DeleteAsync();
+        await _subject.DeleteAsync();
         var deletedUser = _mockContext.Users.FirstOrDefault(x => x.Id == _user.Id);
 
         // Arrange
@@ -186,7 +188,7 @@ public partial class UsersControllerTest
             .GetUserId(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _controller.DeleteAsync();
+        var result = await _subject.DeleteAsync();
 
         // Arrange
         Assert.IsType<UnauthorizedResult>(result);
@@ -200,7 +202,7 @@ public partial class UsersControllerTest
     public async Task Test_SendVerificationCode_ReturnsNoContentResult()
     {
         // Act
-        var result = await _controller.GetVerificationCode();
+        var result = await _subject.GetVerificationCode();
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -214,7 +216,7 @@ public partial class UsersControllerTest
             .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _controller.GetVerificationCode();
+        var result = await _subject.GetVerificationCode();
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
@@ -229,7 +231,7 @@ public partial class UsersControllerTest
             .ReturnsAsync(new ApplicationUser());
 
         // Act
-        var result = await _controller.GetVerificationCode();
+        var result = await _subject.GetVerificationCode();
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result);
@@ -243,7 +245,7 @@ public partial class UsersControllerTest
     public async Task Test_Confirm2FACode_ReturnsNoContentResult()
     {
         // Act
-        var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+        var result = await _subject.Confirm2FACode(confirm2FACodeDTO);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -257,7 +259,7 @@ public partial class UsersControllerTest
             .Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+        var result = await _subject.Confirm2FACode(confirm2FACodeDTO);
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
@@ -275,7 +277,7 @@ public partial class UsersControllerTest
             });
 
         // Act
-        var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+        var result = await _subject.Confirm2FACode(confirm2FACodeDTO);
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result);
@@ -291,7 +293,7 @@ public partial class UsersControllerTest
         };
 
         // Act
-        var result = await _controller.Confirm2FACode(confirm2FACodeDTO);
+        var result = await _subject.Confirm2FACode(confirm2FACodeDTO);
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result);
