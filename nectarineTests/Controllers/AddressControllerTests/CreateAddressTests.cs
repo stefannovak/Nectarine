@@ -33,7 +33,7 @@ public partial class AddressControllerTests
     public async Task Test_CreateAddress_ReturnsNoContent_WhenIsNotPrimaryAddress()
     {
         // Arrange
-        _testDto.IsPrimaryAddress = false;
+        _createAddressDto.IsPrimaryAddress = false;
 
         // Act
         var result = await _subject.CreateAddress(_createAddressDto);

@@ -73,7 +73,13 @@ public partial class AddressControllerTests
         _mockContext.Users.Add(_user);
         _mockContext.SaveChanges();
 
-        _createAddressDto = new CreateAddressDTO(_testDto.Line1, _testDto.Line2, _testDto.City, _testDto.Postcode, _testDto.Country);
+        _createAddressDto = new CreateAddressDTO(
+            _testDto.Line1,
+            _testDto.Line2,
+            _testDto.City,
+            _testDto.Postcode,
+            _testDto.Country,
+            true);
 
         _subject = new AddressController(
             _userManager.Object,
