@@ -14,7 +14,7 @@ namespace NectarineTests.Services
         private readonly TokenService _subject;
         private readonly ApplicationUser _user = new ()
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             Email = "test@email.com",
         };
 

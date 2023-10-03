@@ -23,7 +23,7 @@ public partial class AddressControllerTests
 
     private readonly ApplicationUser _user = new ()
     {
-        Id = Guid.NewGuid().ToString(),
+        Id = Guid.NewGuid(),
         PhoneNumber = "123123123123",
         VerificationCode = 123123,
         PhoneNumberConfirmed = false,
@@ -51,7 +51,7 @@ public partial class AddressControllerTests
 
         _userManager
             .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
-            .Returns(_user.Id);
+            .Returns(_user.Id.ToString());
 
         // AutoMapper setup
         _mockMapper.Setup(x => x.Map<IList<UserAddressDTO>>(It.IsAny<ICollection<UserAddress>>()))

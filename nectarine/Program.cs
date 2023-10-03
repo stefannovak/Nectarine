@@ -63,7 +63,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddDbContext<NectarineDbContext>(options => options.UseNpgsql(sqlConnectionString));
 
-    services.AddIdentity<ApplicationUser, IdentityRole<string>>(options =>
+    services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
         {
             options.User.RequireUniqueEmail = true;
         })

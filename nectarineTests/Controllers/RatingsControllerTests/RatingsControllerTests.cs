@@ -21,7 +21,7 @@ public partial class RatingsControllerTests
 
     private readonly ApplicationUser _user = new ()
     {
-        Id = Guid.NewGuid().ToString(),
+        Id = Guid.NewGuid(),
         Email = "test@gmail.com",
         SubmittedRatings = new List<Rating>
         {
@@ -56,7 +56,7 @@ public partial class RatingsControllerTests
 
         _userManager
             .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
-            .Returns(_user.Id);
+            .Returns(_user.Id.ToString());
 
         // Database setup
         var options = new DbContextOptionsBuilder<NectarineDbContext>()

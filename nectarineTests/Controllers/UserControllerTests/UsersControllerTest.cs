@@ -45,7 +45,7 @@ public partial class UsersControllerTest
 
     private readonly ApplicationUser _user = new ()
     {
-        Id = Guid.NewGuid().ToString(),
+        Id = Guid.NewGuid(),
         PhoneNumber = "123123123123",
         VerificationCode = 123123,
         PhoneNumberConfirmed = false,
@@ -68,7 +68,7 @@ public partial class UsersControllerTest
         _userManager
             .Setup(manager => manager
                 .GetUserId(It.IsAny<ClaimsPrincipal>()))
-            .Returns(_user.Id);
+            .Returns(_user.Id.ToString());
 
         _userManager
             .Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
@@ -104,7 +104,7 @@ public partial class UsersControllerTest
         _mockMapper.Setup(x => x.Map<UserDTO>(It.IsAny<ApplicationUser>()))
             .Returns((ApplicationUser source) => new UserDTO
             {
-                Id = source.Id,
+                Id = source.Id.ToString(),
                 Email = source.Email,
             });
 

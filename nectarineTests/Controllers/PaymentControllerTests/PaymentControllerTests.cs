@@ -27,7 +27,7 @@ namespace NectarineTests.Controllers.PaymentControllerTests
             const string stripeCustomerId = "stripeCustomerId";
             user = new ApplicationUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid(),
                 PaymentProviderCustomerId = stripeCustomerId,
             };
 

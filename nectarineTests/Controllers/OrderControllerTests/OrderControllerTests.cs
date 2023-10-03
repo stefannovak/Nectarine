@@ -38,7 +38,7 @@ public partial class OrderControllerTests
         {
             Email = "test@email.com",
             FirstName = "First Name",
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             PaymentProviderCustomerId = stripeCustomerId,
         };
 

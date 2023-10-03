@@ -64,7 +64,7 @@ namespace NectarineAPI.Controllers
             var user = _context.Users
                 .Include(x => x.SubmittedRatings)
                 .Include(x => x.UserAddresses)
-                .FirstOrDefault(x => x.Id == userId);
+                .FirstOrDefault(x => x.Id.ToString() == userId);
 
             if (user is null)
             {
