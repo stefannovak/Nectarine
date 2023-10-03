@@ -1,5 +1,5 @@
 fly.toml
-nectarine/appSettings.Development.json
+nectarine/appsettings.json
 
 # globs
 Makefile.in
