@@ -64,7 +64,7 @@ namespace NectarineAPI.Controllers
             var user = _context.Users
                 .Include(x => x.SubmittedRatings)
                 .Include(x => x.UserAddresses)
-                .FirstOrDefault(x => x.Id == userId);
+                .FirstOrDefault(x => x.Id.ToString() == userId);
 
             if (user is null)
             {
@@ -85,7 +85,7 @@ namespace NectarineAPI.Controllers
         public async Task<IActionResult> DeleteAsync()
         {
             var userId = _userManager.GetUserId(User);
-            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+            var user = _context.Users.FirstOrDefault(x => x.Id.ToString() == userId);
             if (user is null)
             {
                 return Unauthorized();
@@ -155,7 +155,7 @@ namespace NectarineAPI.Controllers
 
             user.VerificationCode = verificationCode;
             await _userManager.UpdateAsync(user);
-            _backgroundJobClient.Schedule(() => DeleteVerificationCodeForUser(user.Id), TimeSpan.FromMinutes(2));
+            _backgroundJobClient.Schedule(() => DeleteVerificationCodeForUser(user.Id.ToString()), TimeSpan.FromMinutes(2));
 
             return NoContent();
         }
@@ -196,7 +196,7 @@ namespace NectarineAPI.Controllers
         [NonAction]
         public async Task DeleteVerificationCodeForUser(string userId)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+            var user = _context.Users.FirstOrDefault(x => x.Id.ToString() == userId);
             if (user is null)
             {
                 Log.Debug($"Failed to find user with id {userId}");

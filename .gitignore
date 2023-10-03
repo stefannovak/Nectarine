@@ -1,3 +1,6 @@
+fly.toml
+nectarine/appSettings.Development.json
+
 # globs
 Makefile.in
 *.userprefs
