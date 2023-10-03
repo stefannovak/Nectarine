@@ -135,7 +135,7 @@ public partial class UsersControllerTest
     public void Test_GetCurrentAsyncTest()
     {
         // Act
-        var result = _subject.GetCurrentAsync();
+        var result = _subject.GetCurrent();
 
         // Assert
         Assert.IsType<OkObjectResult>(result);
@@ -149,7 +149,7 @@ public partial class UsersControllerTest
             .GetUserId(It.IsAny<ClaimsPrincipal>()));
 
         // Act
-        var result = _subject.GetCurrentAsync();
+        var result = _subject.GetCurrent();
 
         // Assert
         Assert.IsType<UnauthorizedResult>(result);

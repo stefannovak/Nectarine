@@ -58,13 +58,13 @@ namespace NectarineAPI.Controllers
         [Route("GetCurrent")]
         [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(OkObjectResult), StatusCodes.Status200OK)]
-        public IActionResult GetCurrentAsync()
+        public IActionResult GetCurrent()
         {
             var userId = _userManager.GetUserId(User);
             var user = _context.Users
                 .Include(x => x.SubmittedRatings)
                 .Include(x => x.UserAddresses)
-                .FirstOrDefault(x => x.Id.ToString() == userId);
+                .FirstOrDefault(x => x.Id == userId);
 
             if (user is null)
             {
