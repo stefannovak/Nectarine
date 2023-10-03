@@ -31,33 +31,6 @@ namespace NectarineAPI.Controllers
         }
 
         /// <summary>
-        /// Creates a payment method for a user.
-        /// 4242424242424242 is the test card number.
-        /// </summary>
-        /// <param name="addPaymentMethodDto">A customers card details.</param>
-        /// <returns></returns>
-        [HttpPost("AddPaymentMethod")]
-        public async Task<IActionResult> AddPaymentMethod(AddPaymentMethodDTO addPaymentMethodDto)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
-
-            var success = _paymentService.AddCardPaymentMethod(
-                user.PaymentProviderCustomerId,
-                addPaymentMethodDto.CardNumber,
-                addPaymentMethodDto.ExpiryMonth,
-                addPaymentMethodDto.ExpiryYear,
-                addPaymentMethodDto.CVC);
-
-            return success
-                ? Ok()
-                : BadRequest(new ApiError("Could not create the payment method."));
-        }
-
-        /// <summary>
         /// Get an User's payment method with an Id.
         /// </summary>
         /// <param name="paymentMethodId"></param>
