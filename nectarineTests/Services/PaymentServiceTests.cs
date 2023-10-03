@@ -16,7 +16,7 @@ namespace NectarineTests.Services
         private readonly PaymentService _subject;
         private readonly Mock<PaymentMethodService> _paymentMethodServiceMock;
         private readonly Mock<PaymentIntentService> _paymentIntentServiceMock;
-        private readonly ApplicationUser user = new () { Id = Guid.NewGuid().ToString() };
+        private readonly ApplicationUser user = new () { Id = Guid.NewGuid() };
         private readonly PaymentMethod fakePaymentMethod = new ()
         {
             Id = "FakePaymentMethodId",

@@ -45,7 +45,7 @@ namespace NectarineTests.Controllers
             // User setup
             _user = new ApplicationUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid(),
                 FirstName = "Nectarine",
                 LastName = "User",
                 Email = "googleUser@gmail.com",

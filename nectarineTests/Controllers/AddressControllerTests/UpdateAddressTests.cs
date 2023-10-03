@@ -81,13 +81,13 @@ public partial class AddressControllerTests
                 true),
         };
 
-        _user.Id = Guid.NewGuid().ToString();
+        _user.Id = Guid.NewGuid();
         _mockContext.Users.Add(_user);
         await _mockContext.SaveChangesAsync();
 
         _userManager
             .Setup(x => x.GetUserId(It.IsAny<ClaimsPrincipal>()))
-            .Returns(_user.Id);
+            .Returns(_user.Id.ToString());
 
         // Act
         var result = await _subject.UpdateAddressAsync(new UserAddressDTO(

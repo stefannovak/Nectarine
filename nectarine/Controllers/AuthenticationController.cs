@@ -175,6 +175,7 @@ namespace NectarineAPI.Controllers
         {
             var identityUser = new ApplicationUser
             {
+                Id = Guid.NewGuid(),
                 Email = createUserDto.Email,
                 UserName = createUserDto.Email,
             };
@@ -213,6 +214,7 @@ namespace NectarineAPI.Controllers
         {
             var identityUser = new ApplicationUser
             {
+                Id = Guid.NewGuid(),
                 SocialLinks = new List<ExternalAuthLink>
                 {
                     new ()

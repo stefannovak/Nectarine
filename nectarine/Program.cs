@@ -40,9 +40,7 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     Log.Information("Starting web application");
-
     Host.CreateDefaultBuilder().UseSerilog();
-    
     ConfigureServices(builder.Services);
     await Configure();
 }
@@ -63,7 +61,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddDbContext<NectarineDbContext>(options => options.UseNpgsql(sqlConnectionString));
 
-    services.AddIdentity<ApplicationUser, IdentityRole<string>>(options =>
+    services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
         {
             options.User.RequireUniqueEmail = true;
         })
@@ -88,7 +86,7 @@ void ConfigureServices(IServiceCollection services)
             BearerFormat = "JWT",
             Description = "Specify the authorization token.",
             In = ParameterLocation.Header,
-            Type = SecuritySchemeType.ApiKey,
+            Type = SecuritySchemeType.Http,
         });
 
         OpenApiSecurityScheme securityScheme = new ()
@@ -116,11 +114,7 @@ void ConfigureServices(IServiceCollection services)
 
 async Task Configure()
 {
-    Console.WriteLine("I got here");
-
     var app = builder.Build();
-    Console.WriteLine("I got here");
-
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();

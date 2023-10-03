@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace NectarineData.DataAccess;
 
-public class NectarineDbContext : IdentityDbContext<ApplicationUser, IdentityRole<string>, string>
+public class NectarineDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public NectarineDbContext(DbContextOptions<NectarineDbContext> opt)
         : base(opt)
@@ -46,15 +46,5 @@ public class NectarineDbContext : IdentityDbContext<ApplicationUser, IdentityRol
             .Metadata.SetValueComparer(new ValueComparer<ICollection<string>>(
                 (c1, c2) => c1.SequenceEqual(c2),
                 c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode()))));
-    }
-}
-
-public class ContextFactory : IDesignTimeDbContextFactory<NectarineDbContext>
-{
-    public NectarineDbContext CreateDbContext(string[] args)
-    {
-        var optionsBuilder = new DbContextOptionsBuilder<NectarineDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=Xns5sKKOQqOJQcE");
-        return new NectarineDbContext(optionsBuilder.Options);
     }
 }

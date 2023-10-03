@@ -58,7 +58,7 @@ namespace NectarineAPI.Controllers
         [Route("GetCurrent")]
         [ProducesResponseType(typeof(UnauthorizedResult), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(OkObjectResult), StatusCodes.Status200OK)]
-        public IActionResult GetCurrentAsync()
+        public IActionResult GetCurrent()
         {
             var userId = _userManager.GetUserId(User);
             var user = _context.Users
