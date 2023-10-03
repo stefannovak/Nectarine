@@ -5,8 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Hangfire;
-using Hangfire.SqlServer;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -32,8 +31,6 @@ using TokenService = NectarineAPI.Services.TokenService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddAzureAppConfiguration(builder.Configuration["ConnectionStrings:AppConfig"]);
-
 var sqlConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
 
 Log.Logger = new LoggerConfiguration()
@@ -44,10 +41,8 @@ try
 {
     Log.Information("Starting web application");
 
-    Host.CreateDefaultBuilder().ConfigureAppConfiguration(b =>
-        b.AddAzureAppConfiguration(builder.Configuration["ConnectionStrings:AppConfig"]))
-        .UseSerilog();
-
+    Host.CreateDefaultBuilder().UseSerilog();
+    
     ConfigureServices(builder.Services);
     await Configure();
 }
@@ -66,14 +61,9 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddHttpContextAccessor();
 
-    services.AddApplicationInsightsTelemetry(options: new ApplicationInsightsServiceOptions
-    {
-        ConnectionString = builder.Configuration.GetSection("ApplicationInsights:ConnectionString").Value,
-    });
+    services.AddDbContext<NectarineDbContext>(options => options.UseNpgsql(sqlConnectionString));
 
-    services.AddDbContext<NectarineDbContext>(options => options.UseSqlServer(sqlConnectionString));
-
-    services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+    services.AddIdentity<ApplicationUser, IdentityRole<string>>(options =>
         {
             options.User.RequireUniqueEmail = true;
         })
@@ -126,7 +116,10 @@ void ConfigureServices(IServiceCollection services)
 
 async Task Configure()
 {
+    Console.WriteLine("I got here");
+
     var app = builder.Build();
+    Console.WriteLine("I got here");
 
     if (app.Environment.IsDevelopment())
     {
@@ -201,17 +194,7 @@ void ConfigureHangfire(IServiceCollection services)
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
         .UseSerializerSettings(new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
-        .UseSqlServerStorage(
-            sqlConnectionString,
-            new SqlServerStorageOptions
-        {
-            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-            QueuePollInterval = TimeSpan.FromSeconds(5),
-            UseRecommendedIsolationLevel = true,
-            UsePageLocksOnDequeue = true,
-            DisableGlobalLocks = true,
-        }));
+        .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(sqlConnectionString)));
 
     services.AddHangfireServer();
 }
@@ -219,7 +202,7 @@ void ConfigureHangfire(IServiceCollection services)
 async Task GenerateAndSeedProducts()
 {
     var optionBuilder = new DbContextOptionsBuilder<NectarineDbContext>();
-    optionBuilder.UseSqlServer(sqlConnectionString);
+    optionBuilder.UseNpgsql(sqlConnectionString);
     var context = new NectarineDbContext(optionBuilder.Options);
 
     // Maybe cache this so that a Context doesnt have the be created on startup every time.

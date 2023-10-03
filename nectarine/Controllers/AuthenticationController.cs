@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +30,6 @@ namespace NectarineAPI.Controllers
         private readonly IUserCustomerService _userCustomerService;
         private readonly IEmailService _emailService;
         private readonly NectarineDbContext _context;
-        private readonly TelemetryClient _telemetryClient;
 
         public AuthenticationController(
             UserManager<ApplicationUser> userManager,
@@ -41,8 +39,7 @@ namespace NectarineAPI.Controllers
             IExternalAuthService<FacebookUser> facebookService,
             IUserCustomerService userCustomerService,
             IEmailService emailService,
-            NectarineDbContext context,
-            TelemetryClient telemetryClient)
+            NectarineDbContext context)
         {
             _userManager = userManager;
             _tokenService = tokenService;
@@ -52,7 +49,6 @@ namespace NectarineAPI.Controllers
             _userCustomerService = userCustomerService;
             _emailService = emailService;
             _context = context;
-            _telemetryClient = telemetryClient;
         }
 
         [HttpPost]
@@ -208,8 +204,6 @@ namespace NectarineAPI.Controllers
             }
 
             await _emailService.SendWelcomeEmail(user.Email);
-            _telemetryClient.TrackEvent("New account created with email");
-
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
 
@@ -258,8 +252,6 @@ namespace NectarineAPI.Controllers
             }
 
             await _emailService.SendWelcomeEmail(user.Email);
-            _telemetryClient.TrackEvent($"New account created with {platform}");
-
             return Ok(new CreateUserResponse(_tokenService.GenerateTokenAsync(user)));
         }
     }

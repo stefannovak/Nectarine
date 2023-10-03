@@ -45,7 +45,7 @@ public class AddressController : ControllerBase
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId);
+            .FirstOrDefault(x => x.Id.ToString() == userId);
 
         if (user is null)
         {
@@ -73,7 +73,7 @@ public class AddressController : ControllerBase
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId);
+            .FirstOrDefault(x => x.Id.ToString() == userId);
 
         if (user is null)
         {
@@ -96,7 +96,7 @@ public class AddressController : ControllerBase
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId);
+            .FirstOrDefault(x => x.Id.ToString() == userId);
 
         if (user is null)
         {
@@ -146,7 +146,7 @@ public class AddressController : ControllerBase
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId);
+            .FirstOrDefault(x => x.Id.ToString() == userId);
 
         if (user is null)
         {
@@ -198,7 +198,7 @@ public class AddressController : ControllerBase
         var userId = _userManager.GetUserId(User);
         var user = _context.Users
             .Include(e => e.UserAddresses)
-            .FirstOrDefault(x => x.Id == userId);
+            .FirstOrDefault(x => x.Id.ToString() == userId);
 
         if (user is null)
         {

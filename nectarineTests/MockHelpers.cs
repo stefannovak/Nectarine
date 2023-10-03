@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -76,15 +73,6 @@ public class MockHelpers
         validator.Setup(v => v.ValidateAsync(userManager, It.IsAny<TUser>()))
             .Returns(Task.FromResult(IdentityResult.Success)).Verifiable();
         return userManager;
-    }
-
-    public static TelemetryClient TestTelemetryClient()
-    {
-        var configuration = new TelemetryConfiguration();
-        configuration.TelemetryChannel = new InMemoryChannel();
-        configuration.InstrumentationKey = Guid.NewGuid().ToString();
-        configuration.TelemetryInitializers.Add(new OperationCorrelationTelemetryInitializer());
-        return new TelemetryClient(configuration);
     }
 
     public void UserManager_ReturnsRandomId(Mock<UserManager<ApplicationUser>> userManager)

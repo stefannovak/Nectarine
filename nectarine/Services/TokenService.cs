@@ -29,7 +29,7 @@ namespace NectarineAPI.Services
             var claims = new List<Claim>
             {
                 new (ClaimTypes.Email, user.Email),
-                new (ClaimTypes.NameIdentifier, user.Id),
+                new (ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor

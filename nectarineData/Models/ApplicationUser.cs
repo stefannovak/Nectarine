@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace NectarineData.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<string>
     {
         [Required]
         [MaxLength(100)]
