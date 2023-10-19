@@ -1,0 +1,21 @@
+name: Deploy API to Fly
+on:
+  push:
+    branches: [ develop ]
+    
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_TOKEN }}
+          
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Setup flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy
+        run: flyctl deploy -a "nectarine-dev"
