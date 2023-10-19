@@ -1,17 +1,16 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NectarineAPI.DTOs.Requests;
 using NectarineAPI.Models;
 using NectarineAPI.Services;
 using NectarineData.DataAccess;
 using NectarineData.Models;
-using Stripe;
 
 namespace NectarineAPI.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class PaymentController : ControllerBase
