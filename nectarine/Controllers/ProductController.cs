@@ -26,9 +26,9 @@ public class ProductController : ControllerBase
     }
 
     /// <summary>
-    /// Get a paginated list of product per category.
+    /// Get a paginated list of product per category. They're just clothes for V1.
     /// </summary>
-    /// <param name="category">See supported categories.</param>
+    /// <param name="category">accessory, shirt, t-shirt, vest, jumper, coat, dress, blouse, bra, pants, trousers, skirt, shorts, socks, shoes</param>
     /// <param name="descending"></param>
     /// <param name="orderBy">A property of a product.</param>
     /// <param name="pageSize">How many items you want to retrieve.</param>
