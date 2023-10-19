@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NectarineAPI.Configurations;
+using NectarineAPI.Extensions;
 using NectarineAPI.Models;
 using NectarineAPI.Services;
 using NectarineAPI.Services.Auth;
@@ -89,22 +90,7 @@ void ConfigureServices(IServiceCollection services)
             Type = SecuritySchemeType.Http,
         });
 
-        OpenApiSecurityScheme securityScheme = new ()
-        {
-            Reference = new OpenApiReference
-            {
-                Id = "Bearer",
-                Type = ReferenceType.SecurityScheme,
-            },
-            In = ParameterLocation.Header,
-            Name = "Bearer",
-            Scheme = "Bearer",
-        };
-
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            { securityScheme, Array.Empty<string>() },
-        });
+        c.OperationFilter<SecurityRequirementsOperationFilter>();
 
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
