@@ -131,11 +131,6 @@ public class OrderController : ControllerBase
         }
 
         var orders = _context.Orders.Where(x => x.User.Id == user.Id);
-        if (!orders.Any())
-        {
-            return NotFound(new ApiError("Could not find any orders for this user."));
-        }
-
         return Ok(_mapper.Map<IList<OrderDTO>>(orders));
     }
 

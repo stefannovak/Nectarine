@@ -67,11 +67,6 @@ namespace NectarineAPI.Controllers
             }
 
             var paymentMethods = _paymentService.GetCardsForUser(user.PaymentProviderCustomerId);
-            if (!paymentMethods.Any())
-            {
-                return NotFound(new ApiError("Could not find any payment methods for this user."));
-            }
-
             return Ok(paymentMethods);
         }
     }

@@ -49,14 +49,4 @@ public partial class OrderControllerTests
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
     }
-
-    [Fact(DisplayName = "GetAllOrders should return NotFound when an Order can't be found for a User")]
-    public async Task Test_GetAllOrders_FailsWhen_AnOrderCantBeFound()
-    {
-        // Act
-        var result = await _subject.GetAllOrders();
-
-        // Assert
-        Assert.IsType<NotFoundObjectResult>(result);
-    }
 }
