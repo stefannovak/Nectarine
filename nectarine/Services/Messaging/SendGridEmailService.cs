@@ -30,7 +30,7 @@ public class SendGridEmailService : IEmailService
     {
         var message = new SendGridMessage
         {
-            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak"),
+            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
             Subject = "Welcome to Nectarine",
             PlainTextContent =
                 "Welcome to Nectarine!\n\n" +
@@ -48,7 +48,7 @@ public class SendGridEmailService : IEmailService
     {
         var message = new SendGridMessage
         {
-            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Stefan Novak"),
+            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
         };
         message.AddTo(destinationAddress);
         message.Subject = subject;
