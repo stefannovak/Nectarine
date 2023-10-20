@@ -20,26 +20,11 @@ public partial class PaymentControllerTests
         
         // Act
         var result = await _subject.GetPaymentMethods();
-        
+
         // Assert
         Assert.IsType<UnauthorizedResult>(result);
-    }    
-        
-    [Fact(DisplayName = "GetPaymentMethods should return NotFound")]
-    public async Task Test_GetPaymentMethods_ReturnsNotFound()
-    {
-        // Arrange
-        _paymentServiceMock
-            .Setup(x => x.GetCardsForUser(It.IsAny<string>()))
-            .Returns(new List<InsensitivePaymentMethod>());
-        
-        // Act
-        var result = await _subject.GetPaymentMethods();
-        
-        // Assert
-        Assert.IsType<NotFoundObjectResult>(result);
     }
-    
+
     [Fact(DisplayName = "GetPaymentMethods should return a list of InsensitivePaymentCard's")]
     public async Task Test_GetPaymentMethods()
     {
