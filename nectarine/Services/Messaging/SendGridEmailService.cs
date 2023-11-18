@@ -1,6 +1,6 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NectarineAPI.Configurations;
 using SendGrid;
@@ -28,61 +28,11 @@ public class SendGridEmailService : IEmailService
 
     public async Task SendWelcomeEmail(string destinationAddress)
     {
-        var emailBody = 
-                """
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Welcome to Nectarine!</title>
-                    <style>
-                        body {
-                            font-family: 'Arial', sans-serif;
-                            background-color: #f4f4f4;
-                            color: #333;
-                            margin: 0;
-                            padding: 20px;
-                            text-align: center;
-                        }
-                
-                        h1 {
-                            color: #47a8f5;
-                        }
-                
-                        p {
-                            font-size: 16px;
-                            line-height: 1.6;
-                            margin-bottom: 15px;
-                        }
-                
-                        .signature {
-                            font-style: italic;
-                            color: #888;
-                        }
-                    </style>
-                </head>
-                <body>
-                
-                    <h1>Welcome to Nectarine!</h1>
-                
-                    <p>You have successfully signed up to Nectarine.</p>
-                    <p>This is a side project I've been working on to showcase my .NET skills.</p>
-                    <p>I hope you enjoy the app!</p>
-                
-                    <p class="signature">Stefan Novak<br>
-                    This email was sent with SendGrid.</p>
-                
-                </body>
-                </html>
-                """;
-                
         var message = new SendGridMessage
         {
             From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
             Subject = "Welcome to Nectarine",
-            HtmlContent = emailBody,
+            HtmlContent = await File.ReadAllTextAsync("Services/Messaging/Emails/WelcomeTemplate.html"),
         };
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
