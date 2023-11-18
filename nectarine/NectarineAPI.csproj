@@ -49,4 +49,9 @@
   <ItemGroup>
     <Folder Include="DTOs\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Services\Messaging\Emails\WelcomeTemplate.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
