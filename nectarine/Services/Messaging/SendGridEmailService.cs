@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NectarineAPI.Configurations;
@@ -28,11 +29,12 @@ public class SendGridEmailService : IEmailService
 
     public async Task SendWelcomeEmail(string destinationAddress)
     {
+        var htmlContent = await File.ReadAllTextAsync(Path.GetFullPath("Services/Messaging/Emails/WelcomeTemplate.html"));
         var message = new SendGridMessage
         {
             From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
             Subject = "Welcome to Nectarine",
-            HtmlContent = await File.ReadAllTextAsync(Path.Combine(Directory.GetCurrentDirectory(), "Services/Messaging/Emails/WelcomeTemplate.html")),
+            HtmlContent = htmlContent,
         };
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
