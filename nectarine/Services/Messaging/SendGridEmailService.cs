@@ -32,7 +32,7 @@ public class SendGridEmailService : IEmailService
         {
             From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
             Subject = "Welcome to Nectarine",
-            HtmlContent = await File.ReadAllTextAsync("Services/Messaging/Emails/WelcomeTemplate.html"),
+            HtmlContent = await File.ReadAllTextAsync(Path.Combine(Directory.GetCurrentDirectory(), "Services/Messaging/Emails/WelcomeTemplate.html")),
         };
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
