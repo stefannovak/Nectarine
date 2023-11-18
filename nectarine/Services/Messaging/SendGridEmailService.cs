@@ -28,11 +28,7 @@ public class SendGridEmailService : IEmailService
 
     public async Task SendWelcomeEmail(string destinationAddress)
     {
-        var message = new SendGridMessage
-        {
-            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
-            Subject = "Welcome to Nectarine",
-            HtmlContent = 
+        var emailBody = 
                 """
                 <!DOCTYPE html>
                 <html lang="en">
@@ -81,6 +77,12 @@ public class SendGridEmailService : IEmailService
                 </body>
                 </html>
                 """;
+                
+        var message = new SendGridMessage
+        {
+            From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
+            Subject = "Welcome to Nectarine",
+            HtmlContent = emailBody;
         };
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
