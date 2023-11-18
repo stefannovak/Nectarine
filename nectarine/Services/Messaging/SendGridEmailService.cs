@@ -82,7 +82,7 @@ public class SendGridEmailService : IEmailService
         {
             From = new EmailAddress(_sendGridOptions.Value.FromAddress, "Nectarine"),
             Subject = "Welcome to Nectarine",
-            HtmlContent = emailBody;
+            HtmlContent = emailBody,
         };
         message.AddTo(destinationAddress);
         await TrySendEmail(message);
