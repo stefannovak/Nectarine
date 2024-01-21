@@ -36,4 +36,4 @@ JWT auth is implemented. Sign in with a social sign in, or an email and password
 
 ## Getting Started
 
-To get started with Nectarine, just go to the ![swagger page](https://nectarine-dev.fly.dev/swagger/index.html)! 
+To get started with Nectarine, just go to the [swagger page](https://nectarine-dev.fly.dev/swagger/index.html)! 
